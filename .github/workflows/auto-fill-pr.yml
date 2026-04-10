@@ -40,12 +40,28 @@ jobs:
           FILES=$(git diff --name-only "${BASE_SHA}..${HEAD_SHA}" 2>/dev/null || echo "")
           FILE_SUMMARY=""
           if [ -n "$FILES" ]; then
-            DIRS=$(echo "$FILES" | sed 's|/.*||' | sort | uniq -c | sort -rn)
-            while IFS= read -r line; do
-              COUNT=$(echo "$line" | awk '{print $1}')
-              DIR=$(echo "$line" | awk '{print $2}')
-              [ -n "$DIR" ] && FILE_SUMMARY="${FILE_SUMMARY}- \`${DIR}/\`: ${COUNT} file(s)"$'\n'
-            done <<< "$DIRS"
+            # Separate root files and directory files
+            ROOT_FILES=$(echo "$FILES" | grep -v '/' || true)
+            DIR_FILES=$(echo "$FILES" | grep '/' || true)
+
+            # Group by top-level directory
+            if [ -n "$DIR_FILES" ]; then
+              DIRS=$(echo "$DIR_FILES" | sed 's|/.*||' | sort -u)
+              while IFS= read -r dir; do
+                [ -z "$dir" ] && continue
+                COUNT=$(echo "$DIR_FILES" | grep "^${dir}/" | wc -l | tr -d ' ')
+                NAMES=$(echo "$DIR_FILES" | grep "^${dir}/" | sed "s|^${dir}/||" | head -8 | tr '\n' ', ' | sed 's/,$//' | sed 's/,/, /g')
+                FILE_SUMMARY="${FILE_SUMMARY}- \`${dir}/\`: ${COUNT} file(s) — ${NAMES}"$'\n'
+              done <<< "$DIRS"
+            fi
+
+            # Root-level files
+            if [ -n "$ROOT_FILES" ]; then
+              ROOT_COUNT=$(echo "$ROOT_FILES" | wc -l | tr -d ' ')
+              ROOT_NAMES=$(echo "$ROOT_FILES" | head -8 | tr '\n' ', ' | sed 's/,$//' | sed 's/,/, /g')
+              FILE_SUMMARY="${FILE_SUMMARY}- \`./\` (root): ${ROOT_COUNT} file(s) — ${ROOT_NAMES}"$'\n'
+            fi
+
             TOTAL=$(echo "$FILES" | wc -l | tr -d ' ')
             FILE_SUMMARY="${FILE_SUMMARY}- **Total:** ${TOTAL} file(s)"
           fi

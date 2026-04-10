@@ -1,0 +1,113 @@
+name: Auto-fill PR Description
+
+on:
+  pull_request:
+    types: [opened, reopened]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  fill-pr:
+    # Skip if the PR body already has a filled-in Summary (user wrote their own)
+    if: >-
+      !contains(github.event.pull_request.body, 'Describe what this change does')
+      || github.event.pull_request.body == ''
+      || github.event.pull_request.body == null
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Gather PR metadata
+        id: meta
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          set -euo pipefail
+
+          # ── Collect commit messages ──
+          COMMITS=$(git log --pretty=format:"- %s" "${BASE_SHA}..${HEAD_SHA}" 2>/dev/null || echo "- (unable to read commits)")
+          echo "commits<<COMMITS_EOF" >> "$GITHUB_OUTPUT"
+          echo "$COMMITS" >> "$GITHUB_OUTPUT"
+          echo "COMMITS_EOF" >> "$GITHUB_OUTPUT"
+
+          # ── Collect changed files grouped by directory ──
+          FILES=$(git diff --name-only "${BASE_SHA}..${HEAD_SHA}" 2>/dev/null || echo "(unable to diff)")
+          FILE_SUMMARY=""
+
+          # Count files per top-level directory
+          DIRS=$(echo "$FILES" | sed 's|/.*||' | sort | uniq -c | sort -rn)
+          while IFS= read -r line; do
+            COUNT=$(echo "$line" | awk '{print $1}')
+            DIR=$(echo "$line" | awk '{print $2}')
+            if [ -n "$DIR" ]; then
+              FILE_SUMMARY="${FILE_SUMMARY}- \`${DIR}/\`: ${COUNT} file(s) changed"$'\n'
+            fi
+          done <<< "$DIRS"
+
+          TOTAL=$(echo "$FILES" | wc -l | tr -d ' ')
+          FILE_SUMMARY="${FILE_SUMMARY}- **Total:** ${TOTAL} file(s)"
+
+          echo "files<<FILES_EOF" >> "$GITHUB_OUTPUT"
+          echo "$FILE_SUMMARY" >> "$GITHUB_OUTPUT"
+          echo "FILES_EOF" >> "$GITHUB_OUTPUT"
+
+          # ── Check for linked issues in commit messages ──
+          ISSUES=$(git log --pretty=format:"%s %b" "${BASE_SHA}..${HEAD_SHA}" 2>/dev/null \
+            | grep -oE '(close[sd]?|fix(es|ed)?|resolve[sd]?) #[0-9]+' \
+            | grep -oE '#[0-9]+' | sort -u || true)
+          if [ -n "$ISSUES" ]; then
+            ISSUE_TEXT="Linked issues: ${ISSUES//$'\n'/, }"
+          else
+            ISSUE_TEXT="No linked issues found in commit messages."
+          fi
+          echo "issues<<ISSUES_EOF" >> "$GITHUB_OUTPUT"
+          echo "$ISSUE_TEXT" >> "$GITHUB_OUTPUT"
+          echo "ISSUES_EOF" >> "$GITHUB_OUTPUT"
+
+      - name: Update PR body
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+
+          BODY=$(cat <<'TEMPLATE'
+          ## Summary
+
+          Auto-generated from ${{ github.event.pull_request.head.ref }} → ${{ github.event.pull_request.base.ref }} (${{ github.event.pull_request.commits }} commit(s)).
+
+          ${{ steps.meta.outputs.issues }}
+
+          ## Changes
+
+          **Commits:**
+          ${{ steps.meta.outputs.commits }}
+
+          **Files touched:**
+          ${{ steps.meta.outputs.files }}
+
+          ## Validation
+
+          - [ ] I tested my change (describe how)
+          - [ ] I updated documentation/templates if needed
+          - [ ] I confirmed no secrets or sensitive data are included
+
+          ## Notes
+
+          _This description was auto-generated. Edit freely to add context._
+          TEMPLATE
+          )
+
+          # Trim leading whitespace from heredoc indentation
+          BODY=$(echo "$BODY" | sed 's/^          //')
+
+          gh pr edit "$PR_NUMBER" --repo "$REPO" --body "$BODY"

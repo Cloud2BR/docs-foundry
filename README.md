@@ -1,4 +1,4 @@
-# DocFoundry
+# Docs Foundry
 
 USA / Costa Rica
 

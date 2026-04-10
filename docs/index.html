@@ -3,207 +3,658 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>DocFoundry</title>
+    <meta name="referrer" content="no-referrer" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; base-uri 'none'; object-src 'none';
+             img-src 'self' https: data:; style-src 'self' 'unsafe-inline';
+             script-src 'self' 'unsafe-inline'; connect-src 'self' https:;
+             font-src 'self' https://fonts.gstatic.com; frame-ancestors 'none';
+             upgrade-insecure-requests"
+    />
+    <title>DocFoundry – Open-Source Documentation Workspace</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap"
       rel="stylesheet"
     />
+    <script>
+      (function () {
+        try {
+          if (localStorage.getItem('docfoundryTheme') === 'dark')
+            document.documentElement.setAttribute('data-theme', 'dark');
+        } catch (e) {}
+      })();
+    </script>
     <style>
+      /* ── Light theme (default) — colors from org-catalog ── */
       :root {
-        --ink: #0d1c2f;
-        --muted: #3f5167;
-        --line: rgba(14, 36, 64, 0.18);
-        --hero-a: #06224f;
-        --hero-b: #0d6ac9;
-        --surface: rgba(255, 255, 255, 0.87);
+        color-scheme: light;
+        --bg: #f0f2f6;
+        --fg: #1a1a1a;
+        --link: #0078d4;
+        --muted: color-mix(in oklab, var(--fg) 62%, var(--bg));
+        --border: color-mix(in oklab, var(--fg) 14%, var(--bg));
+        --surface: #e6e9ef;
+        --surface2: #dde1e9;
+        --card: #ffffff;
+        --radius: 12px;
+        --radius-lg: 14px;
+        --focus: color-mix(in oklab, var(--link) 55%, var(--bg));
+
+        /* Hero — deep navy */
+        --hero-bg: #002050;
+        --hero-fg: #ffffff;
+        --hero-muted: #99b8d9;
+        --hero-border: #001538;
+      }
+
+      /* ── Dark theme ── */
+      html[data-theme="dark"] {
+        color-scheme: dark;
+        --bg: #0d1117;
+        --fg: #e6edf3;
+        --link: #58a6ff;
+        --border: #30363d;
+        --surface: #161b22;
+        --surface2: #21262d;
+        --card: #161b22;
+
+        --hero-bg: #161b22;
+        --hero-fg: #e6edf3;
+        --hero-muted: #8b949e;
+        --hero-border: #30363d;
       }
 
       * { box-sizing: border-box; }
+      html, body { height: 100%; }
 
       body {
         margin: 0;
-        font-family: "IBM Plex Sans", sans-serif;
-        color: var(--ink);
-        background:
-          radial-gradient(circle at 15% 12%, rgba(13, 106, 201, 0.15), transparent 44%),
-          radial-gradient(circle at 90% 84%, rgba(2, 76, 168, 0.18), transparent 36%),
-          linear-gradient(180deg, #edf3fb 0%, #f8fbff 100%);
+        font-family: "IBM Plex Sans", system-ui, -apple-system, sans-serif;
+        background: var(--bg);
+        color: var(--fg);
+        line-height: 1.6;
       }
 
-      .shell {
-        max-width: 1060px;
+      /* ── Layout ── */
+      .container {
+        max-width: 1100px;
         margin: 0 auto;
-        padding: 24px 20px 42px;
+        padding: 0 20px;
       }
 
+      /* ── Hero ── */
       .hero {
-        border-radius: 22px;
-        padding: 34px;
-        color: #fff;
-        background: linear-gradient(135deg, var(--hero-a), var(--hero-b));
-        box-shadow: 0 14px 40px rgba(4, 40, 95, 0.3);
+        background: var(--hero-bg);
+        color: var(--hero-fg);
+        border-bottom: 1px solid var(--hero-border);
+        padding: 40px 0 36px;
       }
-
-      .eyebrow {
+      .hero-inner {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        flex-wrap: wrap;
+      }
+      .hero .eyebrow {
         margin: 0;
         text-transform: uppercase;
         letter-spacing: 0.16em;
         font-size: 0.72rem;
-        opacity: 0.8;
+        color: var(--hero-muted);
       }
-
-      h1 {
+      .hero h1 {
         font-family: "Space Grotesk", sans-serif;
-        margin: 10px 0;
-        font-size: clamp(2rem, 6vw, 3.2rem);
+        margin: 8px 0 0;
+        font-size: clamp(2rem, 5vw, 3rem);
+        letter-spacing: -0.02em;
       }
-
-      .hero p {
-        margin: 0;
+      .hero-copy {
+        margin: 10px 0 0;
         max-width: 60ch;
+        color: var(--hero-muted);
         line-height: 1.6;
-        opacity: 0.94;
+      }
+      .hero-bar {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-top: 16px;
+        flex-wrap: wrap;
+      }
+      .hero-bar .badge-link img {
+        height: 18px;
+        border-radius: 999px;
+      }
+      .theme-toggle {
+        padding: 8px 12px;
+        border: 1px solid var(--hero-border);
+        border-radius: var(--radius);
+        background: color-mix(in oklab, var(--hero-fg) 12%, transparent);
+        color: var(--hero-fg);
+        cursor: pointer;
+        font-size: 16px;
+        line-height: 1;
+        margin-left: auto;
+      }
+      .theme-toggle:hover {
+        background: color-mix(in oklab, var(--hero-fg) 20%, transparent);
       }
 
-      .cards {
-        margin-top: 20px;
+      /* ── Sections ── */
+      section { padding: 36px 0; }
+      section + section { border-top: 1px solid var(--border); }
+      .section-kicker {
+        text-transform: uppercase;
+        letter-spacing: 0.14em;
+        font-size: 0.72rem;
+        color: var(--muted);
+        margin: 0 0 6px;
+      }
+      section h2 {
+        font-family: "Space Grotesk", sans-serif;
+        margin: 0 0 8px;
+        font-size: 1.5rem;
+        letter-spacing: -0.01em;
+      }
+      section h3 {
+        font-family: "Space Grotesk", sans-serif;
+        margin: 20px 0 6px;
+        font-size: 1.1rem;
+      }
+      .section-copy {
+        color: var(--muted);
+        max-width: 70ch;
+        margin: 0 0 20px;
+      }
+
+      /* ── Feature cards ── */
+      .feature-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 14px;
+      }
+      .feature-card {
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        background: var(--card);
+        padding: 18px;
+        transition: transform 140ms ease, border-color 140ms ease;
+      }
+      .feature-card:hover {
+        transform: translateY(-2px);
+        border-color: color-mix(in oklab, var(--border) 60%, var(--link));
+      }
+      .feature-card .icon {
+        font-size: 1.6rem;
+        margin-bottom: 8px;
+      }
+      .feature-card h3 {
+        margin: 0 0 6px;
+        font-size: 1rem;
+      }
+      .feature-card p {
+        margin: 0;
+        color: var(--muted);
+        font-size: 0.92rem;
+      }
+
+      /* ── Getting started steps ── */
+      .steps {
+        counter-reset: step;
+        list-style: none;
+        padding: 0;
+        margin: 0;
+      }
+      .steps li {
+        counter-increment: step;
+        display: flex;
+        gap: 14px;
+        align-items: flex-start;
+        padding: 14px 0;
+      }
+      .steps li + li {
+        border-top: 1px solid var(--border);
+      }
+      .steps li::before {
+        content: counter(step);
+        flex-shrink: 0;
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 999px;
+        background: var(--link);
+        color: #fff;
+        font-weight: 700;
+        font-size: 0.85rem;
+      }
+      .step-content strong { display: block; margin-bottom: 2px; }
+      .step-content { color: var(--muted); font-size: 0.92rem; }
+      .step-content code {
+        background: var(--surface);
+        padding: 2px 6px;
+        border-radius: 6px;
+        font-size: 0.88em;
+      }
+
+      /* ── Download section ── */
+      .platform-grid {
         display: grid;
         grid-template-columns: repeat(3, minmax(0, 1fr));
         gap: 14px;
       }
+      .platform-card {
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        background: var(--card);
+        padding: 22px 18px;
+        text-align: center;
+      }
+      .platform-card .platform-icon {
+        font-size: 2.2rem;
+        margin-bottom: 8px;
+      }
+      .platform-card h3 {
+        margin: 0 0 4px;
+        font-size: 1.05rem;
+      }
+      .platform-card .formats {
+        color: var(--muted);
+        font-size: 0.85rem;
+        margin: 0 0 14px;
+      }
+      .download-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        padding: 10px 18px;
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        background: var(--link);
+        color: #ffffff;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 0.9rem;
+        transition: opacity 140ms ease;
+      }
+      .download-btn:hover { opacity: 0.88; }
+      .download-row {
+        margin-top: 16px;
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+        flex-wrap: wrap;
+      }
+      .download-link-secondary {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 8px 14px;
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        background: var(--surface2);
+        color: var(--fg);
+        text-decoration: none;
+        font-weight: 500;
+        font-size: 0.85rem;
+        transition: border-color 140ms ease;
+      }
+      .download-link-secondary:hover {
+        border-color: color-mix(in oklab, var(--border) 60%, var(--link));
+      }
 
-      .card {
-        border: 1px solid var(--line);
-        border-radius: 16px;
-        background: var(--surface);
+      /* ── Identity section (from Azure-Capacity-Overview) ── */
+      .identity-section {
+        padding: 36px 0 42px;
+        border-top: 1px solid var(--border);
+      }
+      .identity-header { margin-bottom: 20px; }
+      .identity-copy {
+        color: var(--muted);
+        max-width: 70ch;
+        margin: 6px 0 0;
+      }
+      .identity-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 14px;
+      }
+      .identity-card {
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        background: var(--card);
         padding: 18px;
       }
-
-      .card h2 {
-        margin-top: 0;
-        margin-bottom: 8px;
-        font-size: 1.1rem;
-        font-family: "Space Grotesk", sans-serif;
-      }
-
-      .card p {
-        margin: 0;
+      .identity-label {
+        font-size: 0.78rem;
         color: var(--muted);
-        line-height: 1.6;
+        margin-bottom: 12px;
       }
-
-      .downloads {
-        margin-top: 22px;
-        border: 1px solid var(--line);
-        border-radius: 16px;
-        background: var(--surface);
-        padding: 20px;
-      }
-
-      .downloads h2 {
-        margin: 0 0 8px;
-        font-size: 1.2rem;
-        font-family: "Space Grotesk", sans-serif;
-      }
-
-      .downloads p {
-        margin: 0;
-        color: var(--muted);
-        line-height: 1.6;
-      }
-
-      .download-grid {
-        margin-top: 16px;
-        display: grid;
-        gap: 10px;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-      }
-
-      .download-link {
-        display: inline-flex;
-        justify-content: center;
+      .identity-row {
+        display: flex;
         align-items: center;
-        border-radius: 12px;
-        border: 1px solid rgba(9, 52, 114, 0.22);
-        background: linear-gradient(180deg, #ffffff, #edf4ff);
-        color: #0b4da0;
-        text-decoration: none;
-        font-weight: 600;
-        padding: 11px 12px;
+        gap: 14px;
       }
-
-      .download-link:hover {
-        background: linear-gradient(180deg, #f4f9ff, #e4efff);
-      }
-
-      .footer {
-        margin-top: 22px;
-        border: 1px solid var(--line);
-        border-radius: 16px;
+      .identity-avatar {
+        width: 56px;
+        height: 56px;
+        border-radius: 999px;
+        border: 1px solid var(--border);
         background: var(--surface);
-        padding: 16px;
+        flex-shrink: 0;
       }
-
-      .footer a {
-        color: #0d5ec7;
-        text-decoration: none;
+      .identity-avatar-org {
+        width: 64px;
+        height: 64px;
+        border-radius: var(--radius);
+      }
+      .identity-links {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        min-width: 0;
+      }
+      .identity-name {
         font-weight: 600;
+        font-size: 0.95rem;
+      }
+      .identity-note {
+        color: var(--muted);
+        font-size: 0.85rem;
+      }
+      .identity-links a {
+        color: var(--link);
+        text-decoration: none;
+        font-size: 0.88rem;
+      }
+      .identity-links a:hover { text-decoration: underline; }
+      .identity-rail {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        margin-bottom: 10px;
+      }
+      .identity-org-link {
+        font-weight: 600;
+        color: var(--fg);
+        text-decoration: none;
+        font-size: 0.95rem;
+      }
+      .identity-org-link:hover { text-decoration: underline; }
+      .identity-list {
+        margin: 8px 0 0;
+        padding-left: 18px;
+        color: var(--muted);
+        font-size: 0.88rem;
+      }
+      .identity-list li { margin-bottom: 4px; }
+
+      /* ── Footer ── */
+      .footer {
+        border-top: 1px solid var(--border);
+        padding: 14px 0;
+      }
+      .footer-meta {
+        color: var(--muted);
+        font-size: 0.78rem;
       }
 
-      @media (max-width: 920px) {
-        .cards { grid-template-columns: 1fr; }
-        .download-grid { grid-template-columns: 1fr; }
+      /* ── Responsive ── */
+      @media (max-width: 768px) {
+        .platform-grid { grid-template-columns: 1fr; }
+        .identity-grid { grid-template-columns: 1fr; }
+        .hero h1 { font-size: 1.8rem; }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .feature-card { transition: none; }
+        .feature-card:hover { transform: none; }
       }
     </style>
   </head>
   <body>
-    <div class="shell">
-      <header class="hero">
-        <p class="eyebrow">Open-source docs platform</p>
-        <h1>DocFoundry</h1>
-        <p>
-          One workspace for writing and shipping documentation artifacts, with
-          container-first development for contributors and installable desktop
-          binaries for end users.
-        </p>
-      </header>
+    <!-- ── Hero ── -->
+    <header class="hero">
+      <div class="container">
+        <p class="eyebrow">Open-source documentation workspace</p>
+        <div class="hero-inner">
+          <div>
+            <h1>DocFoundry</h1>
+            <p class="hero-copy">
+              A desktop documentation editor with live Markdown preview, sidebar file tree,
+              and cross-platform installers — built with Electron and a container-first
+              development workflow.
+            </p>
+          </div>
+        </div>
+        <div class="hero-bar">
+          <a class="badge-link" href="https://github.com/Cloud2BR/docs-foundry/actions/workflows/deploy-pages.yml" target="_blank" rel="noopener noreferrer">
+            <img src="https://github.com/Cloud2BR/docs-foundry/actions/workflows/deploy-pages.yml/badge.svg?branch=main" alt="Deploy GitHub Pages status" loading="lazy" />
+          </a>
+          <a class="badge-link" href="https://github.com/Cloud2BR/docs-foundry/actions/workflows/release-desktop.yml" target="_blank" rel="noopener noreferrer">
+            <img src="https://github.com/Cloud2BR/docs-foundry/actions/workflows/release-desktop.yml/badge.svg" alt="Build Desktop Artifacts status" loading="lazy" />
+          </a>
+          <button id="theme-toggle" class="theme-toggle" type="button" aria-label="Toggle dark mode" title="Toggle dark mode">🌙</button>
+        </div>
+      </div>
+    </header>
 
-      <section class="cards">
-        <article class="card">
-          <h2>Container-first dev</h2>
-          <p>Contributors can build with Docker-based tooling and avoid local Node toolchain installs.</p>
-        </article>
-        <article class="card">
-          <h2>Desktop binaries</h2>
-          <p>Ship macOS, Windows, and Linux installer artifacts through GitHub Actions release pipelines.</p>
-        </article>
-        <article class="card">
-          <h2>GitHub-native docs</h2>
-          <p>Publish this page through GitHub Pages and maintain project metadata with automation workflows.</p>
-        </article>
-      </section>
+    <main>
+      <!-- ── What is DocFoundry ── -->
+      <section>
+        <div class="container">
+          <p class="section-kicker">Getting started</p>
+          <h2>What is DocFoundry?</h2>
+          <p class="section-copy">
+            DocFoundry is an open-source desktop application for writing, editing, and
+            previewing Markdown documentation. Think of it as a lightweight, local-first
+            docs workspace — like Obsidian, but purpose-built for documentation projects.
+          </p>
 
-      <section class="downloads" aria-label="Download installers">
-        <h2>Download DocFoundry</h2>
-        <p>
-          Installers are published in GitHub Releases. Open the latest release
-          and choose your package for macOS, Windows, or Linux.
-        </p>
-        <div class="download-grid">
-          <a class="download-link" href="https://github.com/Cloud2BR/DocFoundry/releases/latest" target="_blank" rel="noreferrer">Latest Release</a>
-          <a class="download-link" href="https://github.com/Cloud2BR/DocFoundry/releases" target="_blank" rel="noreferrer">All Releases</a>
-          <a class="download-link" href="https://github.com/Cloud2BR/DocFoundry/releases/latest" target="_blank" rel="noreferrer">macOS (.dmg, .zip)</a>
-          <a class="download-link" href="https://github.com/Cloud2BR/DocFoundry/releases/latest" target="_blank" rel="noreferrer">Windows (Installer, .zip)</a>
-          <a class="download-link" href="https://github.com/Cloud2BR/DocFoundry/releases/latest" target="_blank" rel="noreferrer">Linux (AppImage, .deb, .tar.gz)</a>
-          <a class="download-link" href="https://github.com/Cloud2BR/DocFoundry/actions/workflows/release-desktop.yml" target="_blank" rel="noreferrer">Build Pipeline</a>
+          <div class="feature-grid">
+            <article class="feature-card">
+              <div class="icon">📝</div>
+              <h3>Markdown editor</h3>
+              <p>Write in a clean, distraction-free text editor with monospace font and syntax awareness. Save with Ctrl+S and track unsaved changes automatically.</p>
+            </article>
+            <article class="feature-card">
+              <div class="icon">👁️</div>
+              <h3>Live preview</h3>
+              <p>See your Markdown rendered in real time in a split pane beside the editor. Supports headings, bold, italic, code blocks, lists, links, images, and blockquotes.</p>
+            </article>
+            <article class="feature-card">
+              <div class="icon">📂</div>
+              <h3>Sidebar file tree</h3>
+              <p>Open any folder and browse its entire file tree in a collapsible sidebar. Click files to open them, and navigate deep directory structures up to 8 levels.</p>
+            </article>
+            <article class="feature-card">
+              <div class="icon">🐳</div>
+              <h3>Container-first dev</h3>
+              <p>Contributors never install Node.js locally. Run <code>make setup</code> to build a Docker container and install all dependencies inside it.</p>
+            </article>
+            <article class="feature-card">
+              <div class="icon">📦</div>
+              <h3>Cross-platform binaries</h3>
+              <p>Ship native installers for macOS (DMG), Windows (NSIS), and Linux (AppImage, DEB) — built automatically via GitHub Actions.</p>
+            </article>
+            <article class="feature-card">
+              <div class="icon">🔄</div>
+              <h3>Auto-update</h3>
+              <p>Packaged builds check GitHub Releases for updates via electron-updater. Users get the latest version without manual downloads.</p>
+            </article>
+          </div>
         </div>
       </section>
 
-      <section class="footer">
-        Founder and owner: brown9804. Organization: <a href="https://github.com/brown9804" target="_blank" rel="noreferrer">brown9804</a>.
+      <!-- ── Quick start ── -->
+      <section>
+        <div class="container">
+          <p class="section-kicker">For contributors</p>
+          <h2>Quick start</h2>
+          <p class="section-copy">
+            Everything runs inside Docker — no local Node.js or npm required.
+          </p>
+          <ol class="steps">
+            <li>
+              <div class="step-content">
+                <strong>Install Docker</strong>
+                Get <a href="https://www.docker.com/products/docker-desktop/" target="_blank" rel="noopener noreferrer">Docker Desktop</a> or Docker Engine for your OS.
+              </div>
+            </li>
+            <li>
+              <div class="step-content">
+                <strong>Clone and setup</strong>
+                <code>git clone https://github.com/Cloud2BR/docs-foundry.git &amp;&amp; cd docs-foundry &amp;&amp; make setup</code>
+              </div>
+            </li>
+            <li>
+              <div class="step-content">
+                <strong>Open a dev shell</strong>
+                <code>make container-shell</code> — you're inside the container with all tools ready.
+              </div>
+            </li>
+            <li>
+              <div class="step-content">
+                <strong>Run quality checks</strong>
+                <code>make lint</code>, <code>make format</code>, <code>make test</code> — all run inside the container.
+              </div>
+            </li>
+          </ol>
+        </div>
       </section>
-    </div>
+
+      <!-- ── Download installers ── -->
+      <section>
+        <div class="container">
+          <p class="section-kicker">For end users</p>
+          <h2>Download DocFoundry</h2>
+          <p class="section-copy">
+            Grab the latest installer for your operating system. Builds are published
+            automatically to GitHub Releases when a new version tag is pushed.
+          </p>
+
+          <div class="platform-grid">
+            <article class="platform-card">
+              <div class="platform-icon">🍎</div>
+              <h3>macOS</h3>
+              <p class="formats">.dmg &nbsp;·&nbsp; .zip</p>
+              <a class="download-btn" href="https://github.com/Cloud2BR/docs-foundry/releases/latest" target="_blank" rel="noopener noreferrer">Download for macOS</a>
+            </article>
+            <article class="platform-card">
+              <div class="platform-icon">🪟</div>
+              <h3>Windows</h3>
+              <p class="formats">NSIS installer &nbsp;·&nbsp; .zip</p>
+              <a class="download-btn" href="https://github.com/Cloud2BR/docs-foundry/releases/latest" target="_blank" rel="noopener noreferrer">Download for Windows</a>
+            </article>
+            <article class="platform-card">
+              <div class="platform-icon">🐧</div>
+              <h3>Linux</h3>
+              <p class="formats">AppImage &nbsp;·&nbsp; .deb &nbsp;·&nbsp; .tar.gz</p>
+              <a class="download-btn" href="https://github.com/Cloud2BR/docs-foundry/releases/latest" target="_blank" rel="noopener noreferrer">Download for Linux</a>
+            </article>
+          </div>
+
+          <div class="download-row">
+            <a class="download-link-secondary" href="https://github.com/Cloud2BR/docs-foundry/releases" target="_blank" rel="noopener noreferrer">All releases ↗</a>
+            <a class="download-link-secondary" href="https://github.com/Cloud2BR/docs-foundry/actions/workflows/release-desktop.yml" target="_blank" rel="noopener noreferrer">Build pipeline ↗</a>
+            <a class="download-link-secondary" href="https://github.com/Cloud2BR/docs-foundry" target="_blank" rel="noopener noreferrer">Source on GitHub ↗</a>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── Identity (Azure-Capacity-Overview style) ── -->
+      <section class="identity-section">
+        <div class="container">
+          <div class="identity-header">
+            <p class="section-kicker">Project identity</p>
+            <h2>Owner and organization</h2>
+            <p class="identity-copy">
+              Maintained by the founder and published under Cloud2BR as an open-source
+              GitHub Pages experience.
+            </p>
+          </div>
+
+          <div class="identity-grid">
+            <article class="identity-card" aria-label="Owner and founder">
+              <p class="identity-label">Owner / Founder</p>
+              <div class="identity-row">
+                <img
+                  class="identity-avatar"
+                  src="https://github.com/brown9804.png?size=160"
+                  alt="Portrait of Timna Brown"
+                  loading="lazy"
+                />
+                <div class="identity-links">
+                  <strong class="identity-name">Timna Brown</strong>
+                  <span class="identity-note">Atlanta, USA</span>
+                  <a href="https://github.com/brown9804" target="_blank" rel="noopener noreferrer">@brown9804</a>
+                  <a href="https://www.linkedin.com/in/timna-b-939492161/" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+                </div>
+              </div>
+            </article>
+
+            <article class="identity-card" aria-label="Organization">
+              <p class="identity-label">Organization</p>
+              <div class="identity-rail">
+                <img
+                  class="identity-avatar identity-avatar-org"
+                  src="https://github.com/Cloud2BR.png?size=256"
+                  alt="Cloud2BR organization icon"
+                  loading="lazy"
+                />
+                <a class="identity-org-link" href="https://github.com/Cloud2BR" target="_blank" rel="noopener noreferrer">Cloud2BR</a>
+              </div>
+              <p class="identity-note">
+                Open-source tools and community assets published under the Cloud2BR organization.
+              </p>
+            </article>
+
+            <article class="identity-card" aria-label="Project context">
+              <p class="identity-label">Project context</p>
+              <ul class="identity-list">
+                <li><strong>Format:</strong> Electron desktop app (HTML, CSS, JS)</li>
+                <li><strong>Hosting:</strong> GitHub Pages for this site, GitHub Releases for binaries</li>
+                <li><strong>Dev workflow:</strong> Container-only (Docker + Makefile)</li>
+                <li><strong>Purpose:</strong> Local-first Markdown documentation workspace</li>
+              </ul>
+            </article>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div class="container">
+        <span class="footer-meta">
+          @Cloud2BR · <a href="https://github.com/Cloud2BR/docs-foundry" target="_blank" rel="noopener noreferrer" style="color:var(--link);text-decoration:none">docs-foundry</a>
+        </span>
+      </div>
+    </footer>
+
+    <script>
+      (function () {
+        var btn = document.getElementById('theme-toggle');
+        if (!btn) return;
+        function apply(theme) {
+          document.documentElement.setAttribute('data-theme', theme);
+          btn.textContent = theme === 'dark' ? '☀️' : '🌙';
+          btn.setAttribute('aria-label', theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode');
+          try { localStorage.setItem('docfoundryTheme', theme); } catch (e) {}
+        }
+        var stored = null;
+        try { stored = localStorage.getItem('docfoundryTheme'); } catch (e) {}
+        apply(stored || 'light');
+        btn.addEventListener('click', function () {
+          var current = document.documentElement.getAttribute('data-theme') || 'light';
+          apply(current === 'dark' ? 'light' : 'dark');
+        });
+      })();
+    </script>
   </body>
 </html>

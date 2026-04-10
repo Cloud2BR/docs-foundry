@@ -1,0 +1,77 @@
+{
+  "name": "docfoundry",
+  "version": "0.1.0",
+  "description": "DocFoundry – open-source documentation workspace desktop app",
+  "main": "src/main.js",
+  "license": "MIT",
+  "author": "brown9804",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Cloud2BR/DocFoundry.git"
+  },
+  "scripts": {
+    "start": "electron .",
+    "dev": "ELECTRON_ENABLE_LOGGING=1 electron . --watch",
+    "lint": "eslint src/ tests/",
+    "format": "prettier --write .",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder",
+    "dist:mac": "electron-builder --mac",
+    "dist:win": "electron-builder --win",
+    "dist:linux": "electron-builder --linux"
+  },
+  "build": {
+    "appId": "com.docfoundry.app",
+    "productName": "DocFoundry",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "src/**/*",
+      "package.json"
+    ],
+    "icon": "build/icon.svg",
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "Cloud2BR",
+        "repo": "DocFoundry"
+      }
+    ],
+    "mac": {
+      "target": [
+        "dmg",
+        "zip"
+      ],
+      "category": "public.app-category.productivity",
+      "identity": null
+    },
+    "win": {
+      "target": [
+        "nsis",
+        "zip"
+      ]
+    },
+    "linux": {
+      "target": [
+        "AppImage",
+        "deb",
+        "tar.gz"
+      ],
+      "category": "Office"
+    }
+  },
+  "dependencies": {
+    "electron-updater": "^6.3.0"
+  },
+  "devDependencies": {
+    "electron": "^35.0.0",
+    "electron-builder": "^24.13.3",
+    "electron-reload": "^2.0.0-alpha.1",
+    "eslint": "^9.0.0",
+    "prettier": "^3.3.0",
+    "vitest": "^3.0.0"
+  }
+}

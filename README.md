@@ -8,7 +8,7 @@ Last updated: 2026-02-25
 
 ----------
 
-> DocFoundry is an open-source documentation workspace with two delivery modes: container-only development for contributors, and installable desktop binaries for end users.
+> DocFoundry is an open-source **Electron** desktop app for writing and previewing Markdown documentation — with a live split-pane editor, sidebar file tree, container-only development for contributors, and installable binaries for macOS, Windows, and Linux.
 
 ## Two operating modes
 

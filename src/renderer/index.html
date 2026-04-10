@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; script-src 'self';" />
+    <title>DocFoundry</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,700;9..144,500&family=Manrope:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <!-- Welcome screen (shown when no folder is open) -->
+    <main id="welcome-screen" class="shell">
+      <section class="hero">
+        <p class="eyebrow">Open Source Documentation Workspace</p>
+        <h1>DocFoundry</h1>
+        <p class="subtitle">
+          One local-first desktop editor for documentation projects, notes, slides,
+          and structured content.
+        </p>
+        <div class="actions">
+          <button type="button" class="button primary" id="btn-create">Create Workspace</button>
+          <button type="button" class="button ghost" id="btn-open">Open Folder</button>
+        </div>
+      </section>
+
+      <section class="cards" aria-label="Core capabilities">
+        <article class="card">
+          <h2>Write</h2>
+          <p>Markdown, MDX, and rich docs files in one focused editor flow.</p>
+        </article>
+        <article class="card">
+          <h2>Connect</h2>
+          <p>Link notes, pages, assets, and references across your project tree.</p>
+        </article>
+        <article class="card">
+          <h2>Publish</h2>
+          <p>Preview and ship docs outputs with Git-aware changes and history.</p>
+        </article>
+      </section>
+
+      <footer class="footer">
+        <span id="version"></span>
+      </footer>
+    </main>
+
+    <!-- Editor workspace (shown after opening a folder) -->
+    <div id="editor-workspace" class="workspace" hidden>
+      <aside id="sidebar" class="sidebar">
+        <div class="sidebar-header">
+          <strong id="workspace-name">Workspace</strong>
+          <button type="button" class="sidebar-action" id="btn-open-sidebar" title="Open another folder">+</button>
+        </div>
+        <div id="file-tree" class="file-tree"></div>
+      </aside>
+
+      <div class="editor-area">
+        <div class="editor-tabs">
+          <span id="active-tab" class="tab active">No file open</span>
+          <button type="button" class="tab-action" id="btn-save" title="Save (Ctrl+S)">Save</button>
+        </div>
+
+        <div class="panes">
+          <div class="pane pane-editor">
+            <textarea id="code-editor" class="code-editor" placeholder="Open a file from the sidebar to start editing..." spellcheck="false"></textarea>
+          </div>
+          <div class="pane pane-preview">
+            <div id="preview" class="preview-content"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="./renderer.js"></script>
+  </body>
+</html>

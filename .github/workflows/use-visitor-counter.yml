@@ -1,0 +1,62 @@
+name: Update Visitor Badge
+
+on:
+  schedule:
+    - cron: '15 */6 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  update-badge:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Bump visitor counter
+        env:
+          NAMESPACE: brown9804
+          KEY: docfoundry-readme
+        run: |
+          curl -fsSL "https://api.countapi.xyz/hit/${NAMESPACE}/${KEY}" > counter.json
+          VALUE=$(python -c 'import json; print(json.load(open("counter.json"))["value"])')
+          cat > badge_fragment.html <<EOF
+          <div align="center">
+            <img src="https://img.shields.io/badge/Total%20views-${VALUE}-limegreen" alt="Total views">
+          </div>
+          EOF
+
+      - name: Update README badge block
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          readme = Path("README.md")
+          badge = Path("badge_fragment.html").read_text(encoding="utf-8").strip()
+          text = readme.read_text(encoding="utf-8")
+          start = "<!-- START BADGE -->"
+          end = "<!-- END BADGE -->"
+
+          if start not in text or end not in text:
+              raise SystemExit("README badge markers are missing")
+
+          before, rest = text.split(start, 1)
+          _, after = rest.split(end, 1)
+          updated = before + start + "\n" + badge + "\n" + end + after
+          readme.write_text(updated, encoding="utf-8")
+          PY
+
+      - name: Commit badge changes
+        run: |
+          if git diff --quiet; then
+            echo "No badge change required"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add README.md
+          git commit -m "docs: update visitor badge"
+          git push
+          git push

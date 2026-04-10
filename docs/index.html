@@ -1,0 +1,209 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DocFoundry</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --ink: #0d1c2f;
+        --muted: #3f5167;
+        --line: rgba(14, 36, 64, 0.18);
+        --hero-a: #06224f;
+        --hero-b: #0d6ac9;
+        --surface: rgba(255, 255, 255, 0.87);
+      }
+
+      * { box-sizing: border-box; }
+
+      body {
+        margin: 0;
+        font-family: "IBM Plex Sans", sans-serif;
+        color: var(--ink);
+        background:
+          radial-gradient(circle at 15% 12%, rgba(13, 106, 201, 0.15), transparent 44%),
+          radial-gradient(circle at 90% 84%, rgba(2, 76, 168, 0.18), transparent 36%),
+          linear-gradient(180deg, #edf3fb 0%, #f8fbff 100%);
+      }
+
+      .shell {
+        max-width: 1060px;
+        margin: 0 auto;
+        padding: 24px 20px 42px;
+      }
+
+      .hero {
+        border-radius: 22px;
+        padding: 34px;
+        color: #fff;
+        background: linear-gradient(135deg, var(--hero-a), var(--hero-b));
+        box-shadow: 0 14px 40px rgba(4, 40, 95, 0.3);
+      }
+
+      .eyebrow {
+        margin: 0;
+        text-transform: uppercase;
+        letter-spacing: 0.16em;
+        font-size: 0.72rem;
+        opacity: 0.8;
+      }
+
+      h1 {
+        font-family: "Space Grotesk", sans-serif;
+        margin: 10px 0;
+        font-size: clamp(2rem, 6vw, 3.2rem);
+      }
+
+      .hero p {
+        margin: 0;
+        max-width: 60ch;
+        line-height: 1.6;
+        opacity: 0.94;
+      }
+
+      .cards {
+        margin-top: 20px;
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 14px;
+      }
+
+      .card {
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        background: var(--surface);
+        padding: 18px;
+      }
+
+      .card h2 {
+        margin-top: 0;
+        margin-bottom: 8px;
+        font-size: 1.1rem;
+        font-family: "Space Grotesk", sans-serif;
+      }
+
+      .card p {
+        margin: 0;
+        color: var(--muted);
+        line-height: 1.6;
+      }
+
+      .downloads {
+        margin-top: 22px;
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        background: var(--surface);
+        padding: 20px;
+      }
+
+      .downloads h2 {
+        margin: 0 0 8px;
+        font-size: 1.2rem;
+        font-family: "Space Grotesk", sans-serif;
+      }
+
+      .downloads p {
+        margin: 0;
+        color: var(--muted);
+        line-height: 1.6;
+      }
+
+      .download-grid {
+        margin-top: 16px;
+        display: grid;
+        gap: 10px;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .download-link {
+        display: inline-flex;
+        justify-content: center;
+        align-items: center;
+        border-radius: 12px;
+        border: 1px solid rgba(9, 52, 114, 0.22);
+        background: linear-gradient(180deg, #ffffff, #edf4ff);
+        color: #0b4da0;
+        text-decoration: none;
+        font-weight: 600;
+        padding: 11px 12px;
+      }
+
+      .download-link:hover {
+        background: linear-gradient(180deg, #f4f9ff, #e4efff);
+      }
+
+      .footer {
+        margin-top: 22px;
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        background: var(--surface);
+        padding: 16px;
+      }
+
+      .footer a {
+        color: #0d5ec7;
+        text-decoration: none;
+        font-weight: 600;
+      }
+
+      @media (max-width: 920px) {
+        .cards { grid-template-columns: 1fr; }
+        .download-grid { grid-template-columns: 1fr; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="shell">
+      <header class="hero">
+        <p class="eyebrow">Open-source docs platform</p>
+        <h1>DocFoundry</h1>
+        <p>
+          One workspace for writing and shipping documentation artifacts, with
+          container-first development for contributors and installable desktop
+          binaries for end users.
+        </p>
+      </header>
+
+      <section class="cards">
+        <article class="card">
+          <h2>Container-first dev</h2>
+          <p>Contributors can build with Docker-based tooling and avoid local Node toolchain installs.</p>
+        </article>
+        <article class="card">
+          <h2>Desktop binaries</h2>
+          <p>Ship macOS, Windows, and Linux installer artifacts through GitHub Actions release pipelines.</p>
+        </article>
+        <article class="card">
+          <h2>GitHub-native docs</h2>
+          <p>Publish this page through GitHub Pages and maintain project metadata with automation workflows.</p>
+        </article>
+      </section>
+
+      <section class="downloads" aria-label="Download installers">
+        <h2>Download DocFoundry</h2>
+        <p>
+          Installers are published in GitHub Releases. Open the latest release
+          and choose your package for macOS, Windows, or Linux.
+        </p>
+        <div class="download-grid">
+          <a class="download-link" href="https://github.com/Cloud2BR/DocFoundry/releases/latest" target="_blank" rel="noreferrer">Latest Release</a>
+          <a class="download-link" href="https://github.com/Cloud2BR/DocFoundry/releases" target="_blank" rel="noreferrer">All Releases</a>
+          <a class="download-link" href="https://github.com/Cloud2BR/DocFoundry/releases/latest" target="_blank" rel="noreferrer">macOS (.dmg, .zip)</a>
+          <a class="download-link" href="https://github.com/Cloud2BR/DocFoundry/releases/latest" target="_blank" rel="noreferrer">Windows (Installer, .zip)</a>
+          <a class="download-link" href="https://github.com/Cloud2BR/DocFoundry/releases/latest" target="_blank" rel="noreferrer">Linux (AppImage, .deb, .tar.gz)</a>
+          <a class="download-link" href="https://github.com/Cloud2BR/DocFoundry/actions/workflows/release-desktop.yml" target="_blank" rel="noreferrer">Build Pipeline</a>
+        </div>
+      </section>
+
+      <section class="footer">
+        Founder and owner: brown9804. Organization: <a href="https://github.com/brown9804" target="_blank" rel="noreferrer">brown9804</a>.
+      </section>
+    </div>
+  </body>
+</html>

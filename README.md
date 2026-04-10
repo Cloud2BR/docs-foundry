@@ -8,7 +8,7 @@ Last updated: 2026-02-25
 
 ----------
 
-> DocFoundry is an open-source documentation workspace with two delivery modes: container-only development for contributors, and installable desktop binaries for end users.
+> DocFoundry is an open-source **Electron** desktop app for writing and previewing Markdown documentation — with a live split-pane editor, sidebar file tree, container-only development for contributors, and installable binaries for macOS, Windows, and Linux.
 
 ## Two operating modes
 
@@ -92,17 +92,23 @@ DocFoundry/
 │   └── index.html           # GitHub Pages landing & download page
 ├── scripts/
 │   └── setup.sh             # OS detection & Docker validation
-├── .github/workflows/
-│   ├── deploy-pages.yml
-│   ├── release-desktop.yml
-│   ├── update-md-date.yml
-│   ├── update_date.py
-│   ├── use-visitor-counter.yml
-│   └── cleanup-pages-history.yml
+├── .github/
+│   ├── PULL_REQUEST_TEMPLATE.md
+│   ├── ISSUE_TEMPLATE/
+│   │   ├── bug_report.md
+│   │   └── feature_request.md
+│   └── workflows/
+│       ├── deploy-pages.yml
+│       ├── release-desktop.yml
+│       ├── auto-fill-pr.yml
+│       ├── update-md-date.yml
+│       ├── update_date.py
+│       ├── use-visitor-counter.yml
+│       └── cleanup-pages-history.yml
 ├── Dockerfile.dev            # Container dev image (node:20-bookworm)
 ├── Makefile                  # setup, dev, lint, format, test, package targets
 ├── vitest.config.mjs         # Vitest configuration
-├── .eslintrc.json            # ESLint configuration
+├── eslint.config.mjs         # ESLint flat config (v9+)
 ├── .prettierrc               # Prettier configuration
 ├── CONTRIBUTING.md
 ├── CODE_OF_CONDUCT.md

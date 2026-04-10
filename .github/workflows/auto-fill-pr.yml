@@ -80,11 +80,11 @@ jobs:
         with:
           script: |
             const prompt = `You are a PR description agent for the DocFoundry project (an Electron desktop documentation editor).
-            Analyze the following git diff and commit messages, then produce a PR description using EXACTLY this template.
-            Be concise and specific. Focus on WHAT changed and WHY.
+            Analyze the git diff and commit messages below. Produce a COMPLETE PR description filling EVERY section of the template.
+            Be specific, detailed, and professional. Infer the type of change and testing steps from the diff.
 
             Branch: ${process.env.HEAD_REF} → ${process.env.BASE_REF} (${process.env.COMMIT_COUNT} commits)
-            Linked issues: ${process.env.ISSUES}
+            Linked issues from commits: ${process.env.ISSUES}
 
             Commits:
             ${process.env.COMMITS}
@@ -99,25 +99,63 @@ jobs:
             ${process.env.DIFF}
             \`\`\`
 
-            Fill in this template — replace placeholder text, keep markdown formatting:
+            Fill EVERY section below. Replace ALL placeholder text. Check the applicable boxes. Output ONLY the markdown:
 
             ## Summary
 
-            <one paragraph describing what this PR does and why>
+            <One paragraph: what this PR does, why, and the impact. Be specific about the feature/fix.>
+
+            ## Type of change
+
+            <Check ONLY the applicable boxes based on the diff. Use [x] for checked, [ ] for unchecked.>
+
+            - [ ] Bug fix (non-breaking change that fixes an issue)
+            - [ ] New feature (non-breaking change that adds functionality)
+            - [ ] Breaking change (fix or feature that would cause existing functionality to change)
+            - [ ] Documentation update
+            - [ ] CI/CD or infrastructure change
+            - [ ] Refactor (no functional change)
 
             ## Changes
 
-            <bulleted list of specific changes, grouped logically>
+            <Detailed bulleted list of EVERY specific change, grouped by area (e.g. "### Editor", "### CI/CD", "### Config"). Include file names where relevant.>
+
+            ## Files changed
+
+            <Fill this table from the file list above. Group by top-level directory.>
+
+            | Directory | Files | Description |
+            |-----------|-------|-------------|
+            | ... | ... | ... |
+
+            ## Linked issues
+
+            <List any issues referenced in commits (Closes #X, Fixes #Y). If none, write "No linked issues.">
+
+            ## How to test
+
+            <Write specific step-by-step instructions a reviewer can follow to validate these changes. Infer from the diff what commands to run, what to look for, etc.>
+
+            1. ...
 
             ## Validation
 
-            - [ ] I tested my change (describe how)
+            <Check the boxes that apply based on what you see in the diff.>
+
+            - [ ] I tested my change locally
+            - [ ] All existing tests still pass
+            - [ ] I added or updated tests for new functionality
             - [ ] I updated documentation/templates if needed
             - [ ] I confirmed no secrets or sensitive data are included
+            - [ ] I checked for security vulnerabilities (OWASP Top 10)
+
+            ## Screenshots / Logs
+
+            <If the diff includes UI changes, describe what the reviewer should see. Otherwise write "N/A — no visual changes.">
 
             ## Notes
 
-            <any context reviewers should know, or "No additional notes.">`;
+            <Any context: limitations, follow-up work needed, trade-offs, migration notes. If none, write "No additional notes.">`;
 
             let body = '';
             try {
@@ -130,7 +168,7 @@ jobs:
                 body: JSON.stringify({
                   model: 'openai/gpt-4o-mini',
                   messages: [{ role: 'user', content: prompt }],
-                  max_tokens: 1200,
+                  max_tokens: 2500,
                   temperature: 0.3,
                 }),
               });
@@ -144,8 +182,55 @@ jobs:
               core.info('AI summary generated successfully');
             } catch (err) {
               core.warning(`AI summary failed (${err.message}), using structured fallback`);
-              const issues = process.env.ISSUES === 'none' ? '' : `\nLinked issues: ${process.env.ISSUES}`;
-              body = `## Summary\n\nAuto-generated from \`${process.env.HEAD_REF}\` → \`${process.env.BASE_REF}\` (${process.env.COMMIT_COUNT} commits).${issues}\n\n## Changes\n\n**Commits:**\n${process.env.COMMITS}\n\n**Files touched:**\n${process.env.FILES}\n\n## Validation\n\n- [ ] I tested my change (describe how)\n- [ ] I updated documentation/templates if needed\n- [ ] I confirmed no secrets or sensitive data are included\n\n## Notes\n\n_This description was auto-generated. Edit freely to add context._`;
+              const issues = process.env.ISSUES === 'none' ? 'No linked issues.' : process.env.ISSUES;
+              body = [
+                '## Summary',
+                '',
+                `Auto-generated from \`${process.env.HEAD_REF}\` → \`${process.env.BASE_REF}\` (${process.env.COMMIT_COUNT} commits).`,
+                '',
+                '## Type of change',
+                '',
+                '- [ ] Bug fix',
+                '- [ ] New feature',
+                '- [ ] Breaking change',
+                '- [ ] Documentation update',
+                '- [ ] CI/CD or infrastructure change',
+                '- [ ] Refactor',
+                '',
+                '## Changes',
+                '',
+                process.env.COMMITS,
+                '',
+                '## Files changed',
+                '',
+                process.env.FILES,
+                '',
+                '## Linked issues',
+                '',
+                issues,
+                '',
+                '## How to test',
+                '',
+                '1. Check out this branch',
+                '2. Review the changes',
+                '',
+                '## Validation',
+                '',
+                '- [ ] I tested my change locally',
+                '- [ ] All existing tests still pass',
+                '- [ ] I added or updated tests for new functionality',
+                '- [ ] I updated documentation/templates if needed',
+                '- [ ] I confirmed no secrets or sensitive data are included',
+                '- [ ] I checked for security vulnerabilities (OWASP Top 10)',
+                '',
+                '## Screenshots / Logs',
+                '',
+                'N/A',
+                '',
+                '## Notes',
+                '',
+                '_This description was auto-generated (AI unavailable). Edit freely._',
+              ].join('\n');
             }
 
             core.setOutput('body', body);

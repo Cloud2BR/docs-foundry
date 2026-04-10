@@ -1,6 +1,9 @@
 name: Cleanup Pages History
 
 on:
+  pull_request:
+    types: [closed]
+    branches: [main]
   schedule:
     - cron: '30 3 * * 0'
   workflow_dispatch:
@@ -13,6 +16,9 @@ permissions:
 jobs:
   cleanup:
     runs-on: ubuntu-latest
+    if: >-
+      github.event_name != 'pull_request' ||
+      github.event.pull_request.merged == true
     steps:
       - name: Remove old Deploy GitHub Pages workflow runs
         uses: Mattraks/delete-workflow-runs@v2

@@ -59,3 +59,4 @@ jobs:
           git add README.md
           git commit -m "docs: update visitor badge"
           git push
+          git push

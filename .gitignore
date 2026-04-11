@@ -5,8 +5,7 @@ release/
 out/
 *.log
 
-# Generated icon files (keep icon.svg, ignore rasterized)
-build/*.png
+# Generated icon files (keep icon.svg and icon.png, ignore others)
 build/*.ico
 build/*.icns
 

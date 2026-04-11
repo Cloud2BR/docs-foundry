@@ -35,7 +35,7 @@
       "src/**/*",
       "package.json"
     ],
-    "icon": "build/icon.svg",
+    "icon": "build/icon.png",
     "publish": [
       {
         "provider": "github",

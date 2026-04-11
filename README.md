@@ -8,7 +8,40 @@ Last updated: 2026-02-25
 
 ----------
 
-> DocFoundry is an open-source **Electron** desktop app for writing and previewing Markdown documentation — with a live split-pane editor, sidebar file tree, container-only development for contributors, and installable binaries for macOS, Windows, and Linux.
+> DocFoundry is an open-source **Electron** desktop app for writing and previewing Markdown documentation with a live split-pane editor, local folder tree, safe local saves, container-only development for contributors, and installable binaries for macOS, Windows, and Linux.
+
+## Current scope in v0.0.1
+
+- Open a local documentation folder and browse files in a sidebar tree
+- **Multi-tab editing** — open many files at once with dirty-state indicators
+- Split-pane Markdown editor with live preview
+- **Command palette** (Ctrl/Cmd+P) — fuzzy quick-open any file
+- **Workspace-wide search** (Ctrl/Cmd+Shift+F) — grep across all files with grouped results
+- **In-file find & replace** (Ctrl/Cmd+F / Ctrl/Cmd+H) — match count navigation
+- **Document outline** — heading tree synced to the current file
+- **File operations** — create, rename, and delete files and folders from the sidebar
+- **Auto-save** with 2-second debounce (toggle from status bar)
+- **Export to standalone HTML** (Ctrl/Cmd+Shift+E) with embedded styles
+- **Zen mode** (Ctrl/Cmd+Shift+Z) — distraction-free full-screen editing
+- **Resizable panes** — drag sidebar and editor/preview splits
+- **Keyboard shortcuts overlay** (Ctrl/Cmd+/) — full shortcut reference
+- **Status bar** — word count, reading time, cursor position, auto-save toggle
+- **Breadcrumbs** — file path bar above the editor
+- Markdown preview: headings, bold/italic, lists (ordered, unordered, task), tables, code blocks, blockquotes, images, links, horizontal rules, ~~strikethrough~~, ==highlight==, footnotes
+- Unsaved-change protection on app close (save / discard / cancel)
+- File watcher detects external changes and refreshes the tree
+- Native app menu with keyboard accelerators
+- Secure architecture: contextIsolation, no nodeIntegration, validated file paths
+
+## Near-term capabilities to add next
+
+- Git change indicators and diff view
+- Broken-link checks and link autocomplete
+- Export to PDF
+- Scroll sync between editor and preview
+- Drag-and-drop file and image support
+- Mermaid diagram rendering
+- Spell check
 
 ## Two operating modes
 
@@ -97,17 +130,22 @@ This repo includes a Pages workflow in `.github/workflows/deploy-pages.yml` and 
 ```
 DocFoundry/
 ├── src/
-│   ├── main.js              # Electron main process (IPC, auto-update, hot reload)
+│   ├── main.js              # Electron main process (IPC, menu, file watcher)
 │   ├── preload.js           # Secure IPC bridge (contextBridge)
+│   ├── lib/
+│   │   └── workspace-path.js # Secure path validation
 │   └── renderer/
 │       ├── index.html       # Desktop app shell (welcome + workspace)
-│       ├── styles.css        # Full UI styling
-│       └── renderer.js      # File tree, editor, live Markdown preview
+│       ├── styles.css       # Full UI styling
+│       ├── renderer.js      # Tabs, palette, search, outline, editor logic
+│       └── markdown.js      # Shared Markdown→HTML parser (UMD)
 ├── build/
 │   ├── icon.svg             # App icon source
 │   └── generate-icons.sh   # SVG → PNG/ICO/ICNS converter
 ├── tests/
-│   └── smoke.test.mjs      # Vitest smoke tests
+│   ├── smoke.test.mjs       # Structure, security & feature-surface tests
+│   ├── markdown.test.mjs    # Markdown parser tests
+│   └── workspace-path.test.mjs # Path validation tests
 ├── docs/
 │   └── index.html           # GitHub Pages landing & download page
 ├── scripts/

@@ -1,6 +1,6 @@
 {
   "name": "docfoundry",
-  "version": "0.1.0",
+  "version": "0.0.1",
   "description": "DocFoundry – open-source documentation workspace desktop app",
   "main": "src/main.js",
   "license": "MIT",

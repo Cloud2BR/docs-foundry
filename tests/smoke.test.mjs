@@ -8,6 +8,11 @@ describe('Project structure', () => {
     expect(pkg.name).toBe('docfoundry');
   });
 
+  it('uses the current first-version number', () => {
+    const pkg = JSON.parse(fs.readFileSync(path.resolve('package.json'), 'utf-8'));
+    expect(pkg.version).toBe('0.0.1');
+  });
+
   it('has main entry point', () => {
     expect(fs.existsSync(path.resolve('src/main.js'))).toBe(true);
   });
@@ -22,6 +27,14 @@ describe('Project structure', () => {
 
   it('has build icon', () => {
     expect(fs.existsSync(path.resolve('build/icon.svg'))).toBe(true);
+  });
+
+  it('has markdown module', () => {
+    expect(fs.existsSync(path.resolve('src/renderer/markdown.js'))).toBe(true);
+  });
+
+  it('has workspace-path module', () => {
+    expect(fs.existsSync(path.resolve('src/lib/workspace-path.js'))).toBe(true);
   });
 });
 
@@ -44,5 +57,95 @@ describe('Security', () => {
   it('main process validates file paths', () => {
     const main = fs.readFileSync(path.resolve('src/main.js'), 'utf-8');
     expect(main).toContain('Access denied: file is outside workspace');
+  });
+
+  it('main process tracks dirty editor state', () => {
+    const main = fs.readFileSync(path.resolve('src/main.js'), 'utf-8');
+    expect(main).toContain("ipcMain.on('set-dirty-state'");
+  });
+
+  it('preload validates menu event channels', () => {
+    const preload = fs.readFileSync(path.resolve('src/preload.js'), 'utf-8');
+    expect(preload).toContain('validChannels');
+  });
+});
+
+describe('Feature surface', () => {
+  it('main process has workspace search handler', () => {
+    const main = fs.readFileSync(path.resolve('src/main.js'), 'utf-8');
+    expect(main).toContain("ipcMain.handle('search-workspace'");
+  });
+
+  it('main process has file CRUD handlers', () => {
+    const main = fs.readFileSync(path.resolve('src/main.js'), 'utf-8');
+    expect(main).toContain("ipcMain.handle('create-new-file'");
+    expect(main).toContain("ipcMain.handle('delete-file'");
+    expect(main).toContain("ipcMain.handle('rename-file'");
+  });
+
+  it('main process has export HTML handler', () => {
+    const main = fs.readFileSync(path.resolve('src/main.js'), 'utf-8');
+    expect(main).toContain("ipcMain.handle('export-html'");
+  });
+
+  it('main process has file watcher', () => {
+    const main = fs.readFileSync(path.resolve('src/main.js'), 'utf-8');
+    expect(main).toContain('startFileWatcher');
+  });
+
+  it('main process builds native app menu', () => {
+    const main = fs.readFileSync(path.resolve('src/main.js'), 'utf-8');
+    expect(main).toContain('buildAppMenu');
+    expect(main).toContain('Menu.setApplicationMenu');
+  });
+
+  it('preload exposes all required APIs', () => {
+    const preload = fs.readFileSync(path.resolve('src/preload.js'), 'utf-8');
+    expect(preload).toContain('searchWorkspace');
+    expect(preload).toContain('getAllFiles');
+    expect(preload).toContain('createNewFile');
+    expect(preload).toContain('deleteFile');
+    expect(preload).toContain('renameFile');
+    expect(preload).toContain('exportHtml');
+    expect(preload).toContain('onWorkspaceChanged');
+  });
+
+  it('renderer has multi-tab support', () => {
+    const renderer = fs.readFileSync(path.resolve('src/renderer/renderer.js'), 'utf-8');
+    expect(renderer).toContain('function createTab');
+    expect(renderer).toContain('function activateTab');
+    expect(renderer).toContain('function closeTab');
+    expect(renderer).toContain('function cycleTabs');
+  });
+
+  it('HTML includes command palette', () => {
+    const html = fs.readFileSync(path.resolve('src/renderer/index.html'), 'utf-8');
+    expect(html).toContain('command-palette');
+  });
+
+  it('HTML includes workspace search panel', () => {
+    const html = fs.readFileSync(path.resolve('src/renderer/index.html'), 'utf-8');
+    expect(html).toContain('search-panel');
+  });
+
+  it('HTML includes find/replace bar', () => {
+    const html = fs.readFileSync(path.resolve('src/renderer/index.html'), 'utf-8');
+    expect(html).toContain('find-bar');
+    expect(html).toContain('replace-row');
+  });
+
+  it('HTML includes document outline', () => {
+    const html = fs.readFileSync(path.resolve('src/renderer/index.html'), 'utf-8');
+    expect(html).toContain('outline-panel');
+  });
+
+  it('HTML includes status bar', () => {
+    const html = fs.readFileSync(path.resolve('src/renderer/index.html'), 'utf-8');
+    expect(html).toContain('status-bar');
+  });
+
+  it('HTML includes keyboard shortcuts overlay', () => {
+    const html = fs.readFileSync(path.resolve('src/renderer/index.html'), 'utf-8');
+    expect(html).toContain('shortcuts-overlay');
   });
 });

@@ -21,31 +21,38 @@ jobs:
           KEY: docfoundry-readme
         run: |
           curl -fsSL "https://api.countapi.xyz/hit/${NAMESPACE}/${KEY}" > counter.json
-          VALUE=$(python -c 'import json; print(json.load(open("counter.json"))["value"])')
-          cat > badge_fragment.html <<EOF
-          <div align="center">
-            <img src="https://img.shields.io/badge/Total%20views-${VALUE}-limegreen" alt="Total views">
-          </div>
-          EOF
 
-      - name: Update README badge block
+      - name: Update badge markers in README and Pages site
         run: |
           python - <<'PY'
           from pathlib import Path
 
+          value = Path("counter.json").read_text(encoding="utf-8")
+          import json
+          count = json.loads(value)["value"]
+
+          START = "<!-- START BADGE -->"
+          END   = "<!-- END BADGE -->"
+
+          # README badge (div block, centered)
           readme = Path("README.md")
-          badge = Path("badge_fragment.html").read_text(encoding="utf-8").strip()
-          text = readme.read_text(encoding="utf-8")
-          start = "<!-- START BADGE -->"
-          end = "<!-- END BADGE -->"
-
-          if start not in text or end not in text:
+          readme_badge = f'<div align="center">\n  <img src="https://img.shields.io/badge/Total%20views-{count}-limegreen" alt="Total views">\n</div>'
+          t = readme.read_text(encoding="utf-8")
+          if START not in t or END not in t:
               raise SystemExit("README badge markers are missing")
+          before, rest = t.split(START, 1)
+          _, after = rest.split(END, 1)
+          readme.write_text(before + START + "\n" + readme_badge + "\n" + END + after, encoding="utf-8")
 
-          before, rest = text.split(start, 1)
-          _, after = rest.split(end, 1)
-          updated = before + start + "\n" + badge + "\n" + end + after
-          readme.write_text(updated, encoding="utf-8")
+          # Pages site badge (inline img inside the hero-bar span)
+          pages = Path("docs/index.html")
+          pages_badge = f'<span class="badge-link"><img src="https://img.shields.io/badge/Total%20views-{count}-limegreen" alt="Total views" loading="lazy" /></span>'
+          t = pages.read_text(encoding="utf-8")
+          if START not in t or END not in t:
+              raise SystemExit("docs/index.html badge markers are missing")
+          before, rest = t.split(START, 1)
+          _, after = rest.split(END, 1)
+          pages.write_text(before + START + "\n          " + pages_badge + "\n          " + END + after, encoding="utf-8")
           PY
 
       - name: Commit badge changes
@@ -56,7 +63,6 @@ jobs:
           fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add README.md
+          git add README.md docs/index.html
           git commit -m "docs: update visitor badge"
-          git push
           git push

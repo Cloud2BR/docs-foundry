@@ -4,7 +4,10 @@
   "description": "DocFoundry – open-source documentation workspace desktop app",
   "main": "src/main.js",
   "license": "MIT",
-  "author": "brown9804",
+  "author": {
+    "name": "brown9804",
+    "email": "brown9804@outlook.com"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/Cloud2BR/docs-foundry.git"

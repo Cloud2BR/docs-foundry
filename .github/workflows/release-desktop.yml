@@ -17,10 +17,13 @@ jobs:
         include:
           - os: ubuntu-latest
             dist_script: dist:linux
+            artifact_name: linux
           - os: macos-latest
             dist_script: dist:mac
+            artifact_name: mac
           - os: windows-latest
             dist_script: dist:win
+            artifact_name: win
 
     runs-on: ${{ matrix.os }}
 
@@ -40,11 +43,35 @@ jobs:
       - name: Build installers
         run: npm run ${{ matrix.dist_script }}
 
-      - name: Upload build artifacts
+      - name: Collect installable assets (Linux)
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          mkdir -p dist-out
+          find release -maxdepth 1 \( -name "*.AppImage" -o -name "*.deb" -o -name "*.tar.gz" \) \
+            -exec cp {} dist-out/ \;
+
+      - name: Collect installable assets (macOS)
+        if: matrix.os == 'macos-latest'
+        run: |
+          mkdir -p dist-out
+          find release -maxdepth 1 \( -name "*.dmg" -o -name "*.zip" \) \
+            -exec cp {} dist-out/ \;
+
+      - name: Collect installable assets (Windows)
+        if: matrix.os == 'windows-latest'
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path dist-out | Out-Null
+          Get-ChildItem release -Depth 0 | Where-Object {
+            $_.Extension -in '.exe', '.zip'
+          } | Copy-Item -Destination dist-out
+
+      - name: Upload installable assets
         uses: actions/upload-artifact@v4
         with:
-          name: docfoundry-${{ matrix.os }}
-          path: release
+          name: docfoundry-${{ matrix.artifact_name }}
+          path: dist-out/
+          if-no-files-found: error
 
   publish:
     if: startsWith(github.ref, 'refs/tags/v') || github.event_name == 'workflow_dispatch'
@@ -55,17 +82,21 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           path: release-artifacts
+          merge-multiple: true
+
+      - name: List release assets
+        run: ls -lh release-artifacts/
 
       - name: Compute release tag
         id: release_meta
         run: |
           if [[ "${GITHUB_REF}" == refs/tags/* ]]; then
             echo "tag_name=${GITHUB_REF#refs/tags/}" >> "$GITHUB_OUTPUT"
-            echo "release_name=DocFoundry ${GITHUB_REF#refs/tags/}" >> "$GITHUB_OUTPUT"
+            echo "release_name=Docs Foundry ${GITHUB_REF#refs/tags/}" >> "$GITHUB_OUTPUT"
           else
             TAG_NAME="manual-${GITHUB_RUN_NUMBER}"
             echo "tag_name=${TAG_NAME}" >> "$GITHUB_OUTPUT"
-            echo "release_name=DocFoundry ${TAG_NAME}" >> "$GITHUB_OUTPUT"
+            echo "release_name=Docs Foundry ${TAG_NAME}" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Create GitHub release
@@ -73,4 +104,22 @@ jobs:
         with:
           tag_name: ${{ steps.release_meta.outputs.tag_name }}
           name: ${{ steps.release_meta.outputs.release_name }}
-          files: release-artifacts/**
+          body: |
+            ## Install Docs Foundry ${{ steps.release_meta.outputs.tag_name }}
+
+            Download the installer for your operating system below.
+
+            | Platform | File | Notes |
+            |---|---|---|
+            | **macOS** | `*.dmg` | Drag to Applications |
+            | **macOS** | `*-mac.zip` | Portable, no install needed |
+            | **Windows** | `*Setup*.exe` | One-click NSIS installer |
+            | **Windows** | `*-win.zip` | Portable, unzip and run |
+            | **Linux** | `*.AppImage` | `chmod +x` then run directly |
+            | **Linux** | `*.deb` | `sudo apt install ./file.deb` |
+            | **Linux** | `*.tar.gz` | Portable archive |
+
+            > **macOS note:** The app is unsigned. Right-click → Open to bypass Gatekeeper on first launch.
+            > **Windows note:** SmartScreen may warn on first run — click "More info → Run anyway".
+          files: release-artifacts/*
+          fail_on_unmatched_files: true

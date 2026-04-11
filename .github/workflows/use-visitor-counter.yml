@@ -1,68 +1,93 @@
-name: Update Visitor Badge
+name: Use Visitor Counter Logic
 
 on:
+  pull_request:
+    branches:
+      - main
   schedule:
     - cron: '15 */6 * * *'
   workflow_dispatch:
 
 permissions:
   contents: write
+  pull-requests: write
 
 jobs:
-  update-badge:
+  update-visitor-count:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: Checkout current repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-      - name: Bump visitor counter
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Run visitor counter logic (updates markdown badges, docs/index.html, and metrics.json)
+        run: node .github/scripts/update_repo_views_counter.js
         env:
-          NAMESPACE: brown9804
-          KEY: docfoundry-readme
+          TRAFFIC_TOKEN: ${{ secrets.TRAFFIC_TOKEN }}
+          REPO: ${{ github.repository }}
+
+      - name: Configure Git author
         run: |
-          curl -fsSL "https://api.countapi.xyz/hit/${NAMESPACE}/${KEY}" > counter.json
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-      - name: Update badge markers in README and Pages site
+      # Commit and push for PR events (stash → rebase → pop to avoid conflicts)
+      - name: Commit and push changes (PR)
+        if: github.event_name == 'pull_request'
+        env:
+          TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          python - <<'PY'
-          from pathlib import Path
-
-          value = Path("counter.json").read_text(encoding="utf-8")
-          import json
-          count = json.loads(value)["value"]
-
-          START = "<!-- START BADGE -->"
-          END   = "<!-- END BADGE -->"
-
-          # README badge (div block, centered)
-          readme = Path("README.md")
-          readme_badge = f'<div align="center">\n  <img src="https://img.shields.io/badge/Total%20views-{count}-limegreen" alt="Total views">\n</div>'
-          t = readme.read_text(encoding="utf-8")
-          if START not in t or END not in t:
-              raise SystemExit("README badge markers are missing")
-          before, rest = t.split(START, 1)
-          _, after = rest.split(END, 1)
-          readme.write_text(before + START + "\n" + readme_badge + "\n" + END + after, encoding="utf-8")
-
-          # Pages site badge (inline img inside the hero-bar span)
-          pages = Path("docs/index.html")
-          pages_badge = f'<span class="badge-link"><img src="https://img.shields.io/badge/Total%20views-{count}-limegreen" alt="Total views" loading="lazy" /></span>'
-          t = pages.read_text(encoding="utf-8")
-          if START not in t or END not in t:
-              raise SystemExit("docs/index.html badge markers are missing")
-          before, rest = t.split(START, 1)
-          _, after = rest.split(END, 1)
-          pages.write_text(before + START + "\n          " + pages_badge + "\n          " + END + after, encoding="utf-8")
-          PY
-
-      - name: Commit badge changes
-        run: |
-          if git diff --quiet; then
-            echo "No badge change required"
+          BRANCH="${{ github.head_ref }}"
+          git remote set-url origin https://x-access-token:${TOKEN}@github.com/${{ github.repository }}
+          HAS_CHANGES=false
+          if ! git diff --quiet || ! git diff --cached --quiet || [ -n "$(git ls-files --others --exclude-standard)" ]; then
+            HAS_CHANGES=true
+            git stash push --include-untracked --message visitor-counter
+          fi
+          git fetch origin "$BRANCH"
+          git checkout -B "$BRANCH" "origin/$BRANCH"
+          if [ "$HAS_CHANGES" = true ]; then
+            git stash pop
+          fi
+          git add -A
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
             exit 0
           fi
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add README.md docs/index.html
-          git commit -m "docs: update visitor badge"
-          git push
+          git commit -m "docs: update visitor count"
+          git pull --rebase origin "$BRANCH"
+          git push origin HEAD:"$BRANCH"
+
+      # Commit and push for schedule/workflow_dispatch events
+      - name: Commit and push changes (non-PR)
+        if: github.event_name != 'pull_request'
+        env:
+          TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          BRANCH="${{ github.ref_name }}"
+          git remote set-url origin https://x-access-token:${TOKEN}@github.com/${{ github.repository }}
+          HAS_CHANGES=false
+          if ! git diff --quiet || ! git diff --cached --quiet || [ -n "$(git ls-files --others --exclude-standard)" ]; then
+            HAS_CHANGES=true
+            git stash push --include-untracked --message visitor-counter
+          fi
+          git fetch origin "$BRANCH"
+          git checkout -B "$BRANCH" "origin/$BRANCH"
+          if [ "$HAS_CHANGES" = true ]; then
+            git stash pop
+          fi
+          git add -A
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+            exit 0
+          fi
+          git commit -m "docs: update visitor count"
+          git pull --rebase origin "$BRANCH"
+          git push origin HEAD:"$BRANCH"
+

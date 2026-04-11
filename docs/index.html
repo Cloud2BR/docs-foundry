@@ -179,15 +179,9 @@
       }
       .feature-card {
         border: 1px solid var(--border);
-        border-left: 3px solid var(--border);
         border-radius: var(--radius-lg);
         background: var(--card);
         padding: 18px;
-        cursor: default;
-        transition: border-left-color 140ms ease;
-      }
-      .feature-card:hover {
-        border-left-color: var(--link);
       }
       .feature-card .icon {
         font-size: 1.6rem;
@@ -435,7 +429,6 @@
       }
 
       @media (prefers-reduced-motion: reduce) {
-        .feature-card,
         a.platform-card,
         .download-link-secondary { transition: none; }
         a.platform-card:hover { transform: none; }

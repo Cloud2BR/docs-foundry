@@ -42,6 +42,26 @@ Last updated: 2026-02-25
 
 Build artifacts go to `release/`.
 
+#### macOS — "damaged and can't be opened" (Gatekeeper)
+
+DocFoundry is unsigned (no Apple Developer certificate). macOS quarantines apps downloaded from the internet. Run this once after downloading:
+
+```bash
+xattr -cr /Applications/DocFoundry.app
+```
+
+Or if you extracted from the ZIP before moving to Applications:
+
+```bash
+xattr -cr /path/to/DocFoundry.app
+```
+
+Then double-click the app normally.
+
+#### Windows — SmartScreen warning
+
+Click **More info → Run anyway** on the SmartScreen prompt. This appears because the installer is not signed with a code-signing certificate.
+
 ## Build binaries
 
 ### From host machine

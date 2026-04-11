@@ -133,7 +133,12 @@ jobs:
             | **Linux** | `*.deb` | `sudo apt install ./file.deb` |
             | **Linux** | `*.tar.gz` | Portable archive |
 
-            > **macOS note:** The app is unsigned. Right-click → Open to bypass Gatekeeper on first launch.
-            > **Windows note:** SmartScreen may warn on first run — click "More info → Run anyway".
+            > **macOS — "damaged and can't be opened":** The app is unsigned. After downloading, remove the quarantine flag once:
+            > ```
+            > xattr -cr /Applications/DocFoundry.app
+            > ```
+            > Then open normally.
+            >
+            > **Windows — SmartScreen warning:** Click **More info → Run anyway**. The installer is not code-signed.
           files: release-artifacts/*
           fail_on_unmatched_files: true

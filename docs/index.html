@@ -171,32 +171,43 @@
         margin: 0 0 20px;
       }
 
-      /* ── Feature cards ── */
-      .feature-grid {
+      /* ── Capability list ── */
+      .capability-list {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 0;
+      }
+      .capability-item {
+        display: flex;
         gap: 14px;
+        align-items: flex-start;
+        padding: 16px 0;
+        border-bottom: 1px solid var(--border);
       }
-      .feature-card {
-        border: 1px solid var(--border);
-        border-radius: var(--radius-lg);
-        background: var(--card);
-        padding: 18px;
+      .capability-item:nth-last-child(-n+2) {
+        border-bottom: none;
       }
-      .feature-card .icon {
-        font-size: 1.6rem;
-        margin-bottom: 10px;
+      /* Remove bottom border on last item in each column for even grids */
+      @media (min-width: 640px) {
+        .capability-item:nth-last-child(-n+2) { border-bottom: none; }
+      }
+      .capability-icon {
+        font-size: 1.4rem;
+        flex-shrink: 0;
+        width: 28px;
+        text-align: center;
+        margin-top: 2px;
+      }
+      .capability-text strong {
         display: block;
+        font-size: 0.95rem;
+        margin-bottom: 3px;
       }
-      .feature-card h3 {
-        margin: 0 0 6px;
-        font-size: 1rem;
-      }
-      .feature-card p {
+      .capability-text p {
         margin: 0;
         color: var(--muted);
-        font-size: 0.92rem;
-        line-height: 1.55;
+        font-size: 0.88rem;
+        line-height: 1.5;
       }
 
       /* ── Getting started steps ── */
@@ -477,37 +488,31 @@
             docs workspace, purpose-built for documentation projects.
           </p>
 
-          <div class="feature-grid">
-            <article class="feature-card">
-              <div class="icon">📝</div>
-              <h3>Markdown editor</h3>
-              <p>Write in a clean, distraction-free text editor with monospace font and syntax awareness. Save with Ctrl+S and track unsaved changes automatically.</p>
-            </article>
-            <article class="feature-card">
-              <div class="icon">👁️</div>
-              <h3>Live preview</h3>
-              <p>See your Markdown rendered in real time in a split pane beside the editor. Supports headings, bold, italic, code blocks, lists, links, images, and blockquotes.</p>
-            </article>
-            <article class="feature-card">
-              <div class="icon">📂</div>
-              <h3>Sidebar file tree</h3>
-              <p>Open any folder and browse its entire file tree in a collapsible sidebar. Click files to open them, and navigate deep directory structures up to 8 levels.</p>
-            </article>
-            <article class="feature-card">
-              <div class="icon">🐳</div>
-              <h3>Container-first dev</h3>
-              <p>Contributors never install Node.js locally. Run <code>make setup</code> to build a Docker container and install all dependencies inside it.</p>
-            </article>
-            <article class="feature-card">
-              <div class="icon">📦</div>
-              <h3>Cross-platform binaries</h3>
-              <p>Ship native installers for macOS (DMG), Windows (NSIS), and Linux (AppImage, DEB). Built automatically via GitHub Actions.</p>
-            </article>
-            <article class="feature-card">
-              <div class="icon">🔄</div>
-              <h3>Auto-update</h3>
-              <p>Packaged builds check GitHub Releases for updates via electron-updater. Users get the latest version without manual downloads.</p>
-            </article>
+          <div class="capability-list">
+            <div class="capability-item">
+              <span class="capability-icon">📝</span>
+              <div class="capability-text"><strong>Markdown editor</strong><p>Distraction-free monospace editor with Ctrl+S save and unsaved-change tracking.</p></div>
+            </div>
+            <div class="capability-item">
+              <span class="capability-icon">👁️</span>
+              <div class="capability-text"><strong>Live preview</strong><p>Split-pane Markdown rendering in real time — headings, bold, code blocks, lists, and more.</p></div>
+            </div>
+            <div class="capability-item">
+              <span class="capability-icon">📂</span>
+              <div class="capability-text"><strong>Sidebar file tree</strong><p>Open any folder and navigate its full directory structure up to 8 levels deep.</p></div>
+            </div>
+            <div class="capability-item">
+              <span class="capability-icon">🐳</span>
+              <div class="capability-text"><strong>Container-first dev</strong><p>No local Node.js needed. Run <code>make setup</code> to build a Docker container with all deps.</p></div>
+            </div>
+            <div class="capability-item">
+              <span class="capability-icon">📦</span>
+              <div class="capability-text"><strong>Cross-platform installers</strong><p>Native DMG, NSIS, AppImage, and DEB packages built automatically via GitHub Actions.</p></div>
+            </div>
+            <div class="capability-item">
+              <span class="capability-icon">🔄</span>
+              <div class="capability-text"><strong>Auto-update</strong><p>Packaged builds silently check GitHub Releases for updates via electron-updater.</p></div>
+            </div>
           </div>
         </div>
       </section>

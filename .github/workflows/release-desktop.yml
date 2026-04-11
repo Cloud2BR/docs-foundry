@@ -99,6 +99,20 @@ jobs:
             echo "release_name=Docs Foundry ${TAG_NAME}" >> "$GITHUB_OUTPUT"
           fi
 
+      - name: Delete existing release if present
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TAG="${{ steps.release_meta.outputs.tag_name }}"
+          RELEASE_ID=$(gh api repos/${{ github.repository }}/releases/tags/${TAG} \
+            --jq '.id' 2>/dev/null || true)
+          if [ -n "$RELEASE_ID" ] && [ "$RELEASE_ID" != "null" ]; then
+            echo "Deleting existing release ${RELEASE_ID} for tag ${TAG}..."
+            gh api -X DELETE repos/${{ github.repository }}/releases/${RELEASE_ID}
+          else
+            echo "No existing release found for tag ${TAG}, creating fresh."
+          fi
+
       - name: Create GitHub release
         uses: softprops/action-gh-release@v2
         with:

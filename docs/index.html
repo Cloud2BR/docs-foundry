@@ -568,7 +568,7 @@
             <a class="platform-card" href="https://github.com/Cloud2BR/docs-foundry/releases/latest" target="_blank" rel="noopener noreferrer" aria-label="Download Docs Foundry for macOS">
               <span class="platform-icon">🍎</span>
               <h3>macOS</h3>
-              <p class="formats">.dmg &nbsp;·&nbsp; .zip</p>
+              <p class="formats">.dmg recommended &nbsp;·&nbsp; .zip advanced</p>
               <span class="download-label">↓ Download for macOS</span>
             </a>
             <a class="platform-card" href="https://github.com/Cloud2BR/docs-foundry/releases/latest" target="_blank" rel="noopener noreferrer" aria-label="Download Docs Foundry for Windows">
@@ -590,6 +590,12 @@
             <a class="download-link-secondary" href="https://github.com/Cloud2BR/docs-foundry/actions/workflows/release-desktop.yml" target="_blank" rel="noopener noreferrer">Build pipeline ↗</a>
             <a class="download-link-secondary" href="https://github.com/Cloud2BR/docs-foundry" target="_blank" rel="noopener noreferrer">Source on GitHub ↗</a>
           </div>
+
+          <p class="section-copy" style="margin-top: 18px;">
+            On macOS, use the <strong>.dmg</strong> first. If you open the <strong>.zip</strong>
+            app bundle and macOS says the app is damaged, run
+            <code>xattr -cr /path/to/DocFoundry.app</code> once and reopen it.
+          </p>
         </div>
       </section>
 

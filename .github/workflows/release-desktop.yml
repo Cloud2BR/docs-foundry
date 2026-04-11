@@ -120,17 +120,19 @@ jobs:
 
             | Platform | File | Notes |
             |---|---|---|
-            | **macOS** | `*.dmg` | Drag to Applications |
-            | **macOS** | `*-mac.zip` | Portable, no install needed |
+            | **macOS** | `*.dmg` | Recommended. Drag to Applications |
+            | **macOS** | `*-mac.zip` | Advanced/manual fallback. May require `xattr` after download |
             | **Windows** | `*Setup*.exe` | One-click NSIS installer |
             | **Windows** | `*-win.zip` | Portable, unzip and run |
             | **Linux** | `*.AppImage` | `chmod +x` then run directly |
             | **Linux** | `*.deb` | `sudo apt install ./file.deb` |
             | **Linux** | `*.tar.gz` | Portable archive |
 
-            > **macOS — "damaged and can't be opened":** The app is unsigned. After downloading, remove the quarantine flag once:
+            > **macOS:** Use the `.dmg` first.
+            >
+            > **macOS — "damaged and can't be opened":** If you use the `.zip` build, the app is unsigned and may need the quarantine flag removed once after download:
             > ```
-            > xattr -cr /Applications/DocFoundry.app
+            > xattr -cr /path/to/DocFoundry.app
             > ```
             > Then open normally.
             >

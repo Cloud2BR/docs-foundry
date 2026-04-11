@@ -36,7 +36,7 @@ Last updated: 2026-02-25
 
 > This mode is for users who just want to install and run DocFoundry.
 
-- macOS outputs: `.dmg`, `.zip`
+- macOS outputs: `.dmg` (recommended), `.zip` (advanced/manual fallback)
 - Windows outputs: `NSIS installer`, `.zip`
 - Linux outputs: `AppImage`, `.deb`, `.tar.gz`
 
@@ -44,7 +44,7 @@ Build artifacts go to `release/`.
 
 #### macOS — "damaged and can't be opened" (Gatekeeper)
 
-DocFoundry is unsigned (no Apple Developer certificate). macOS quarantines apps downloaded from the internet. Run this once after downloading:
+DocFoundry is unsigned (no Apple Developer certificate). Use the `.dmg` first when downloading from GitHub Releases. macOS quarantines apps downloaded from the internet. If you open the `.zip` build and macOS blocks it, run this once after downloading:
 
 ```bash
 xattr -cr /Applications/DocFoundry.app

@@ -40,10 +40,28 @@ All development, linting, testing, and packaging happens inside the container.
 ## Workflow
 
 1. Fork the repository.
-2. Create a feature branch from `main`.
+2. Create a branch from `main` using the naming convention below.
 3. Make your changes inside the container.
 4. Run lint and tests: `npm run lint && npm test`
 5. Open a pull request.
+
+## Branch naming convention
+
+Branches follow a `<type>/<short-description>` pattern where `<short-description>` uses kebab-case.
+
+| Prefix | Purpose | Example |
+|---|---|---|
+| `feat/` | New feature or capability | `feat/markdown-frontmatter` |
+| `fix/` | Bug fix | `fix/sidebar-scroll-crash` |
+| `docs/` | Documentation or site changes only | `docs/update-readme-badges` |
+| `ci/` | CI/CD workflow changes | `ci/add-arm64-build` |
+| `test/` | Tests or test infrastructure | `test/add-renderer-smoke-tests` |
+| `chore/` | Maintenance, deps, tooling | `chore/upgrade-electron-35` |
+| `release/` | Release preparation (version bumps, changelogs) | `release/v0.2.0` |
+
+> **Special branches**
+> - `main` — production-ready code; all releases are tagged here
+> - `test-binaries` — integration branch for validating cross-platform build outputs before merging to `main`
 
 ## Code style
 

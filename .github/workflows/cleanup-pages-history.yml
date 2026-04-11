@@ -1,11 +1,9 @@
 name: Cleanup Pages History
 
 on:
-  pull_request:
-    types: [closed]
-    branches: [main]
-  schedule:
-    - cron: '30 3 * * 0'
+  push:
+    branches:
+      - main
   workflow_dispatch:
 
 permissions:

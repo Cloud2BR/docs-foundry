@@ -192,6 +192,19 @@ describe('Feature surface', () => {
     expect(html).toContain('shortcuts-overlay');
   });
 
+  it('HTML includes a titled input dialog', () => {
+    const html = fs.readFileSync(path.resolve('src/renderer/index.html'), 'utf-8');
+    expect(html).toContain('input-dialog-title');
+    expect(html).toContain('input-dialog-help');
+    expect(html).toContain('aria-modal="true"');
+  });
+
+  it('renderer styles preserve the hidden attribute for workspace and overlays', () => {
+    const css = fs.readFileSync(path.resolve('src/renderer/styles.css'), 'utf-8');
+    expect(css).toContain('[hidden]');
+    expect(css).toContain('display: none !important;');
+  });
+
   it('HTML includes diff and broken link overlays', () => {
     const html = fs.readFileSync(path.resolve('src/renderer/index.html'), 'utf-8');
     expect(html).toContain('diff-overlay');
@@ -262,6 +275,24 @@ describe('Feature surface', () => {
     expect(renderer).toContain('exportCurrentPdf');
     expect(renderer).toContain('renderMermaidDiagrams');
     expect(renderer).toContain('handleExternalDrop');
+  });
+
+  it('renderer resolves and prioritizes the input dialog correctly', () => {
+    const renderer = fs.readFileSync(path.resolve('src/renderer/renderer.js'), 'utf-8');
+    expect(renderer).toContain('let inputDialogState = null;');
+    expect(renderer).toContain('if (!inputDialog.hidden) { closeInputDialog(null); return; }');
+    expect(renderer).toContain('function hideBlockingOverlays()');
+    expect(renderer).toContain('inputDialogState = { resolve, cleanup };');
+    expect(renderer).toContain('resolve(result);');
+  });
+
+  it('renderer provides helper copy for file, folder, and rename dialogs', () => {
+    const renderer = fs.readFileSync(path.resolve('src/renderer/renderer.js'), 'utf-8');
+    expect(renderer).toContain('Create new file');
+    expect(renderer).toContain('Create new folder');
+    expect(renderer).toContain('Rename item');
+    expect(renderer).toContain('helpText');
+    expect(renderer).toContain('inputDialogHelp.textContent = helpText;');
   });
 
   it('renderer loads Mermaid from a local packaged asset instead of a CDN', () => {

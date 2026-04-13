@@ -20,6 +20,10 @@
 
 * { box-sizing: border-box; margin: 0; }
 
+[hidden] {
+  display: none !important;
+}
+
 html, body { height: 100%; }
 
 body {
@@ -1039,6 +1043,20 @@ h1 {
   box-shadow: 0 20px 60px rgba(0,0,0,0.5);
   padding: 24px;
   align-self: flex-start;
+}
+
+.input-dialog-title {
+  color: #fff;
+  font-family: 'Fraunces', serif;
+  font-size: 1.3rem;
+  margin: 0 0 8px;
+}
+
+.input-dialog-help {
+  color: rgba(255, 255, 255, 0.58);
+  font-size: 0.84rem;
+  line-height: 1.5;
+  margin: 0 0 14px;
 }
 
 .input-dialog label {

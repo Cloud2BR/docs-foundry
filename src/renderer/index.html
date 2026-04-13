@@ -235,10 +235,12 @@
     </div>
 
     <!-- New file/folder input dialog -->
-    <div id="input-dialog" class="overlay-backdrop" hidden role="dialog" aria-label="Input dialog">
+    <div id="input-dialog" class="overlay-backdrop" hidden role="dialog" aria-modal="true" aria-labelledby="input-dialog-title">
       <div class="input-dialog">
-        <label id="input-dialog-label"></label>
-        <input type="text" id="input-dialog-input" autocomplete="off" spellcheck="false" />
+        <h2 id="input-dialog-title" class="input-dialog-title"></h2>
+        <label id="input-dialog-label" for="input-dialog-input"></label>
+        <p id="input-dialog-help" class="input-dialog-help" hidden></p>
+        <input type="text" id="input-dialog-input" autocomplete="off" spellcheck="false" aria-describedby="input-dialog-help" />
         <div class="input-dialog-actions">
           <button type="button" class="button ghost" id="input-dialog-cancel">Cancel</button>
           <button type="button" class="button primary" id="input-dialog-ok">Create</button>

@@ -55,7 +55,9 @@ const replaceAll = document.getElementById('replace-all');
 const shortcutsOverlay = document.getElementById('shortcuts-overlay');
 const shortcutsClose = document.getElementById('shortcuts-close');
 const inputDialog = document.getElementById('input-dialog');
+const inputDialogTitle = document.getElementById('input-dialog-title');
 const inputDialogLabel = document.getElementById('input-dialog-label');
+const inputDialogHelp = document.getElementById('input-dialog-help');
 const inputDialogInput = document.getElementById('input-dialog-input');
 const inputDialogOk = document.getElementById('input-dialog-ok');
 const inputDialogCancel = document.getElementById('input-dialog-cancel');
@@ -83,6 +85,7 @@ let mermaidLoaderPromise = null;
 let suggestionItems = [];
 let suggestionIndex = 0;
 let suggestionRange = null;
+let inputDialogState = null;
 
 // ── Version label ─────────────────────────────────────────────────────────────
 if (versionEl && api) {
@@ -278,13 +281,13 @@ document.addEventListener('keydown', (e) => {
 
   // Escape — close overlays
   if (e.key === 'Escape') {
+    if (!inputDialog.hidden) { closeInputDialog(null); return; }
     if (!diffOverlay.hidden) { toggleDiffOverlay(false); return; }
     if (!linkCheckOverlay.hidden) { toggleBrokenLinkOverlay(false); return; }
     if (!commandPalette.hidden) { toggleCommandPalette(false); return; }
     if (!searchPanel.hidden) { toggleSearchPanel(false); return; }
     if (!shortcutsOverlay.hidden) { toggleShortcuts(false); return; }
     if (!findBar.hidden) { toggleFindBar(false); return; }
-    if (!inputDialog.hidden) { closeInputDialog(); return; }
   }
 });
 
@@ -664,7 +667,14 @@ function showContextMenu(event, entry) {
 async function promptNewFile(parentDir) {
   const dir = parentDir || workspaceRoot;
   if (!dir) return;
-  const name = await showInputDialog('New File', 'Enter file name:', 'untitled.md');
+  const name = await showInputDialog({
+    title: 'Create new file',
+    label: 'File name',
+    helpText: 'Create a file in the selected folder. Use a single file name such as notes.md or guide.md. Do not include slashes.',
+    defaultValue: 'untitled.md',
+    placeholder: 'notes.md',
+    actionLabel: 'Create'
+  });
   if (!name) return;
   try {
     const entry = await api.createNewFile(dir, name);
@@ -683,7 +693,14 @@ async function promptNewFile(parentDir) {
 async function promptNewFolder(parentDir) {
   const dir = parentDir || workspaceRoot;
   if (!dir) return;
-  const name = await showInputDialog('New Folder', 'Enter folder name:', 'new-folder');
+  const name = await showInputDialog({
+    title: 'Create new folder',
+    label: 'Folder name',
+    helpText: 'Create a folder inside the selected workspace location. Use one folder name only, for example docs or images.',
+    defaultValue: 'new-folder',
+    placeholder: 'docs',
+    actionLabel: 'Create'
+  });
   if (!name) return;
   try {
     await api.createNewFolder(dir, name);
@@ -699,7 +716,14 @@ async function promptNewFolder(parentDir) {
 }
 
 async function promptRename(entry) {
-  const newName = await showInputDialog('Rename', `Rename "${entry.name}" to:`, entry.name);
+  const newName = await showInputDialog({
+    title: 'Rename item',
+    label: 'New name',
+    helpText: `Rename "${entry.name}" without moving it to another folder. Use a single name only.`,
+    defaultValue: entry.name,
+    placeholder: entry.name,
+    actionLabel: 'Rename'
+  });
   if (!newName || newName === entry.name) return;
   try {
     const result = await api.renameFile(entry.path, newName);
@@ -748,35 +772,81 @@ async function deleteEntry(entry) {
 }
 
 // ── Input dialog ──────────────────────────────────────────────────────────────
-function showInputDialog(title, label, defaultValue) {
+function hideBlockingOverlays() {
+  toggleShortcuts(false);
+  toggleCommandPalette(false);
+  toggleSearchPanel(false);
+  toggleDiffOverlay(false);
+  toggleBrokenLinkOverlay(false);
+  document.querySelectorAll('.context-menu').forEach((el) => el.remove());
+}
+
+function showInputDialog(options) {
+  if (inputDialogState) {
+    closeInputDialog(null);
+  }
+
+  hideBlockingOverlays();
+
+  const {
+    title,
+    label,
+    helpText = '',
+    defaultValue = '',
+    placeholder = '',
+    actionLabel = 'Create'
+  } = options;
+
   return new Promise((resolve) => {
+    inputDialogTitle.textContent = title;
     inputDialogLabel.textContent = label;
-    inputDialogInput.value = defaultValue || '';
+    inputDialogHelp.textContent = helpText;
+    inputDialogHelp.hidden = !helpText;
+    inputDialogOk.textContent = actionLabel;
+    inputDialogInput.value = defaultValue;
+    inputDialogInput.placeholder = placeholder;
     inputDialog.hidden = false;
     inputDialogInput.focus();
     inputDialogInput.select();
 
     function cleanup() {
       inputDialog.hidden = true;
+      inputDialogHelp.hidden = true;
+      inputDialogHelp.textContent = '';
       inputDialogOk.removeEventListener('click', onOk);
       inputDialogCancel.removeEventListener('click', onCancel);
       inputDialogInput.removeEventListener('keydown', onKey);
+      inputDialogState = null;
     }
 
     function onOk() { cleanup(); resolve(inputDialogInput.value.trim() || null); }
     function onCancel() { cleanup(); resolve(null); }
     function onKey(e) {
-      if (e.key === 'Enter') onOk();
-      if (e.key === 'Escape') onCancel();
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        onOk();
+      }
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        onCancel();
+      }
     }
 
+    inputDialogState = { resolve, cleanup };
     inputDialogOk.addEventListener('click', onOk);
     inputDialogCancel.addEventListener('click', onCancel);
     inputDialogInput.addEventListener('keydown', onKey);
   });
 }
 
-function closeInputDialog() {
+function closeInputDialog(result = null) {
+  if (inputDialogState) {
+    const { resolve, cleanup } = inputDialogState;
+    cleanup();
+    resolve(result);
+    return;
+  }
+
   inputDialog.hidden = true;
 }
 

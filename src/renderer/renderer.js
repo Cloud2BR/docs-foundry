@@ -12,6 +12,7 @@ const workspaceNameEl = document.getElementById('workspace-name');
 const tabsScroll = document.getElementById('tabs-scroll');
 const codeEditor = document.getElementById('code-editor');
 const previewEl = document.getElementById('preview');
+const previewPane = document.querySelector('.pane-preview');
 const linkSuggestions = document.getElementById('link-suggestions');
 const versionEl = document.getElementById('version');
 const sidebar = document.getElementById('sidebar');
@@ -366,11 +367,11 @@ codeEditor.addEventListener('scroll', () => {
   syncPreviewToEditor();
 });
 
-previewEl.addEventListener('scroll', () => {
+previewPane.addEventListener('scroll', () => {
   syncEditorToPreview();
 });
 
-for (const dropTarget of [codeEditor, previewEl]) {
+for (const dropTarget of [codeEditor, previewPane]) {
   dropTarget.addEventListener('dragover', (event) => {
     event.preventDefault();
     dropTarget.classList.add('drop-target');
@@ -1226,7 +1227,8 @@ document.addEventListener('mouseup', () => {
 async function exportCurrentHtml() {
   const tab = getActiveTab();
   if (!tab) return;
-  const htmlBody = markdownToHtml(tab.content);
+  await renderMermaidDiagrams();
+  const htmlBody = previewEl.innerHTML;
   const fullHtml = `<!doctype html>
 <html lang="en">
 <head>
@@ -1260,7 +1262,8 @@ async function exportCurrentHtml() {
 async function exportCurrentPdf() {
   const tab = getActiveTab();
   if (!tab) return;
-  const htmlBody = markdownToHtml(tab.content);
+  await renderMermaidDiagrams();
+  const htmlBody = previewEl.innerHTML;
   const suggestedName = tab.name.replace(/\.md$/i, '.pdf');
   await api.exportPdf(htmlBody, suggestedName);
 }
@@ -1536,14 +1539,14 @@ function insertTextAtCursor(text) {
 function syncPreviewToEditor() {
   if (previewSyncLock === 'preview') return;
   previewSyncLock = 'editor';
-  syncScrollPosition(codeEditor, previewEl);
+  syncScrollPosition(codeEditor, previewPane);
   queueMicrotask(() => { previewSyncLock = null; });
 }
 
 function syncEditorToPreview() {
   if (previewSyncLock === 'editor') return;
   previewSyncLock = 'preview';
-  syncScrollPosition(previewEl, codeEditor);
+  syncScrollPosition(previewPane, codeEditor);
   queueMicrotask(() => { previewSyncLock = null; });
 }
 
@@ -1559,7 +1562,7 @@ async function loadMermaid() {
   if (!mermaidLoaderPromise) {
     mermaidLoaderPromise = new Promise((resolve, reject) => {
       const script = document.createElement('script');
-      script.src = 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js';
+      script.src = new URL('../../node_modules/mermaid/dist/mermaid.min.js', window.location.href).toString();
       script.onload = () => resolve(globalThis.mermaid);
       script.onerror = () => reject(new Error('Failed to load Mermaid renderer'));
       document.head.appendChild(script);

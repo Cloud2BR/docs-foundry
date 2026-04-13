@@ -56,7 +56,9 @@ describe('Security', () => {
 
   it('main process validates file paths', () => {
     const main = fs.readFileSync(path.resolve('src/main.js'), 'utf-8');
-    expect(main).toContain('Access denied: file is outside workspace');
+    const workspacePath = fs.readFileSync(path.resolve('src/lib/workspace-path.js'), 'utf-8');
+    expect(main).toContain("const { resolveWorkspacePath, validateFileName } = require('./lib/workspace-path');");
+    expect(workspacePath).toContain('Access denied: file is outside workspace');
   });
 
   it('workspace-path resolves symlinks for traversal protection', () => {
@@ -241,6 +243,11 @@ describe('Feature surface', () => {
     expect(pkg.scripts.prepack).toContain('generate-icons');
   });
 
+  it('package.json includes Mermaid as a runtime dependency', () => {
+    const pkg = JSON.parse(fs.readFileSync(path.resolve('package.json'), 'utf-8'));
+    expect(pkg.dependencies.mermaid).toBeTruthy();
+  });
+
   it('release workflow generates icons before building installers', () => {
     const workflow = fs.readFileSync(path.resolve('.github/workflows/release-desktop.yml'), 'utf-8');
     expect(workflow).toContain('Generate icons');
@@ -254,5 +261,11 @@ describe('Feature surface', () => {
     expect(renderer).toContain('exportCurrentPdf');
     expect(renderer).toContain('renderMermaidDiagrams');
     expect(renderer).toContain('handleExternalDrop');
+  });
+
+  it('renderer loads Mermaid from a local packaged asset instead of a CDN', () => {
+    const renderer = fs.readFileSync(path.resolve('src/renderer/renderer.js'), 'utf-8');
+    expect(renderer).toContain("../../node_modules/mermaid/dist/mermaid.min.js");
+    expect(renderer).not.toContain('cdn.jsdelivr.net');
   });
 });

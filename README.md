@@ -29,8 +29,6 @@ Last updated: 2026-02-25
 
 > DocFoundry ships multi-tab editing, split-pane live preview, a command palette, workspace-wide search, in-file find and replace, a document outline, file operations (create, rename, delete), auto-save, HTML export, zen mode, resizable panes, a keyboard shortcuts overlay, a status bar (word count, reading time, cursor position), breadcrumbs, and full Markdown rendering (headings, bold/italic, lists, task lists, tables, code blocks, blockquotes, images, links, horizontal rules, strikethrough, highlight, footnotes). The app includes unsaved-change protection on close, a file watcher for external changes, native menus with keyboard accelerators, and a secure architecture (contextIsolation, no nodeIntegration, validated file paths).
 
-> v0.0.1 also includes Git change indicators with per-file diff view, broken-link checks, link autocomplete, PDF export, editor/preview scroll sync, drag-and-drop file and image support, Mermaid diagram rendering from a bundled local asset, and native spell check.
-
 For the full changelog and per-version details, see [Releases](https://github.com/Cloud2BR/docs-foundry/releases).
 
 > [!NOTE]
@@ -98,7 +96,8 @@ DocFoundry/
 Live roadmap page: [Docs Foundry Roadmap](https://cloud2br.github.io/docs-foundry/roadmap.html)
 Product feedback page: [Docs Foundry Feedback](https://cloud2br.github.io/docs-foundry/feedback.html)
 
-The feedback page prepopulates requests in the GitHub Pages UI and routes them into [Cloud2BR/docs-foundry-feedback](https://github.com/Cloud2BR/docs-foundry-feedback). The production flow opens a prefilled issue there and lets that repo process it with a GitHub Actions intake workflow after submission.
+> [!IMPORTANT]
+> The feedback page prepopulates requests in the GitHub Pages UI and routes them into [Cloud2BR/docs-foundry-feedback](https://github.com/Cloud2BR/docs-foundry-feedback). The production flow opens a prefilled issue there and lets that repo process it with a GitHub Actions intake workflow after submission.
 
 ## Mode 1: Container-only development
 

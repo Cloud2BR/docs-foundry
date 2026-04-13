@@ -160,6 +160,13 @@ function handleWindowClose(event) {
   }
 }
 
+// ── IPC: app info (safe for sandboxed preloads) ──────────────────────────────
+
+ipcMain.handle('get-app-info', () => ({
+  name: app.name || 'DocFoundry',
+  version: app.getVersion()
+}));
+
 // ── IPC: folder operations ────────────────────────────────────────────────────
 
 ipcMain.handle('open-folder', async () => {

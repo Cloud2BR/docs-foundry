@@ -1,9 +1,10 @@
 const { contextBridge, ipcRenderer } = require('electron');
-const { version } = require('../package.json');
 
+// Sandboxed preloads (Electron 20+) can only require('electron').
+// App metadata is fetched from the main process via IPC instead.
 contextBridge.exposeInMainWorld('docfoundry', {
   appName: 'DocFoundry',
-  version,
+  getAppInfo: () => ipcRenderer.invoke('get-app-info'),
 
   // Workspace
   openFolder: () => ipcRenderer.invoke('open-folder'),

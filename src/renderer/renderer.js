@@ -88,8 +88,12 @@ let suggestionRange = null;
 let inputDialogState = null;
 
 // ── Version label ─────────────────────────────────────────────────────────────
-if (versionEl && api) {
-  versionEl.textContent = `${api.appName} v${api.version}`;
+if (versionEl && api?.getAppInfo) {
+  api.getAppInfo().then((info) => {
+    versionEl.textContent = `${info.name} v${info.version}`;
+  }).catch(() => {
+    versionEl.textContent = api.appName;
+  });
 }
 
 // ── API guard ─────────────────────────────────────────────────────────────────

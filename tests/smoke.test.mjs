@@ -329,4 +329,32 @@ describe('Feature surface', () => {
     const main = fs.readFileSync(path.resolve('src/main.js'), 'utf-8');
     expect(main).toContain("if (!currentFolder) throw new Error('No workspace is open");
   });
+
+  it('preload only requires electron (sandbox-safe)', () => {
+    const preload = fs.readFileSync(path.resolve('src/preload.js'), 'utf-8');
+    // In sandboxed preloads (Electron 20+) only require('electron') works.
+    // Requiring local files like package.json crashes the entire preload.
+    const requires = [...preload.matchAll(/require\(([^)]+)\)/g)].map(m => m[1].trim());
+    for (const req of requires) {
+      expect(req).toBe("'electron'");
+    }
+  });
+
+  it('preload exposes getAppInfo for sandbox-safe version retrieval', () => {
+    const preload = fs.readFileSync(path.resolve('src/preload.js'), 'utf-8');
+    expect(preload).toContain('getAppInfo');
+    expect(preload).toContain("ipcRenderer.invoke('get-app-info')");
+  });
+
+  it('main process provides get-app-info IPC handler', () => {
+    const main = fs.readFileSync(path.resolve('src/main.js'), 'utf-8');
+    expect(main).toContain("ipcMain.handle('get-app-info'");
+    expect(main).toContain('app.getVersion()');
+  });
+
+  it('renderer fetches version asynchronously via getAppInfo', () => {
+    const renderer = fs.readFileSync(path.resolve('src/renderer/renderer.js'), 'utf-8');
+    expect(renderer).toContain('api.getAppInfo()');
+    expect(renderer).not.toContain('api.version');
+  });
 });

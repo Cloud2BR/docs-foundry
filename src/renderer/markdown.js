@@ -149,6 +149,9 @@
   }
 
   function renderCodeBlock(code, lang) {
+    if ((lang || '').toLowerCase() === 'mermaid') {
+      return `<div class="mermaid-block" data-mermaid="${escapeAttribute(code)}"></div>`;
+    }
     const languageClass = lang ? ` class="language-${escapeAttribute(lang)}"` : '';
     return `<pre><code${languageClass}>${escapeHtml(code)}</code></pre>`;
   }

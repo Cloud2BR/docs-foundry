@@ -62,6 +62,13 @@ describe('markdownToHtml', () => {
     expect(html).toContain('console.log');
   });
 
+  it('renders Mermaid code fences as diagram placeholders', () => {
+    const md = '```mermaid\ngraph TD\nA-->B\n```';
+    const html = markdownToHtml(md);
+    expect(html).toContain('class="mermaid-block"');
+    expect(html).toContain('data-mermaid=');
+  });
+
   it('renders inline code', () => {
     const html = markdownToHtml('Use `npm install`');
     expect(html).toContain('<code>npm install</code>');

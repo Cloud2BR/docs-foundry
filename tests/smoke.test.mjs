@@ -105,6 +105,25 @@ describe('Feature surface', () => {
     expect(main).toContain("ipcMain.handle('export-html'");
   });
 
+  it('main process has export PDF handler', () => {
+    const main = fs.readFileSync(path.resolve('src/main.js'), 'utf-8');
+    expect(main).toContain("ipcMain.handle('export-pdf'");
+    expect(main).toContain('printToPDF');
+  });
+
+  it('main process has git status and diff handlers', () => {
+    const main = fs.readFileSync(path.resolve('src/main.js'), 'utf-8');
+    expect(main).toContain("ipcMain.handle('get-git-status'");
+    expect(main).toContain("ipcMain.handle('get-git-diff'");
+    expect(main).toContain("git', ['-C'");
+  });
+
+  it('main process supports dropped file import into the workspace', () => {
+    const main = fs.readFileSync(path.resolve('src/main.js'), 'utf-8');
+    expect(main).toContain("ipcMain.handle('import-files-into-workspace'");
+    expect(main).toContain('fs.copyFileSync');
+  });
+
   it('main process has file watcher', () => {
     const main = fs.readFileSync(path.resolve('src/main.js'), 'utf-8');
     expect(main).toContain('startFileWatcher');
@@ -124,6 +143,10 @@ describe('Feature surface', () => {
     expect(preload).toContain('deleteFile');
     expect(preload).toContain('renameFile');
     expect(preload).toContain('exportHtml');
+    expect(preload).toContain('exportPdf');
+    expect(preload).toContain('getGitStatus');
+    expect(preload).toContain('getGitDiff');
+    expect(preload).toContain('importFilesIntoWorkspace');
     expect(preload).toContain('onWorkspaceChanged');
   });
 
@@ -166,6 +189,18 @@ describe('Feature surface', () => {
     expect(html).toContain('shortcuts-overlay');
   });
 
+  it('HTML includes diff and broken link overlays', () => {
+    const html = fs.readFileSync(path.resolve('src/renderer/index.html'), 'utf-8');
+    expect(html).toContain('diff-overlay');
+    expect(html).toContain('link-check-overlay');
+    expect(html).toContain('link-suggestions');
+  });
+
+  it('HTML enables spellcheck in the editor', () => {
+    const html = fs.readFileSync(path.resolve('src/renderer/index.html'), 'utf-8');
+    expect(html).toContain('spellcheck="true"');
+  });
+
   it('HTML has ARIA labels on interactive regions', () => {
     const html = fs.readFileSync(path.resolve('src/renderer/index.html'), 'utf-8');
     expect(html).toContain('aria-label="File explorer"');
@@ -189,6 +224,12 @@ describe('Feature surface', () => {
     expect(md).toContain("data:image/svg+xml");
   });
 
+  it('markdown module supports Mermaid preview blocks', () => {
+    const md = fs.readFileSync(path.resolve('src/renderer/markdown.js'), 'utf-8');
+    expect(md).toContain('mermaid-block');
+    expect(md).toContain("toLowerCase() === 'mermaid'");
+  });
+
   it('markdown module renders footnote definitions', () => {
     const md = fs.readFileSync(path.resolve('src/renderer/markdown.js'), 'utf-8');
     expect(md).toContain('collectFootnotes');
@@ -204,5 +245,14 @@ describe('Feature surface', () => {
     const workflow = fs.readFileSync(path.resolve('.github/workflows/release-desktop.yml'), 'utf-8');
     expect(workflow).toContain('Generate icons');
     expect(workflow).toContain('bash build/generate-icons.sh');
+  });
+
+  it('renderer includes git diff, broken links, and PDF export features', () => {
+    const renderer = fs.readFileSync(path.resolve('src/renderer/renderer.js'), 'utf-8');
+    expect(renderer).toContain('openGitDiff');
+    expect(renderer).toContain('runBrokenLinkCheck');
+    expect(renderer).toContain('exportCurrentPdf');
+    expect(renderer).toContain('renderMermaidDiagrams');
+    expect(renderer).toContain('handleExternalDrop');
   });
 });

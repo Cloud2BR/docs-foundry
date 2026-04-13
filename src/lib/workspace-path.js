@@ -1,8 +1,18 @@
 const path = require('path');
 const fs = require('fs');
 
-const INVALID_NAME_CHARS = /[\x00-\x1f<>:"|?*]/;
+const INVALID_NAME_CHARS = /[<>:"|?*]/;
 const WINDOWS_RESERVED = /^(con|prn|aux|nul|com\d|lpt\d)$/i;
+
+function hasControlCharacters(value) {
+  for (const character of value) {
+    const codePoint = character.codePointAt(0);
+    if (typeof codePoint === 'number' && codePoint <= 31) {
+      return true;
+    }
+  }
+  return false;
+}
 
 function resolveWorkspacePath(workspaceRoot, candidatePath) {
   const resolvedPath = path.resolve(candidatePath);
@@ -53,7 +63,7 @@ function validateFileName(name) {
   if (trimmed !== name || trimmed.endsWith('.') || trimmed.endsWith(' ')) {
     throw new Error('File name has invalid leading/trailing characters');
   }
-  if (INVALID_NAME_CHARS.test(trimmed)) {
+  if (hasControlCharacters(trimmed) || INVALID_NAME_CHARS.test(trimmed)) {
     throw new Error('File name contains invalid characters');
   }
   if (trimmed.includes('/') || trimmed.includes('\\')) {

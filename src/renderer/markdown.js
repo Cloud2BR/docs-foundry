@@ -199,7 +199,7 @@
 
     const header = lines[index].trim();
     const separator = lines[index + 1].trim();
-    return header.includes('|') && /^\|?\s*[:\-]+(?:\s*\|\s*[:\-]+)+\s*\|?$/.test(separator);
+    return header.includes('|') && /^\|?\s*[:-]+(?:\s*\|\s*[:-]+)+\s*\|?$/.test(separator);
   }
 
   function renderTable(lines, startIndex) {
@@ -299,7 +299,7 @@
   }
 
   function escapeHtml(text) {
-    return text.replace(/[&<>\"]/g, char => {
+    return text.replace(/[&<>"]/g, char => {
       const entities = {
         '&': '&amp;',
         '<': '&lt;',

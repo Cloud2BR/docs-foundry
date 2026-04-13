@@ -23,6 +23,16 @@ let hasUnsavedChanges = false;
 let allowWindowClose = false;
 let fileWatcher = null;
 
+function hasControlCharacters(value) {
+  for (const character of value) {
+    const codePoint = character.codePointAt(0);
+    if (typeof codePoint === 'number' && codePoint <= 31) {
+      return true;
+    }
+  }
+  return false;
+}
+
 function createWindow() {
   allowWindowClose = false;
   hasUnsavedChanges = false;
@@ -497,13 +507,13 @@ function startFileWatcher(folderPath) {
   try {
     fileWatcher = fs.watch(folderPath, { recursive: true }, (eventType, fileName) => {
       if (!fileName) return;
-      // Sanitize: reject null bytes and control characters
-      if (/[\x00-\x1f]/.test(fileName)) return;
+      const normalizedFileName = String(fileName);
+      if (hasControlCharacters(normalizedFileName)) return;
       const IGNORE_PATTERNS = ['.git', 'node_modules', '.DS_Store'];
-      if (IGNORE_PATTERNS.some(p => fileName.includes(p))) return;
+      if (IGNORE_PATTERNS.some(p => normalizedFileName.includes(p))) return;
 
       if (mainWindow && !mainWindow.isDestroyed()) {
-        mainWindow.webContents.send('workspace-changed', { eventType, fileName: String(fileName) });
+        mainWindow.webContents.send('workspace-changed', { eventType, fileName: normalizedFileName });
       }
     });
   } catch (_) {

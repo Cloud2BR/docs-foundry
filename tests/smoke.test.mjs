@@ -75,7 +75,8 @@ describe('Security', () => {
 
   it('file watcher sanitizes file names', () => {
     const main = fs.readFileSync(path.resolve('src/main.js'), 'utf-8');
-    expect(main).toContain('[\\x00-\\x1f]');
+    expect(main).toContain('function hasControlCharacters(value)');
+    expect(main).toContain('codePoint <= 31');
   });
 
   it('main process tracks dirty editor state', () => {

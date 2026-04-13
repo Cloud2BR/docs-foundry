@@ -58,7 +58,8 @@ DocFoundry/
 │   ├── .nojekyll
 │   ├── index.html            # GitHub Pages overview page
 │   ├── downloads.html        # Download/install guide backed by GitHub Releases
-│   └── roadmap.html          # Public roadmap view on GitHub Pages
+│   ├── roadmap.html          # Public roadmap view on GitHub Pages
+│   └── feedback.html         # Public feedback page routed to a separate GitHub repo
 ├── tests/
 │   ├── smoke.test.mjs        # Structure, security, and feature-surface tests
 │   ├── markdown.test.mjs     # Markdown parser tests
@@ -95,6 +96,9 @@ DocFoundry/
 ## Roadmap
 
 Live roadmap page: [Docs Foundry Roadmap](https://cloud2br.github.io/docs-foundry/roadmap.html)
+Product feedback page: [Docs Foundry Feedback](https://cloud2br.github.io/docs-foundry/feedback.html)
+
+The feedback page prepopulates requests in the GitHub Pages UI and routes them into [Cloud2BR/docs-foundry-feedback](https://github.com/Cloud2BR/docs-foundry-feedback). The production flow opens a prefilled issue there and lets that repo process it with a GitHub Actions intake workflow after submission.
 
 ## Mode 1: Container-only development
 

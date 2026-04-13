@@ -321,17 +321,15 @@ codeEditor.addEventListener('keydown', (e) => {
     if (e.shiftKey) {
       // Outdent: remove leading two spaces from each selected line
       const before = value.substring(0, start);
-      const selected = value.substring(start, end);
       const lineStart = before.lastIndexOf('\n') + 1;
       const block = value.substring(lineStart, end);
-      const outdented = block.replace(/^  /gm, '');
+      const outdented = block.replace(/^ {2}/gm, '');
       codeEditor.value = value.substring(0, lineStart) + outdented + value.substring(end);
       codeEditor.selectionStart = start - (block.length - outdented.length > 0 ? Math.min(2, start - lineStart) : 0);
       codeEditor.selectionEnd = lineStart + outdented.length;
     } else if (start !== end) {
       // Indent selected lines
       const before = value.substring(0, start);
-      const selected = value.substring(start, end);
       const lineStart = before.lastIndexOf('\n') + 1;
       const block = value.substring(lineStart, end);
       const indented = block.replace(/^/gm, '  ');

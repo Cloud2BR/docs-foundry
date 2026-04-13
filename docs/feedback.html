@@ -1,0 +1,648 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="referrer" content="no-referrer" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; base-uri 'none'; object-src 'none';
+               img-src 'self' https: data:; style-src 'self' 'unsafe-inline';
+               script-src 'self' 'unsafe-inline'; connect-src 'self' https:;
+               font-src 'self' https://fonts.gstatic.com; frame-ancestors 'none';
+               upgrade-insecure-requests"
+    />
+    <title>Docs Foundry Feedback</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <script>
+      (function () {
+        try {
+          if (localStorage.getItem('docfoundryTheme') === 'dark') {
+            document.documentElement.setAttribute('data-theme', 'dark');
+          }
+        } catch (e) {}
+      })();
+    </script>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #f0f2f6;
+        --fg: #1a1a1a;
+        --link: #0078d4;
+        --muted: color-mix(in oklab, var(--fg) 62%, var(--bg));
+        --border: color-mix(in oklab, var(--fg) 14%, var(--bg));
+        --surface: #e6e9ef;
+        --card: #ffffff;
+        --radius: 12px;
+        --radius-lg: 16px;
+        --hero-bg: #002050;
+        --hero-fg: #ffffff;
+        --hero-muted: #99b8d9;
+        --hero-border: #001538;
+        --accent-soft: color-mix(in oklab, var(--link) 12%, var(--card));
+      }
+
+      html[data-theme="dark"] {
+        color-scheme: dark;
+        --bg: #0d1117;
+        --fg: #e6edf3;
+        --link: #58a6ff;
+        --border: #30363d;
+        --surface: #161b22;
+        --card: #161b22;
+        --hero-bg: #161b22;
+        --hero-fg: #e6edf3;
+        --hero-muted: #8b949e;
+        --hero-border: #30363d;
+      }
+
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        font-family: "IBM Plex Sans", system-ui, -apple-system, sans-serif;
+        background: radial-gradient(circle at top, color-mix(in oklab, var(--surface) 36%, var(--bg)), var(--bg) 58%);
+        color: var(--fg);
+        line-height: 1.6;
+      }
+      .container {
+        max-width: 1160px;
+        margin: 0 auto;
+        padding: 0 20px;
+      }
+      .hero {
+        padding: 42px 0 34px;
+        background: linear-gradient(180deg, var(--hero-bg), color-mix(in oklab, var(--hero-bg) 82%, black));
+        color: var(--hero-fg);
+        border-bottom: 1px solid var(--hero-border);
+      }
+      .hero-top {
+        display: flex;
+        justify-content: space-between;
+        gap: 16px;
+        align-items: flex-start;
+        flex-wrap: wrap;
+      }
+      .eyebrow {
+        margin: 0;
+        text-transform: uppercase;
+        letter-spacing: 0.16em;
+        font-size: 0.72rem;
+        color: var(--hero-muted);
+      }
+      h1 {
+        margin: 8px 0 10px;
+        font-family: "Space Grotesk", sans-serif;
+        font-size: clamp(2.2rem, 5vw, 3.3rem);
+        letter-spacing: -0.03em;
+      }
+      .hero-copy {
+        margin: 0;
+        max-width: 72ch;
+        color: var(--hero-muted);
+      }
+      .hero-actions,
+      .footer-links {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-top: 18px;
+      }
+      .hero-link,
+      .ghost-link,
+      .theme-toggle,
+      .request-link {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 10px 14px;
+        border-radius: 12px;
+        text-decoration: none;
+        font-weight: 600;
+      }
+      .hero-link,
+      .request-link {
+        background: var(--link);
+        color: #fff;
+        border: none;
+      }
+      .ghost-link,
+      .theme-toggle {
+        border: 1px solid color-mix(in oklab, var(--hero-fg) 15%, transparent);
+        background: color-mix(in oklab, var(--hero-fg) 10%, transparent);
+        color: var(--hero-fg);
+      }
+      .theme-toggle { cursor: pointer; }
+      main { padding: 34px 0 54px; }
+      section + section {
+        margin-top: 28px;
+      }
+      .section-head { margin-bottom: 18px; }
+      .section-kicker {
+        margin: 0 0 6px;
+        text-transform: uppercase;
+        letter-spacing: 0.14em;
+        font-size: 0.72rem;
+        color: var(--muted);
+      }
+      h2 {
+        margin: 0;
+        font-family: "Space Grotesk", sans-serif;
+        font-size: 1.6rem;
+      }
+      .section-copy {
+        margin: 8px 0 0;
+        max-width: 72ch;
+        color: var(--muted);
+      }
+      .config-card,
+      .request-card,
+      .info-card {
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        background: var(--card);
+        padding: 18px;
+      }
+      .helper,
+      .repo-preview,
+      .request-card p,
+      .info-card p {
+        color: var(--muted);
+      }
+      .repo-preview {
+        padding: 12px 14px;
+        border-radius: 12px;
+        background: color-mix(in oklab, var(--surface) 52%, var(--card));
+        border: 1px dashed var(--border);
+        word-break: break-word;
+      }
+      .delivery-note {
+        margin: 0;
+        color: var(--muted);
+        font-size: 0.92rem;
+      }
+      .feedback-form {
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        background: var(--card);
+        padding: 20px;
+      }
+      .category-bar {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-bottom: 18px;
+      }
+      .category-button {
+        padding: 10px 14px;
+        border-radius: 999px;
+        border: 1px solid var(--border);
+        background: color-mix(in oklab, var(--surface) 48%, var(--card));
+        color: var(--fg);
+        font: inherit;
+        font-weight: 600;
+        cursor: pointer;
+      }
+      .category-button.is-active {
+        border-color: color-mix(in oklab, var(--link) 35%, var(--border));
+        background: color-mix(in oklab, var(--link) 12%, var(--card));
+        color: var(--link);
+      }
+      .form-grid {
+        display: grid;
+        gap: 14px;
+      }
+      .field {
+        display: grid;
+        gap: 6px;
+      }
+      .field label {
+        display: block;
+        font-weight: 700;
+        margin: 0;
+      }
+      .field input,
+      .field textarea {
+        width: 100%;
+        padding: 12px 14px;
+        border-radius: 12px;
+        border: 1px solid var(--border);
+        background: color-mix(in oklab, var(--surface) 40%, var(--card));
+        color: var(--fg);
+        font: inherit;
+      }
+      .field textarea {
+        min-height: 120px;
+        resize: vertical;
+      }
+      .field-note {
+        margin: 0;
+        color: var(--muted);
+        font-size: 0.86rem;
+      }
+      .form-actions {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-top: 18px;
+      }
+      .submit-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 10px 16px;
+        border-radius: 12px;
+        border: none;
+        background: var(--link);
+        color: #fff;
+        font: inherit;
+        font-weight: 700;
+        cursor: pointer;
+      }
+      .submit-button:disabled {
+        opacity: 0.65;
+        cursor: progress;
+      }
+      .status-banner {
+        min-height: 24px;
+        color: var(--muted);
+        font-size: 0.9rem;
+      }
+      .status-banner.is-success {
+        color: #0f7b45;
+      }
+      .status-banner.is-error {
+        color: #b42318;
+      }
+      .request-grid,
+      .info-grid {
+        display: grid;
+        gap: 16px;
+      }
+      .request-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+      .info-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+      .request-type {
+        display: inline-flex;
+        align-items: center;
+        padding: 6px 10px;
+        border-radius: 999px;
+        background: var(--accent-soft);
+        color: var(--link);
+        font-size: 0.76rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+      }
+      .request-card h3,
+      .info-card h3 {
+        margin: 12px 0 8px;
+        font-size: 1.2rem;
+      }
+      .request-card ul,
+      .info-card ul {
+        margin: 12px 0 18px;
+        padding-left: 18px;
+      }
+      .request-card li,
+      .info-card li {
+        color: var(--muted);
+      }
+      .request-link[aria-disabled="true"] {
+        pointer-events: none;
+        opacity: 0.5;
+      }
+      .inline-code {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        font-size: 0.92em;
+      }
+      @media (max-width: 900px) {
+        .request-grid,
+        .info-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="hero">
+      <div class="container">
+        <div class="hero-top">
+          <div>
+            <p class="eyebrow">Docs Foundry feedback</p>
+            <h1>Send requests without touching the main repo</h1>
+            <p class="hero-copy">
+              This page routes feature requests and improvement ideas through the Docs Foundry feedback
+              flow backed by <span class="inline-code">Cloud2BR/docs-foundry-feedback</span>.
+              Submissions do not create commits, branches, or pull requests in the main Docs Foundry
+              repository, so product feedback stays organized without disrupting source or release work.
+            </p>
+            <div class="hero-actions">
+              <a class="hero-link" href="./roadmap.html">View roadmap</a>
+              <a class="ghost-link" href="./index.html">Back to overview</a>
+              <a class="ghost-link" href="https://github.com/Cloud2BR/docs-foundry-feedback" target="_blank" rel="noopener noreferrer">Feedback repo ↗</a>
+            </div>
+          </div>
+          <button id="theme-toggle" class="theme-toggle" type="button" aria-label="Toggle dark mode" title="Toggle dark mode">🌙</button>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <div class="container">
+        <section>
+          <div class="section-head">
+            <p class="section-kicker">Destination</p>
+            <h2>Feedback is stored in one dedicated repo</h2>
+            <p class="section-copy">
+              All feedback from this page is routed into the Docs Foundry feedback flow backed by
+              <span class="inline-code">Cloud2BR/docs-foundry-feedback</span>. That keeps product
+              requests separate from the main source repository and avoids any code-branch or
+              pull-request disruption when people submit feedback.
+            </p>
+          </div>
+          <div class="config-card">
+            <p class="helper">Configured destination</p>
+            <div id="repo-preview" class="repo-preview">Feedback repo: https://github.com/Cloud2BR/docs-foundry-feedback/issues</div>
+            <p id="delivery-note" class="delivery-note">Delivery mode: GitHub-native intake. Send feedback opens a prefilled issue in the feedback repo, and that repo processes it with an issues.opened GitHub Actions workflow.</p>
+            <div class="footer-links">
+              <a class="ghost-link" href="https://github.com/Cloud2BR/docs-foundry-feedback" target="_blank" rel="noopener noreferrer">Open feedback repo ↗</a>
+              <a class="ghost-link" href="https://github.com/Cloud2BR/docs-foundry-feedback/issues" target="_blank" rel="noopener noreferrer">View feedback issues ↗</a>
+            </div>
+          </div>
+        </section>
+
+        <section>
+          <div class="section-head">
+            <p class="section-kicker">Submit feedback</p>
+            <h2>What do you want to add or improve?</h2>
+            <p class="section-copy">
+              Fill out the request here in the GitHub Pages UI. Send feedback opens a prefilled
+              issue in the feedback repo, and that repo runs its GitHub Actions intake workflow
+              as soon as the issue is submitted.
+            </p>
+          </div>
+          <form id="feedback-form" class="feedback-form">
+            <div class="category-bar" aria-label="Feedback type">
+              <button type="button" class="category-button is-active" data-category="feature">Feature</button>
+              <button type="button" class="category-button" data-category="improve">Improve</button>
+              <button type="button" class="category-button" data-category="docs">Docs</button>
+              <button type="button" class="category-button" data-category="roadmap">Roadmap</button>
+            </div>
+
+            <input id="feedback-category" type="hidden" value="feature" />
+
+            <div class="form-grid">
+              <div class="field">
+                <label for="feedback-title">Request title</label>
+                <input id="feedback-title" type="text" autocomplete="off" maxlength="140" placeholder="Short, specific title" required />
+              </div>
+              <div class="field">
+                <label id="feedback-summary-label" for="feedback-summary">What do you want added?</label>
+                <textarea id="feedback-summary" placeholder="Describe the capability, workflow, or change you want to see." required></textarea>
+              </div>
+              <div class="field">
+                <label id="feedback-impact-label" for="feedback-impact">Why does it matter?</label>
+                <textarea id="feedback-impact" placeholder="Explain the problem, use case, or customer value behind this request." required></textarea>
+              </div>
+              <div class="field">
+                <label id="feedback-success-label" for="feedback-success">What would success look like?</label>
+                <textarea id="feedback-success" placeholder="Describe the expected outcome, acceptance criteria, or improvement you want to see." required></textarea>
+              </div>
+              <div class="field">
+                <label for="feedback-contact">Optional contact or context link</label>
+                <input id="feedback-contact" type="text" autocomplete="off" placeholder="Optional email, GitHub handle, or reference link" />
+                <p class="field-note">Optional. Add a contact detail or link only if you want owners to have more context.</p>
+              </div>
+            </div>
+
+            <div class="form-actions">
+              <button id="feedback-submit" class="submit-button" type="submit">Send feedback</button>
+              <div id="feedback-status" class="status-banner" aria-live="polite"></div>
+            </div>
+          </form>
+        </section>
+
+        <section>
+          <div class="section-head">
+            <p class="section-kicker">Why this flow</p>
+            <h2>What this setup solves</h2>
+          </div>
+          <div class="info-grid">
+            <article class="info-card">
+              <h3>Main repo stays clean</h3>
+              <p>Requests are stored as issues in a separate feedback repo instead of mixing product feedback into the source repository.</p>
+            </article>
+            <article class="info-card">
+              <h3>No source-repo conflicts</h3>
+              <p>Submissions create records in the feedback flow only, so they do not create commits, branches, or pull requests in the main Docs Foundry repository.</p>
+            </article>
+            <article class="info-card">
+              <h3>Easy to review later</h3>
+              <p>You can triage, label, close, or convert requests into roadmap items without cluttering the engineering branch history.</p>
+            </article>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <script>
+      (function () {
+        var btn = document.getElementById('theme-toggle');
+        if (btn) {
+          function applyTheme(theme) {
+            document.documentElement.setAttribute('data-theme', theme);
+            btn.textContent = theme === 'dark' ? '☀️' : '🌙';
+            btn.setAttribute('aria-label', theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode');
+            try { localStorage.setItem('docfoundryTheme', theme); } catch (e) {}
+          }
+          var storedTheme = null;
+          try { storedTheme = localStorage.getItem('docfoundryTheme'); } catch (e) {}
+          applyTheme(storedTheme || 'light');
+          btn.addEventListener('click', function () {
+            var current = document.documentElement.getAttribute('data-theme') || 'light';
+            applyTheme(current === 'dark' ? 'light' : 'dark');
+          });
+        }
+
+        var feedbackRepoUrl = 'https://github.com/Cloud2BR/docs-foundry-feedback';
+        var form = document.getElementById('feedback-form');
+        var categoryInput = document.getElementById('feedback-category');
+        var titleInput = document.getElementById('feedback-title');
+        var summaryInput = document.getElementById('feedback-summary');
+        var impactInput = document.getElementById('feedback-impact');
+        var successInput = document.getElementById('feedback-success');
+        var contactInput = document.getElementById('feedback-contact');
+        var submitButton = document.getElementById('feedback-submit');
+        var statusBanner = document.getElementById('feedback-status');
+        var categoryButtons = Array.prototype.slice.call(document.querySelectorAll('[data-category]'));
+        var templates = {
+          feature: {
+            prefix: '[Feature] ',
+            summaryLabel: 'What do you want added?',
+            summaryPlaceholder: 'Describe the capability, workflow, or integration you want to see.',
+            impactLabel: 'Why does it matter?',
+            impactPlaceholder: 'Explain the problem, use case, or customer value behind this request.',
+            successLabel: 'What would success look like?',
+            successPlaceholder: 'Describe the expected outcome or acceptance criteria.'
+          },
+          improve: {
+            prefix: '[Improve] ',
+            summaryLabel: 'What should improve?',
+            summaryPlaceholder: 'Describe the existing behavior, page, or workflow that should get better.',
+            impactLabel: 'What is the current friction?',
+            impactPlaceholder: 'Explain what is slowing you down or creating confusion today.',
+            successLabel: 'What would a better version look like?',
+            successPlaceholder: 'Explain how the workflow, UI, or output should improve.'
+          },
+          docs: {
+            prefix: '[Docs] ',
+            summaryLabel: 'What documentation or onboarding change do you want?',
+            summaryPlaceholder: 'Point to the page, section, or user journey that should improve.',
+            impactLabel: 'What is the current gap?',
+            impactPlaceholder: 'Explain what is unclear, missing, outdated, or hard to follow.',
+            successLabel: 'What should the improved version say or include?',
+            successPlaceholder: 'Describe the update, clarification, or documentation change you want.'
+          },
+          roadmap: {
+            prefix: '[Roadmap] ',
+            summaryLabel: 'What should change on the roadmap?',
+            summaryPlaceholder: 'Describe the feature, priority, milestone, or ETA change you want to suggest.',
+            impactLabel: 'Why should it move?',
+            impactPlaceholder: 'Explain the product or customer impact behind this roadmap feedback.',
+            successLabel: 'What should happen next?',
+            successPlaceholder: 'Describe the timeline, priority, or roadmap change you want the owners to consider.'
+          }
+        };
+
+        function setStatus(message, kind) {
+          statusBanner.textContent = message || '';
+          statusBanner.className = 'status-banner';
+          if (kind) {
+            statusBanner.classList.add(kind === 'error' ? 'is-error' : 'is-success');
+          }
+        }
+
+        function getTemplate(category) {
+          return templates[category] || templates.feature;
+        }
+
+        function applyCategory(category) {
+          categoryInput.value = category;
+          var template = getTemplate(category);
+          categoryButtons.forEach(function (button) {
+            button.classList.toggle('is-active', button.dataset.category === category);
+          });
+          document.getElementById('feedback-summary-label').textContent = template.summaryLabel;
+          document.getElementById('feedback-impact-label').textContent = template.impactLabel;
+          document.getElementById('feedback-success-label').textContent = template.successLabel;
+          summaryInput.placeholder = template.summaryPlaceholder;
+          impactInput.placeholder = template.impactPlaceholder;
+          successInput.placeholder = template.successPlaceholder;
+        }
+
+        function buildTitle() {
+          var category = categoryInput.value;
+          var template = getTemplate(category);
+          var rawTitle = titleInput.value.trim();
+          if (!rawTitle) {
+            return template.prefix.trim();
+          }
+          return rawTitle.startsWith(template.prefix) ? rawTitle : template.prefix + rawTitle;
+        }
+
+        function buildIssueBody(payload) {
+          return [
+            '<!-- docfoundry-feedback',
+            'source: docs-foundry-pages',
+            'category: ' + payload.category,
+            'schema: v1',
+            '-->',
+            '',
+            '## Request type',
+            payload.category,
+            '',
+            '## Summary',
+            payload.summary,
+            '',
+            '## Why it matters',
+            payload.impact,
+            '',
+            '## What success looks like',
+            payload.success,
+            '',
+            '## Additional context',
+            payload.contact || 'No additional contact or link provided.',
+            '',
+            '## Submitted from',
+            'Docs Foundry GitHub Pages feedback form',
+            '',
+            '## Submitted at',
+            payload.submittedAt
+          ].join('\n');
+        }
+
+        function buildLabels(payload) {
+          return ['from-pages', 'feedback-intake', 'kind:' + payload.category].join(',');
+        }
+
+        function buildIssueUrl(title, body, payload) {
+          return feedbackRepoUrl
+            + '/issues/new?title=' + encodeURIComponent(title)
+            + '&body=' + encodeURIComponent(body)
+            + '&labels=' + encodeURIComponent(buildLabels(payload));
+        }
+
+        categoryButtons.forEach(function (button) {
+          button.addEventListener('click', function () {
+            applyCategory(button.dataset.category || 'feature');
+          });
+        });
+
+        form.addEventListener('submit', async function (event) {
+          event.preventDefault();
+          var payload = {
+            category: categoryInput.value,
+            title: buildTitle(),
+            summary: summaryInput.value.trim(),
+            impact: impactInput.value.trim(),
+            success: successInput.value.trim(),
+            contact: contactInput.value.trim(),
+            submittedAt: new Date().toISOString()
+          };
+
+          if (!payload.title.trim() || !payload.summary || !payload.impact || !payload.success) {
+            setStatus('Fill in the title, summary, impact, and success fields before sending feedback.', 'error');
+            return;
+          }
+
+          submitButton.disabled = true;
+          setStatus('Opening a prefilled GitHub issue in the feedback repo…');
+
+          try {
+            window.open(buildIssueUrl(payload.title, buildIssueBody(payload), payload), '_blank', 'noopener');
+            setStatus('A prefilled GitHub issue was opened in the feedback repo. After the user submits it there, that repo can run its intake Actions workflow automatically.', 'success');
+          } catch (error) {
+            setStatus('The feedback issue could not be opened automatically. Open the feedback repo directly and submit the request there.', 'error');
+          } finally {
+            submitButton.disabled = false;
+          }
+        });
+
+        (function () {
+          applyCategory('feature');
+        })();
+      })();
+    </script>
+  </body>
+</html>

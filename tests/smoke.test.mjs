@@ -199,4 +199,10 @@ describe('Feature surface', () => {
     const pkg = JSON.parse(fs.readFileSync(path.resolve('package.json'), 'utf-8'));
     expect(pkg.scripts.prepack).toContain('generate-icons');
   });
+
+  it('release workflow generates icons before building installers', () => {
+    const workflow = fs.readFileSync(path.resolve('.github/workflows/release-desktop.yml'), 'utf-8');
+    expect(workflow).toContain('Generate icons');
+    expect(workflow).toContain('bash build/generate-icons.sh');
+  });
 });

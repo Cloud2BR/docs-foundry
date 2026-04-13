@@ -44,6 +44,9 @@ function validateFileName(name) {
   if (!trimmed) {
     throw new Error('File name cannot be empty');
   }
+  if (trimmed === '.' || trimmed === '..') {
+    throw new Error('File name cannot be a relative path segment');
+  }
   if (trimmed.length > 255) {
     throw new Error('File name is too long (max 255 characters)');
   }

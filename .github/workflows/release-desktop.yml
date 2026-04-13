@@ -42,6 +42,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Generate icons
+        run: bash build/generate-icons.sh
+
       - name: Build installers
         run: npm run ${{ matrix.dist_script }}
 

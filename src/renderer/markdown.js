@@ -14,6 +14,7 @@
     const lines = source.replace(/\r\n?/g, '\n').split('\n');
     const html = [];
     const paragraph = [];
+    const usedHeadingIds = new Map();
 
     function flushParagraph() {
       if (paragraph.length === 0) return;
@@ -48,7 +49,7 @@
       if (/^#{1,6}\s+/.test(trimmed)) {
         flushParagraph();
         const [, hashes, text] = trimmed.match(/^(#{1,6})\s+(.+)$/);
-        const id = slugify(text);
+        const id = createUniqueHeadingId(text, usedHeadingIds);
         html.push(`<h${hashes.length} id="${escapeAttribute(id)}">${renderInline(text)}</h${hashes.length}>`);
         continue;
       }
@@ -138,6 +139,13 @@
       .replace(/[^\w\s-]/g, '')
       .replace(/\s+/g, '-')
       .replace(/^-+|-+$/g, '');
+  }
+
+  function createUniqueHeadingId(text, usedHeadingIds) {
+    const baseId = slugify(text) || 'section';
+    const seen = usedHeadingIds.get(baseId) || 0;
+    usedHeadingIds.set(baseId, seen + 1);
+    return seen === 0 ? baseId : `${baseId}-${seen + 1}`;
   }
 
   function renderCodeBlock(code, lang) {

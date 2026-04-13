@@ -124,7 +124,13 @@ describe('markdownToHtml', () => {
     expect(html).toContain('<section class="footnotes">');
     expect(html).toContain('id="fn-1"');
     expect(html).toContain('This is the footnote content.');
-    expect(html).toContain('↵');
+    expect(html).toContain('&crarr;');
+  });
+
+  it('deduplicates repeated heading ids', () => {
+    const html = markdownToHtml('## Overview\n\n## Overview');
+    expect(html).toContain('id="overview"');
+    expect(html).toContain('id="overview-2"');
   });
 
   it('does not render footnote definitions as paragraphs', () => {

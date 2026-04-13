@@ -28,6 +28,11 @@ describe('validateFileName', () => {
     expect(validateFileName('readme.md')).toBe('readme.md');
   });
 
+  it('rejects dot path segments', () => {
+    expect(() => validateFileName('.')).toThrow('relative path segment');
+    expect(() => validateFileName('..')).toThrow('relative path segment');
+  });
+
   it('rejects empty input', () => {
     expect(() => validateFileName('')).toThrow('File name is required');
   });

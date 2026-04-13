@@ -163,6 +163,9 @@ function handleWindowClose(event) {
 // ── IPC: folder operations ────────────────────────────────────────────────────
 
 ipcMain.handle('open-folder', async () => {
+  if (!mainWindow || mainWindow.isDestroyed()) {
+    throw new Error('Application window is not ready. Please restart DocFoundry.');
+  }
   const result = await dialog.showOpenDialog(mainWindow, {
     properties: ['openDirectory']
   });
@@ -204,6 +207,9 @@ ipcMain.handle('confirm-save-and-close', async (_event, didSave) => {
 });
 
 ipcMain.handle('create-workspace', async () => {
+  if (!mainWindow || mainWindow.isDestroyed()) {
+    throw new Error('Application window is not ready. Please restart DocFoundry.');
+  }
   const result = await dialog.showOpenDialog(mainWindow, {
     properties: ['openDirectory', 'createDirectory']
   });
@@ -211,10 +217,14 @@ ipcMain.handle('create-workspace', async () => {
 
   currentFolder = path.resolve(result.filePaths[0]);
   hasUnsavedChanges = false;
-  const entries = fs.readdirSync(currentFolder);
-  if (entries.length === 0) {
-    const readme = path.join(currentFolder, 'README.md');
-    fs.writeFileSync(readme, '# New Workspace\n\nStart writing here.\n', 'utf-8');
+  try {
+    const entries = fs.readdirSync(currentFolder);
+    if (entries.length === 0) {
+      const readme = path.join(currentFolder, 'README.md');
+      fs.writeFileSync(readme, '# New Workspace\n\nStart writing here.\n', 'utf-8');
+    }
+  } catch (err) {
+    console.error('Failed to initialise workspace folder:', err);
   }
   startFileWatcher(currentFolder);
   return readFolderTree(currentFolder);
@@ -223,6 +233,7 @@ ipcMain.handle('create-workspace', async () => {
 // ── IPC: file operations ──────────────────────────────────────────────────────
 
 ipcMain.handle('create-new-file', async (_event, parentDir, fileName) => {
+  if (!currentFolder) throw new Error('No workspace is open. Open or create a workspace first.');
   validateFileName(fileName);
   const resolvedDir = resolveWorkspacePath(currentFolder, parentDir);
   const filePath = path.join(resolvedDir, fileName);
@@ -234,6 +245,7 @@ ipcMain.handle('create-new-file', async (_event, parentDir, fileName) => {
 });
 
 ipcMain.handle('create-new-folder', async (_event, parentDir, folderName) => {
+  if (!currentFolder) throw new Error('No workspace is open. Open or create a workspace first.');
   validateFileName(folderName);
   const resolvedDir = resolveWorkspacePath(currentFolder, parentDir);
   const folderPath = path.join(resolvedDir, folderName);

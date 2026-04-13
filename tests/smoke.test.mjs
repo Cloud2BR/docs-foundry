@@ -300,4 +300,33 @@ describe('Feature surface', () => {
     expect(renderer).toContain("../../node_modules/mermaid/dist/mermaid.min.js");
     expect(renderer).not.toContain('cdn.jsdelivr.net');
   });
+
+  it('renderer guards against missing preload API', () => {
+    const renderer = fs.readFileSync(path.resolve('src/renderer/renderer.js'), 'utf-8');
+    expect(renderer).toContain("if (!api)");
+    expect(renderer).toContain("failed to initialise");
+  });
+
+  it('renderer error-handles the create-workspace and open-folder flows', () => {
+    const renderer = fs.readFileSync(path.resolve('src/renderer/renderer.js'), 'utf-8');
+    expect(renderer).toContain("Could not create workspace:");
+    expect(renderer).toContain("Could not open folder:");
+  });
+
+  it('renderer warns when creating files or folders without a workspace', () => {
+    const renderer = fs.readFileSync(path.resolve('src/renderer/renderer.js'), 'utf-8');
+    expect(renderer).toContain('Open a workspace first before creating files.');
+    expect(renderer).toContain('Open a workspace first before creating folders.');
+  });
+
+  it('main process validates mainWindow before showing dialogs', () => {
+    const main = fs.readFileSync(path.resolve('src/main.js'), 'utf-8');
+    expect(main).toContain('mainWindow.isDestroyed()');
+    expect(main).toContain('Application window is not ready');
+  });
+
+  it('main process guards file/folder creation against missing workspace', () => {
+    const main = fs.readFileSync(path.resolve('src/main.js'), 'utf-8');
+    expect(main).toContain("if (!currentFolder) throw new Error('No workspace is open");
+  });
 });

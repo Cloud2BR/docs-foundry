@@ -92,10 +92,20 @@ if (versionEl && api) {
   versionEl.textContent = `${api.appName} v${api.version}`;
 }
 
+// ── API guard ─────────────────────────────────────────────────────────────────
+if (!api) {
+  window.alert('DocFoundry failed to initialise. Please reinstall the application.');
+}
+
 // ── Button wiring ─────────────────────────────────────────────────────────────
 btnCreate.addEventListener('click', async () => {
-  const tree = await api.createWorkspace();
-  if (tree) showWorkspace(tree);
+  try {
+    const tree = await api.createWorkspace();
+    if (tree) showWorkspace(tree);
+  } catch (err) {
+    console.error('Create workspace failed:', err);
+    window.alert(`Could not create workspace: ${err.message}`);
+  }
 });
 
 btnOpen.addEventListener('click', doOpenFolder);
@@ -414,14 +424,19 @@ function scheduleAutoSave() {
 
 // ── Open folder ───────────────────────────────────────────────────────────────
 async function doOpenFolder() {
-  // Save all dirty tabs before switching
-  for (const tab of tabs) {
-    if (tab.dirty && tab.path) {
-      await saveTab(tab.id);
+  try {
+    // Save all dirty tabs before switching
+    for (const tab of tabs) {
+      if (tab.dirty && tab.path) {
+        await saveTab(tab.id);
+      }
     }
+    const tree = await api.openFolder();
+    if (tree) showWorkspace(tree);
+  } catch (err) {
+    console.error('Open folder failed:', err);
+    window.alert(`Could not open folder: ${err.message}`);
   }
-  const tree = await api.openFolder();
-  if (tree) showWorkspace(tree);
 }
 
 // ── Show workspace ────────────────────────────────────────────────────────────
@@ -666,7 +681,10 @@ function showContextMenu(event, entry) {
 // ── File CRUD ─────────────────────────────────────────────────────────────────
 async function promptNewFile(parentDir) {
   const dir = parentDir || workspaceRoot;
-  if (!dir) return;
+  if (!dir) {
+    window.alert('Open a workspace first before creating files.');
+    return;
+  }
   const name = await showInputDialog({
     title: 'Create new file',
     label: 'File name',
@@ -692,7 +710,10 @@ async function promptNewFile(parentDir) {
 
 async function promptNewFolder(parentDir) {
   const dir = parentDir || workspaceRoot;
-  if (!dir) return;
+  if (!dir) {
+    window.alert('Open a workspace first before creating folders.');
+    return;
+  }
   const name = await showInputDialog({
     title: 'Create new folder',
     label: 'Folder name',

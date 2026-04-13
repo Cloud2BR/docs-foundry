@@ -5,6 +5,7 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 SVG="${SCRIPT_DIR}/icon.svg"
+PNG="${SCRIPT_DIR}/icon.png"
 
 if command -v rsvg-convert >/dev/null 2>&1; then
   CONVERT_CMD="rsvg-convert"
@@ -13,15 +14,20 @@ elif command -v magick >/dev/null 2>&1; then
 elif command -v convert >/dev/null 2>&1; then
   CONVERT_CMD="convert"
 else
-  echo "Install rsvg-convert or ImageMagick to generate icons."
+  if [[ -f "$PNG" ]]; then
+    echo "No SVG conversion tool found. Using existing ${PNG}."
+    exit 0
+  fi
+
+  echo "Install rsvg-convert or ImageMagick to generate icons, or commit build/icon.png."
   exit 1
 fi
 
 echo "Generating icon.png (512x512)..."
 if [[ "$CONVERT_CMD" == "rsvg-convert" ]]; then
-  rsvg-convert -w 512 -h 512 "$SVG" -o "${SCRIPT_DIR}/icon.png"
+  rsvg-convert -w 512 -h 512 "$SVG" -o "$PNG"
 else
-  $CONVERT_CMD "$SVG" -resize 512x512 "${SCRIPT_DIR}/icon.png"
+  $CONVERT_CMD "$SVG" -resize 512x512 "$PNG"
 fi
 
 echo "Icon generated at build/icon.png"

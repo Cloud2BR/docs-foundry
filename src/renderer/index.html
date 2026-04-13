@@ -1,0 +1,228 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; script-src 'self';" />
+    <title>DocFoundry</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,700;9..144,500&family=Manrope:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <!-- Welcome screen -->
+    <main id="welcome-screen" class="shell">
+      <section class="hero">
+        <p class="eyebrow">Open Source Documentation Workspace</p>
+        <h1>DocFoundry</h1>
+        <p class="subtitle">
+          A powerful local-first desktop editor for Markdown documentation with multi-tab editing,
+          workspace search, live preview, document outline, and more.
+        </p>
+        <div class="actions">
+          <button type="button" class="button primary" id="btn-create">Create Workspace</button>
+          <button type="button" class="button ghost" id="btn-open">Open Folder</button>
+        </div>
+      </section>
+
+      <section class="cards" aria-label="Core capabilities">
+        <article class="card">
+          <h2>Write</h2>
+          <p>Edit Markdown in a multi-tab split-pane workspace with auto-save and keyboard shortcuts.</p>
+        </article>
+        <article class="card">
+          <h2>Find</h2>
+          <p>Command palette, workspace-wide search, in-file find &amp; replace, and quick file open.</p>
+        </article>
+        <article class="card">
+          <h2>Navigate</h2>
+          <p>File tree, document outline, breadcrumbs, and zen mode for distraction-free writing.</p>
+        </article>
+        <article class="card">
+          <h2>Preview</h2>
+          <p>Live-rendered headings, lists, tables, code, task lists, strikethrough, footnotes, and more.</p>
+        </article>
+        <article class="card">
+          <h2>Organize</h2>
+          <p>Create, rename, and delete files and folders directly from the sidebar.</p>
+        </article>
+        <article class="card">
+          <h2>Export</h2>
+          <p>Export your rendered documents to standalone HTML files.</p>
+        </article>
+      </section>
+
+      <footer class="footer">
+        <span id="version"></span>
+      </footer>
+    </main>
+
+    <!-- Editor workspace -->
+    <div id="editor-workspace" class="workspace" hidden>
+      <!-- Sidebar -->
+      <aside id="sidebar" class="sidebar" aria-label="File explorer">
+        <div class="sidebar-header">
+          <strong id="workspace-name">Workspace</strong>
+          <div class="sidebar-actions" role="toolbar" aria-label="Sidebar actions">
+            <button type="button" class="sidebar-action" id="btn-new-file" title="New File (Ctrl+N)" aria-label="New file">+</button>
+            <button type="button" class="sidebar-action" id="btn-new-folder" title="New Folder" aria-label="New folder">&#x1F4C1;</button>
+            <button type="button" class="sidebar-action" id="btn-open-sidebar" title="Open Folder (Ctrl+O)" aria-label="Open folder">&#x1F4C2;</button>
+          </div>
+        </div>
+
+        <!-- Sidebar search filter -->
+        <div class="sidebar-filter">
+          <input type="text" id="sidebar-filter-input" placeholder="Filter files…" autocomplete="off" spellcheck="false" aria-label="Filter files in sidebar" />
+        </div>
+
+        <div id="file-tree" class="file-tree" role="tree" aria-label="Workspace files"></div>
+
+        <!-- Document outline -->
+        <div id="outline-panel" class="outline-panel" hidden>
+          <div class="outline-header">
+            <strong>Outline</strong>
+            <button type="button" class="sidebar-action" id="btn-close-outline" title="Close outline" aria-label="Close outline">×</button>
+          </div>
+          <div id="outline-tree" class="outline-tree" role="tree" aria-label="Document outline"></div>
+        </div>
+      </aside>
+
+      <!-- Resize handle for sidebar -->
+      <div id="sidebar-resize" class="resize-handle-v"></div>
+
+      <!-- Main editor area -->
+      <div class="editor-area">
+        <!-- Tab bar -->
+        <div class="editor-tabs" id="tab-bar" role="tablist" aria-label="Open files">
+          <div class="tabs-scroll" id="tabs-scroll"></div>
+          <div class="tab-bar-actions">
+            <button type="button" class="tab-action" id="btn-save" title="Save (Ctrl+S)">Save</button>
+          </div>
+        </div>
+
+        <!-- Breadcrumbs -->
+        <div id="breadcrumbs" class="breadcrumbs" hidden></div>
+
+        <!-- Find/Replace bar -->
+        <div id="find-bar" class="find-bar" hidden role="search" aria-label="Find in file">
+          <div class="find-bar-row">
+            <input type="text" id="find-input" placeholder="Find…" autocomplete="off" spellcheck="false" aria-label="Search term" />
+            <span id="find-count" class="find-count" aria-live="polite"></span>
+            <button type="button" class="find-btn" id="find-prev" title="Previous (Shift+Enter)" aria-label="Previous match">&#x25B2;</button>
+            <button type="button" class="find-btn" id="find-next" title="Next (Enter)" aria-label="Next match">&#x25BC;</button>
+            <button type="button" class="find-btn" id="find-close" title="Close (Esc)" aria-label="Close find">×</button>
+          </div>
+          <div class="find-bar-row" id="replace-row" hidden>
+            <input type="text" id="replace-input" placeholder="Replace…" autocomplete="off" spellcheck="false" />
+            <button type="button" class="find-btn" id="replace-one">Replace</button>
+            <button type="button" class="find-btn" id="replace-all">All</button>
+          </div>
+        </div>
+
+        <!-- Split panes -->
+        <div class="panes">
+          <div class="pane pane-editor">
+            <textarea id="code-editor" class="code-editor" placeholder="Open a file from the sidebar to start editing…" spellcheck="false" aria-label="Markdown editor"></textarea>
+          </div>
+          <div id="pane-resize" class="resize-handle-h"></div>
+          <div class="pane pane-preview">
+            <div id="preview" class="preview-content" role="region" aria-label="Markdown preview" aria-live="polite"></div>
+          </div>
+        </div>
+
+        <!-- Status bar -->
+        <div id="status-bar" class="status-bar" role="status" aria-label="Editor status">
+          <span id="status-file" class="status-item"></span>
+          <span id="status-cursor" class="status-item">Ln 1, Col 1</span>
+          <span id="status-words" class="status-item">0 words</span>
+          <span id="status-reading" class="status-item"></span>
+          <span class="status-spacer"></span>
+          <span id="status-autosave" class="status-item status-clickable" title="Toggle auto-save">Auto-save: ON</span>
+          <span id="status-encoding" class="status-item">UTF-8</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Overlays -->
+
+    <!-- Command palette -->
+    <div id="command-palette" class="overlay-backdrop" hidden role="dialog" aria-label="Command palette">
+      <div class="command-palette">
+        <input type="text" id="palette-input" placeholder="Type a file name to open…" autocomplete="off" spellcheck="false" aria-label="Quick open file" />
+        <div id="palette-results" class="palette-results"></div>
+      </div>
+    </div>
+
+    <!-- Workspace search -->
+    <div id="search-panel" class="overlay-backdrop" hidden role="dialog" aria-label="Workspace search">
+      <div class="search-panel">
+        <div class="search-panel-header">
+          <input type="text" id="search-input" placeholder="Search across workspace…" autocomplete="off" spellcheck="false" aria-label="Workspace search query" />
+          <button type="button" class="find-btn" id="search-close" aria-label="Close search">×</button>
+        </div>
+        <div id="search-results" class="search-results"></div>
+      </div>
+    </div>
+
+    <!-- Keyboard shortcuts overlay -->
+    <div id="shortcuts-overlay" class="overlay-backdrop" hidden role="dialog" aria-label="Keyboard shortcuts">
+      <div class="shortcuts-panel">
+        <div class="shortcuts-header">
+          <h2>Keyboard Shortcuts</h2>
+          <button type="button" class="find-btn" id="shortcuts-close">×</button>
+        </div>
+        <div class="shortcuts-grid">
+          <div class="shortcut-group">
+            <h3>File</h3>
+            <div class="shortcut-row"><kbd>Ctrl+O</kbd><span>Open Folder</span></div>
+            <div class="shortcut-row"><kbd>Ctrl+N</kbd><span>New File</span></div>
+            <div class="shortcut-row"><kbd>Ctrl+S</kbd><span>Save</span></div>
+            <div class="shortcut-row"><kbd>Ctrl+W</kbd><span>Close Tab</span></div>
+            <div class="shortcut-row"><kbd>Ctrl+Shift+E</kbd><span>Export HTML</span></div>
+          </div>
+          <div class="shortcut-group">
+            <h3>Edit</h3>
+            <div class="shortcut-row"><kbd>Ctrl+F</kbd><span>Find in File</span></div>
+            <div class="shortcut-row"><kbd>Ctrl+H</kbd><span>Find &amp; Replace</span></div>
+            <div class="shortcut-row"><kbd>Tab</kbd><span>Indent</span></div>
+            <div class="shortcut-row"><kbd>Shift+Tab</kbd><span>Outdent</span></div>
+          </div>
+          <div class="shortcut-group">
+            <h3>View</h3>
+            <div class="shortcut-row"><kbd>Ctrl+P</kbd><span>Command Palette</span></div>
+            <div class="shortcut-row"><kbd>Ctrl+Shift+F</kbd><span>Workspace Search</span></div>
+            <div class="shortcut-row"><kbd>Ctrl+B</kbd><span>Toggle Sidebar</span></div>
+            <div class="shortcut-row"><kbd>Ctrl+Shift+O</kbd><span>Toggle Outline</span></div>
+            <div class="shortcut-row"><kbd>Ctrl+Shift+Z</kbd><span>Zen Mode</span></div>
+            <div class="shortcut-row"><kbd>Ctrl+/</kbd><span>Show Shortcuts</span></div>
+          </div>
+          <div class="shortcut-group">
+            <h3>Tabs</h3>
+            <div class="shortcut-row"><kbd>Ctrl+Tab</kbd><span>Next Tab</span></div>
+            <div class="shortcut-row"><kbd>Ctrl+Shift+Tab</kbd><span>Previous Tab</span></div>
+            <div class="shortcut-row"><kbd>Ctrl+1–9</kbd><span>Go to Tab</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- New file/folder input dialog -->
+    <div id="input-dialog" class="overlay-backdrop" hidden role="dialog" aria-label="Input dialog">
+      <div class="input-dialog">
+        <label id="input-dialog-label"></label>
+        <input type="text" id="input-dialog-input" autocomplete="off" spellcheck="false" />
+        <div class="input-dialog-actions">
+          <button type="button" class="button ghost" id="input-dialog-cancel">Cancel</button>
+          <button type="button" class="button primary" id="input-dialog-ok">Create</button>
+        </div>
+      </div>
+    </div>
+
+    <script src="./markdown.js"></script>
+    <script src="./renderer.js"></script>
+  </body>
+</html>

@@ -1,0 +1,14 @@
+FROM node:20-bookworm
+
+WORKDIR /workspace
+
+# Native packaging helpers used by electron-builder on Linux targets.
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    ca-certificates \
+    git \
+    make \
+    python3 \
+    xz-utils \
+    && rm -rf /var/lib/apt/lists/*
+
+CMD ["bash"]

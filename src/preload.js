@@ -1,0 +1,51 @@
+const { contextBridge, ipcRenderer } = require('electron');
+const { version } = require('../package.json');
+
+contextBridge.exposeInMainWorld('docfoundry', {
+  appName: 'DocFoundry',
+  version,
+
+  // Workspace
+  openFolder: () => ipcRenderer.invoke('open-folder'),
+  createWorkspace: () => ipcRenderer.invoke('create-workspace'),
+  refreshTree: () => ipcRenderer.invoke('refresh-tree'),
+
+  // File I/O
+  readFile: (filePath) => ipcRenderer.invoke('read-file', filePath),
+  writeFile: (filePath, content) => ipcRenderer.invoke('write-file', filePath, content),
+
+  // File operations
+  createNewFile: (parentDir, fileName) => ipcRenderer.invoke('create-new-file', parentDir, fileName),
+  createNewFolder: (parentDir, folderName) => ipcRenderer.invoke('create-new-folder', parentDir, folderName),
+  deleteFile: (filePath) => ipcRenderer.invoke('delete-file', filePath),
+  renameFile: (oldPath, newName) => ipcRenderer.invoke('rename-file', oldPath, newName),
+
+  // Search
+  searchWorkspace: (query) => ipcRenderer.invoke('search-workspace', query),
+  getAllFiles: () => ipcRenderer.invoke('get-all-files'),
+
+  // Export
+  exportHtml: (htmlContent, suggestedName) => ipcRenderer.invoke('export-html', htmlContent, suggestedName),
+
+  // Dirty state
+  setDirtyState: (isDirty) => ipcRenderer.send('set-dirty-state', isDirty),
+
+  // Close flow
+  onRequestSaveAndClose: (callback) => ipcRenderer.on('request-save-and-close', callback),
+  confirmSaveAndClose: (didSave) => ipcRenderer.invoke('confirm-save-and-close', didSave),
+
+  // Menu events
+  onMenuEvent: (channel, callback) => {
+    const validChannels = [
+      'menu-open-folder', 'menu-new-file', 'menu-save', 'menu-export-html',
+      'menu-find', 'menu-replace', 'menu-command-palette', 'menu-workspace-search',
+      'menu-toggle-sidebar', 'menu-toggle-outline', 'menu-zen-mode', 'menu-shortcuts'
+    ];
+    if (validChannels.includes(channel)) {
+      ipcRenderer.on(channel, callback);
+    }
+  },
+
+  // File watcher
+  onWorkspaceChanged: (callback) => ipcRenderer.on('workspace-changed', (_event, data) => callback(data))
+});

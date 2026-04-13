@@ -149,6 +149,9 @@
   }
 
   function renderCodeBlock(code, lang) {
+    if ((lang || '').toLowerCase() === 'mermaid') {
+      return `<div class="mermaid-block" data-mermaid="${escapeAttribute(code)}"></div>`;
+    }
     const languageClass = lang ? ` class="language-${escapeAttribute(lang)}"` : '';
     return `<pre><code${languageClass}>${escapeHtml(code)}</code></pre>`;
   }
@@ -196,7 +199,7 @@
 
     const header = lines[index].trim();
     const separator = lines[index + 1].trim();
-    return header.includes('|') && /^\|?\s*[:\-]+(?:\s*\|\s*[:\-]+)+\s*\|?$/.test(separator);
+    return header.includes('|') && /^\|?\s*[:-]+(?:\s*\|\s*[:-]+)+\s*\|?$/.test(separator);
   }
 
   function renderTable(lines, startIndex) {
@@ -296,7 +299,7 @@
   }
 
   function escapeHtml(text) {
-    return text.replace(/[&<>\"]/g, char => {
+    return text.replace(/[&<>"]/g, char => {
       const entities = {
         '&': '&amp;',
         '<': '&lt;',

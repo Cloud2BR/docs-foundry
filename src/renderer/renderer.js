@@ -12,6 +12,8 @@ const workspaceNameEl = document.getElementById('workspace-name');
 const tabsScroll = document.getElementById('tabs-scroll');
 const codeEditor = document.getElementById('code-editor');
 const previewEl = document.getElementById('preview');
+const previewPane = document.querySelector('.pane-preview');
+const linkSuggestions = document.getElementById('link-suggestions');
 const versionEl = document.getElementById('version');
 const sidebar = document.getElementById('sidebar');
 const sidebarResize = document.getElementById('sidebar-resize');
@@ -22,6 +24,7 @@ const statusCursor = document.getElementById('status-cursor');
 const statusWords = document.getElementById('status-words');
 const statusReading = document.getElementById('status-reading');
 const statusAutosave = document.getElementById('status-autosave');
+const statusEncoding = document.getElementById('status-encoding');
 const outlinePanel = document.getElementById('outline-panel');
 const outlineTree = document.getElementById('outline-tree');
 const btnCloseOutline = document.getElementById('btn-close-outline');
@@ -32,6 +35,13 @@ const searchPanel = document.getElementById('search-panel');
 const searchInput = document.getElementById('search-input');
 const searchResults = document.getElementById('search-results');
 const searchClose = document.getElementById('search-close');
+const diffOverlay = document.getElementById('diff-overlay');
+const diffTitle = document.getElementById('diff-title');
+const diffOutput = document.getElementById('diff-output');
+const diffClose = document.getElementById('diff-close');
+const linkCheckOverlay = document.getElementById('link-check-overlay');
+const linkCheckResults = document.getElementById('link-check-results');
+const linkCheckClose = document.getElementById('link-check-close');
 const findBar = document.getElementById('find-bar');
 const findInput = document.getElementById('find-input');
 const findCount = document.getElementById('find-count');
@@ -66,6 +76,13 @@ let zenMode = false;
 let findMatches = [];
 let findMatchIndex = -1;
 let tabIdCounter = 0;
+let gitStatusMap = new Map();
+let brokenLinkResults = [];
+let previewSyncLock = null;
+let mermaidLoaderPromise = null;
+let suggestionItems = [];
+let suggestionIndex = 0;
+let suggestionRange = null;
 
 // ── Version label ─────────────────────────────────────────────────────────────
 if (versionEl && api) {
@@ -85,6 +102,8 @@ btnNewFolder.addEventListener('click', () => promptNewFolder());
 btnSave.addEventListener('click', saveActiveTab);
 btnCloseOutline.addEventListener('click', () => toggleOutline(false));
 searchClose.addEventListener('click', () => toggleSearchPanel(false));
+diffClose.addEventListener('click', () => toggleDiffOverlay(false));
+linkCheckClose.addEventListener('click', () => toggleBrokenLinkOverlay(false));
 findClose.addEventListener('click', () => toggleFindBar(false));
 shortcutsClose.addEventListener('click', () => toggleShortcuts(false));
 
@@ -107,10 +126,13 @@ if (api?.onMenuEvent) {
   api.onMenuEvent('menu-new-file', () => promptNewFile());
   api.onMenuEvent('menu-save', saveActiveTab);
   api.onMenuEvent('menu-export-html', exportCurrentHtml);
+  api.onMenuEvent('menu-export-pdf', exportCurrentPdf);
   api.onMenuEvent('menu-find', () => toggleFindBar(true, false));
   api.onMenuEvent('menu-replace', () => toggleFindBar(true, true));
   api.onMenuEvent('menu-command-palette', () => toggleCommandPalette(true));
   api.onMenuEvent('menu-workspace-search', () => toggleSearchPanel(true));
+  api.onMenuEvent('menu-git-diff', openGitDiff);
+  api.onMenuEvent('menu-check-links', () => runBrokenLinkCheck(true));
   api.onMenuEvent('menu-toggle-sidebar', () => toggleSidebar());
   api.onMenuEvent('menu-toggle-outline', () => toggleOutline());
   api.onMenuEvent('menu-zen-mode', () => toggleZenMode());
@@ -127,6 +149,7 @@ if (api?.onWorkspaceChanged) {
       if (tree) {
         workspaceTree = tree;
         renderFileTree(tree.children, fileTreeEl, 0);
+        refreshGitStatus();
       }
     }, 500);
   });
@@ -154,6 +177,18 @@ document.addEventListener('keydown', (e) => {
   if (mod && e.shiftKey && e.key === 'F') {
     e.preventDefault();
     toggleSearchPanel(true);
+    return;
+  }
+
+  if (mod && e.shiftKey && e.key === 'D') {
+    e.preventDefault();
+    openGitDiff();
+    return;
+  }
+
+  if (mod && e.shiftKey && e.key === 'L') {
+    e.preventDefault();
+    runBrokenLinkCheck(true);
     return;
   }
 
@@ -206,6 +241,12 @@ document.addEventListener('keydown', (e) => {
     return;
   }
 
+  if (mod && e.shiftKey && e.key === 'P') {
+    e.preventDefault();
+    exportCurrentPdf();
+    return;
+  }
+
   // Ctrl+N — new file
   if (mod && e.key === 'n' && !e.shiftKey) {
     e.preventDefault();
@@ -237,6 +278,8 @@ document.addEventListener('keydown', (e) => {
 
   // Escape — close overlays
   if (e.key === 'Escape') {
+    if (!diffOverlay.hidden) { toggleDiffOverlay(false); return; }
+    if (!linkCheckOverlay.hidden) { toggleBrokenLinkOverlay(false); return; }
     if (!commandPalette.hidden) { toggleCommandPalette(false); return; }
     if (!searchPanel.hidden) { toggleSearchPanel(false); return; }
     if (!shortcutsOverlay.hidden) { toggleShortcuts(false); return; }
@@ -247,6 +290,28 @@ document.addEventListener('keydown', (e) => {
 
 // ── Tab key support in editor ─────────────────────────────────────────────────
 codeEditor.addEventListener('keydown', (e) => {
+  if (!linkSuggestions.hidden) {
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      moveLinkSuggestion(1);
+      return;
+    }
+    if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      moveLinkSuggestion(-1);
+      return;
+    }
+    if (e.key === 'Enter' || e.key === 'Tab') {
+      e.preventDefault();
+      applyLinkSuggestion();
+      return;
+    }
+    if (e.key === 'Escape') {
+      hideLinkSuggestions();
+      return;
+    }
+  }
+
   if (e.key === 'Tab') {
     e.preventDefault();
     const start = codeEditor.selectionStart;
@@ -256,17 +321,15 @@ codeEditor.addEventListener('keydown', (e) => {
     if (e.shiftKey) {
       // Outdent: remove leading two spaces from each selected line
       const before = value.substring(0, start);
-      const selected = value.substring(start, end);
       const lineStart = before.lastIndexOf('\n') + 1;
       const block = value.substring(lineStart, end);
-      const outdented = block.replace(/^  /gm, '');
+      const outdented = block.replace(/^ {2}/gm, '');
       codeEditor.value = value.substring(0, lineStart) + outdented + value.substring(end);
       codeEditor.selectionStart = start - (block.length - outdented.length > 0 ? Math.min(2, start - lineStart) : 0);
       codeEditor.selectionEnd = lineStart + outdented.length;
     } else if (start !== end) {
       // Indent selected lines
       const before = value.substring(0, start);
-      const selected = value.substring(start, end);
       const lineStart = before.lastIndexOf('\n') + 1;
       const block = value.substring(lineStart, end);
       const indented = block.replace(/^/gm, '  ');
@@ -285,15 +348,41 @@ codeEditor.addEventListener('keydown', (e) => {
 
 // ── Editor input handling ─────────────────────────────────────────────────────
 codeEditor.addEventListener('input', onEditorInput);
-codeEditor.addEventListener('click', updateCursorStatus);
-codeEditor.addEventListener('keyup', updateCursorStatus);
+codeEditor.addEventListener('click', () => {
+  updateCursorStatus();
+  updateLinkSuggestions();
+});
+codeEditor.addEventListener('keyup', () => {
+  updateCursorStatus();
+  updateLinkSuggestions();
+});
 codeEditor.addEventListener('scroll', () => {
   const tab = getActiveTab();
   if (tab) {
     tab.scrollTop = codeEditor.scrollTop;
     tab.scrollLeft = codeEditor.scrollLeft;
   }
+  syncPreviewToEditor();
 });
+
+previewPane.addEventListener('scroll', () => {
+  syncEditorToPreview();
+});
+
+for (const dropTarget of [codeEditor, previewPane]) {
+  dropTarget.addEventListener('dragover', (event) => {
+    event.preventDefault();
+    dropTarget.classList.add('drop-target');
+  });
+  dropTarget.addEventListener('dragleave', () => {
+    dropTarget.classList.remove('drop-target');
+  });
+  dropTarget.addEventListener('drop', async (event) => {
+    event.preventDefault();
+    dropTarget.classList.remove('drop-target');
+    await handleExternalDrop(event);
+  });
+}
 
 function onEditorInput() {
   const tab = getActiveTab();
@@ -304,6 +393,7 @@ function onEditorInput() {
   renderPreview(codeEditor.value);
   updateStatusBar();
   updateOutline();
+  updateLinkSuggestions();
   scheduleAutoSave();
 }
 
@@ -344,6 +434,7 @@ function showWorkspace(tree) {
   resetEditorState();
   workspaceNameEl.textContent = tree.name;
   renderFileTree(tree.children, fileTreeEl, 0);
+  refreshGitStatus();
 }
 
 // ── Tab management ────────────────────────────────────────────────────────────
@@ -505,6 +596,8 @@ function renderFileTree(entries, container, depth) {
       file.style.paddingLeft = `${12 + depth * 14}px`;
       file.textContent = entry.name;
       file.dataset.path = entry.path;
+      const gitClass = gitStatusClassForPath(entry.path);
+      if (gitClass) file.classList.add(gitClass);
       file.addEventListener('click', () => openFile(entry));
       file.addEventListener('contextmenu', (e) => {
         e.preventDefault();
@@ -579,6 +672,7 @@ async function promptNewFile(parentDir) {
     if (tree) {
       workspaceTree = tree;
       renderFileTree(tree.children, fileTreeEl, 0);
+      refreshGitStatus();
     }
     openFile(entry);
   } catch (err) {
@@ -597,6 +691,7 @@ async function promptNewFolder(parentDir) {
     if (tree) {
       workspaceTree = tree;
       renderFileTree(tree.children, fileTreeEl, 0);
+      refreshGitStatus();
     }
   } catch (err) {
     window.alert(err.message);
@@ -620,6 +715,7 @@ async function promptRename(entry) {
     if (tree) {
       workspaceTree = tree;
       renderFileTree(tree.children, fileTreeEl, 0);
+      refreshGitStatus();
     }
   } catch (err) {
     window.alert(err.message);
@@ -644,6 +740,7 @@ async function deleteEntry(entry) {
     if (tree) {
       workspaceTree = tree;
       renderFileTree(tree.children, fileTreeEl, 0);
+      refreshGitStatus();
     }
   } catch (err) {
     window.alert(err.message);
@@ -717,6 +814,7 @@ async function saveTab(tabId) {
     }
     await api.writeFile(tab.path, tab.content);
     setDirtyState(tab.id, false);
+    refreshGitStatus();
     return true;
   } catch (err) {
     console.error('Save failed:', err);
@@ -1127,7 +1225,8 @@ document.addEventListener('mouseup', () => {
 async function exportCurrentHtml() {
   const tab = getActiveTab();
   if (!tab) return;
-  const htmlBody = markdownToHtml(tab.content);
+  await renderMermaidDiagrams();
+  const htmlBody = previewEl.innerHTML;
   const fullHtml = `<!doctype html>
 <html lang="en">
 <head>
@@ -1158,6 +1257,338 @@ async function exportCurrentHtml() {
   await api.exportHtml(fullHtml, suggestedName);
 }
 
+async function exportCurrentPdf() {
+  const tab = getActiveTab();
+  if (!tab) return;
+  await renderMermaidDiagrams();
+  const htmlBody = previewEl.innerHTML;
+  const suggestedName = tab.name.replace(/\.md$/i, '.pdf');
+  await api.exportPdf(htmlBody, suggestedName);
+}
+
+async function refreshGitStatus() {
+  if (!workspaceRoot || !api?.getGitStatus) {
+    gitStatusMap = new Map();
+    return;
+  }
+
+  try {
+    const result = await api.getGitStatus();
+    const next = new Map();
+    if (result?.available) {
+      for (const entry of result.entries || []) {
+        next.set(normalizeFsPath(entry.path), entry.status.trim() || '?');
+      }
+    }
+    gitStatusMap = next;
+    if (workspaceTree) renderFileTree(workspaceTree.children, fileTreeEl, 0);
+  } catch (_) {
+    gitStatusMap = new Map();
+  }
+}
+
+function gitStatusClassForPath(filePath) {
+  const status = gitStatusMap.get(normalizeFsPath(filePath));
+  if (!status) return '';
+  if (status.includes('?')) return 'git-untracked';
+  if (status.includes('A')) return 'git-added';
+  if (status.includes('D')) return 'git-deleted';
+  if (/[MRCU]/.test(status)) return 'git-modified';
+  return '';
+}
+
+function toggleDiffOverlay(show) {
+  diffOverlay.hidden = !show;
+}
+
+async function openGitDiff() {
+  const tab = getActiveTab();
+  if (!tab?.path) return;
+
+  const result = await api.getGitDiff(tab.path);
+  diffTitle.textContent = `Git diff • ${tab.name}`;
+
+  const unsavedNote = tab.dirty
+    ? 'Unsaved editor changes are not included in this diff yet. Save the file to compare against Git.\n\n'
+    : '';
+
+  if (!result?.available) {
+    diffOutput.textContent = `${unsavedNote}Git diff is unavailable for this workspace.`;
+  } else if (!result.diff || !result.diff.trim()) {
+    diffOutput.textContent = `${unsavedNote}No tracked Git changes for this file.`;
+  } else {
+    diffOutput.textContent = `${unsavedNote}${result.diff}`;
+  }
+
+  toggleDiffOverlay(true);
+}
+
+function toggleBrokenLinkOverlay(show) {
+  linkCheckOverlay.hidden = !show;
+}
+
+function runBrokenLinkCheck(showOverlay = false) {
+  const tab = getActiveTab();
+  brokenLinkResults = tab?.path ? findBrokenLinks(tab.content, tab.path) : [];
+  renderBrokenLinkStatus();
+  renderBrokenLinkResults();
+  annotatePreviewBrokenLinks();
+  if (showOverlay) toggleBrokenLinkOverlay(true);
+  return brokenLinkResults;
+}
+
+function renderBrokenLinkStatus() {
+  if (!statusEncoding) return;
+  if (brokenLinkResults.length === 0) {
+    statusEncoding.textContent = 'Links: OK';
+    statusEncoding.classList.remove('status-warning');
+    return;
+  }
+  statusEncoding.textContent = `Links: ${brokenLinkResults.length} broken`;
+  statusEncoding.classList.add('status-warning');
+}
+
+function renderBrokenLinkResults() {
+  linkCheckResults.innerHTML = '';
+  if (brokenLinkResults.length === 0) {
+    linkCheckResults.innerHTML = '<div class="search-empty">No broken relative links found in the active file.</div>';
+    return;
+  }
+
+  for (const issue of brokenLinkResults) {
+    const item = document.createElement('div');
+    item.className = 'link-issue';
+    item.innerHTML = `<strong>${escapeHtml(issue.target)}</strong><div class="link-issue-meta">Line ${issue.line} • ${escapeHtml(issue.reason)}</div>`;
+    item.addEventListener('click', () => {
+      toggleBrokenLinkOverlay(false);
+      scrollEditorToLine(issue.line - 1);
+    });
+    linkCheckResults.appendChild(item);
+  }
+}
+
+function annotatePreviewBrokenLinks() {
+  const broken = new Set(brokenLinkResults.map(issue => issue.target));
+  previewEl.querySelectorAll('a[href]').forEach((link) => {
+    const href = link.getAttribute('href') || '';
+    if (broken.has(href)) link.classList.add('broken-link');
+    else link.classList.remove('broken-link');
+  });
+}
+
+function findBrokenLinks(source, currentFilePath) {
+  const entries = collectWorkspaceEntries(workspaceTree?.children || []);
+  const knownPaths = new Set(entries.map(entry => normalizeFsPath(entry.path)));
+  const issues = [];
+  const lines = source.split('\n');
+
+  lines.forEach((lineText, index) => {
+    const regex = /!?\[[^\]]*\]\(([^)]+)\)/g;
+    let match;
+    while ((match = regex.exec(lineText)) !== null) {
+      const rawTarget = match[1].trim().split(/\s+/)[0];
+      if (!isRelativeMarkdownTarget(rawTarget)) continue;
+      const resolved = resolveMarkdownTarget(currentFilePath, rawTarget);
+      if (!resolved || !knownPaths.has(normalizeFsPath(resolved))) {
+        issues.push({ target: rawTarget, line: index + 1, reason: 'Target does not exist in the workspace' });
+      }
+    }
+  });
+
+  return issues;
+}
+
+function isRelativeMarkdownTarget(target) {
+  return target && !/^([a-z]+:|#|mailto:|tel:)/i.test(target);
+}
+
+function resolveMarkdownTarget(currentFilePath, target) {
+  const cleanTarget = target.split('#')[0].split('?')[0];
+  if (!cleanTarget) return null;
+  if (cleanTarget.startsWith('/')) return joinWorkspacePath(workspaceRoot, cleanTarget.slice(1));
+  return joinWorkspacePath(dirnamePath(currentFilePath), cleanTarget);
+}
+
+function updateLinkSuggestions() {
+  const context = getLinkAutocompleteContext();
+  if (!context) {
+    hideLinkSuggestions();
+    return;
+  }
+
+  const files = collectWorkspaceEntries(workspaceTree?.children || []).filter(entry => entry.type === 'file');
+  const suggestions = files
+    .filter(entry => !context.isImage || /\.(png|jpe?g|gif|webp|svg)$/i.test(entry.name))
+    .map(entry => ({
+      entry,
+      relativePath: relativePathBetween(getActiveTab()?.path, entry.path)
+    }))
+    .filter(item => item.relativePath.toLowerCase().includes(context.query.toLowerCase()))
+    .slice(0, 12);
+
+  if (suggestions.length === 0) {
+    hideLinkSuggestions();
+    return;
+  }
+
+  suggestionItems = suggestions;
+  suggestionIndex = 0;
+  suggestionRange = context.range;
+  renderLinkSuggestions();
+}
+
+function getLinkAutocompleteContext() {
+  const beforeCursor = codeEditor.value.slice(0, codeEditor.selectionStart);
+  const match = beforeCursor.match(/(!?\[[^\]]*\]\()([^\n)]*)$/);
+  if (!match) return null;
+  return {
+    isImage: match[1].startsWith('!'),
+    query: match[2],
+    range: {
+      start: codeEditor.selectionStart - match[2].length,
+      end: codeEditor.selectionStart
+    }
+  };
+}
+
+function renderLinkSuggestions() {
+  if (suggestionItems.length === 0) {
+    hideLinkSuggestions();
+    return;
+  }
+
+  linkSuggestions.hidden = false;
+  linkSuggestions.innerHTML = '';
+
+  suggestionItems.forEach((item, index) => {
+    const row = document.createElement('div');
+    row.className = `link-suggestion-item${index === suggestionIndex ? ' active' : ''}`;
+    row.innerHTML = `<span class="link-suggestion-path">${escapeHtml(item.relativePath)}</span><span class="link-suggestion-meta">${escapeHtml(item.entry.name)}</span>`;
+    row.addEventListener('mousedown', (event) => {
+      event.preventDefault();
+      suggestionIndex = index;
+      applyLinkSuggestion();
+    });
+    linkSuggestions.appendChild(row);
+  });
+}
+
+function moveLinkSuggestion(direction) {
+  if (suggestionItems.length === 0) return;
+  suggestionIndex = (suggestionIndex + direction + suggestionItems.length) % suggestionItems.length;
+  renderLinkSuggestions();
+}
+
+function applyLinkSuggestion() {
+  if (!suggestionRange || suggestionItems.length === 0) return;
+  const selected = suggestionItems[suggestionIndex];
+  const before = codeEditor.value.slice(0, suggestionRange.start);
+  const after = codeEditor.value.slice(suggestionRange.end);
+  codeEditor.value = `${before}${selected.relativePath}${after}`;
+  const nextCursor = suggestionRange.start + selected.relativePath.length;
+  codeEditor.selectionStart = codeEditor.selectionEnd = nextCursor;
+  hideLinkSuggestions();
+  onEditorInput();
+  codeEditor.focus();
+}
+
+function hideLinkSuggestions() {
+  suggestionItems = [];
+  suggestionRange = null;
+  linkSuggestions.hidden = true;
+  linkSuggestions.innerHTML = '';
+}
+
+async function handleExternalDrop(event) {
+  const tab = getActiveTab();
+  if (!workspaceRoot || !tab?.path) return;
+
+  const files = Array.from(event.dataTransfer?.files || []).map(file => file.path).filter(Boolean);
+  if (files.length === 0) return;
+
+  const imported = await api.importFilesIntoWorkspace(files, dirnamePath(tab.path));
+  if (!imported || imported.length === 0) return;
+
+  const insertText = imported
+    .map(file => {
+      const relative = relativePathBetween(tab.path, file.path);
+      return file.isImage ? `![](${relative})` : `[${file.name}](${relative})`;
+    })
+    .join('\n');
+
+  insertTextAtCursor(`${insertText}\n`);
+  const tree = await api.refreshTree();
+  if (tree) {
+    workspaceTree = tree;
+    renderFileTree(tree.children, fileTreeEl, 0);
+    refreshGitStatus();
+  }
+}
+
+function insertTextAtCursor(text) {
+  const start = codeEditor.selectionStart;
+  const end = codeEditor.selectionEnd;
+  const value = codeEditor.value;
+  codeEditor.value = value.slice(0, start) + text + value.slice(end);
+  codeEditor.selectionStart = codeEditor.selectionEnd = start + text.length;
+  onEditorInput();
+}
+
+function syncPreviewToEditor() {
+  if (previewSyncLock === 'preview') return;
+  previewSyncLock = 'editor';
+  syncScrollPosition(codeEditor, previewPane);
+  queueMicrotask(() => { previewSyncLock = null; });
+}
+
+function syncEditorToPreview() {
+  if (previewSyncLock === 'editor') return;
+  previewSyncLock = 'preview';
+  syncScrollPosition(previewPane, codeEditor);
+  queueMicrotask(() => { previewSyncLock = null; });
+}
+
+function syncScrollPosition(fromEl, toEl) {
+  const fromMax = Math.max(1, fromEl.scrollHeight - fromEl.clientHeight);
+  const toMax = Math.max(1, toEl.scrollHeight - toEl.clientHeight);
+  const ratio = fromEl.scrollTop / fromMax;
+  toEl.scrollTop = ratio * toMax;
+}
+
+async function loadMermaid() {
+  if (globalThis.mermaid) return globalThis.mermaid;
+  if (!mermaidLoaderPromise) {
+    mermaidLoaderPromise = new Promise((resolve, reject) => {
+      const script = document.createElement('script');
+      script.src = new URL('../../node_modules/mermaid/dist/mermaid.min.js', window.location.href).toString();
+      script.onload = () => resolve(globalThis.mermaid);
+      script.onerror = () => reject(new Error('Failed to load Mermaid renderer'));
+      document.head.appendChild(script);
+    });
+  }
+  const mermaid = await mermaidLoaderPromise;
+  mermaid.initialize({ startOnLoad: false, securityLevel: 'strict' });
+  return mermaid;
+}
+
+async function renderMermaidDiagrams() {
+  const blocks = Array.from(previewEl.querySelectorAll('.mermaid-block[data-mermaid]'));
+  if (blocks.length === 0) return;
+
+  try {
+    const mermaid = await loadMermaid();
+    for (const [index, block] of blocks.entries()) {
+      const source = block.dataset.mermaid || '';
+      const { svg } = await mermaid.render(`docfoundry-mermaid-${Date.now()}-${index}`, source);
+      block.innerHTML = svg;
+    }
+  } catch (_) {
+    for (const block of blocks) {
+      block.innerHTML = `<pre class="mermaid-fallback">${escapeHtml(block.dataset.mermaid || '')}</pre>`;
+    }
+  }
+}
+
 // ── Helpers ───────────────────────────────────────────────────────────────────
 function highlightActiveFileInTree() {
   document.querySelectorAll('.tree-item-file.active').forEach(el => el.classList.remove('active'));
@@ -1173,9 +1604,65 @@ function resetEditorState() {
   updateStatusBar();
   updateBreadcrumbs();
   updateOutline();
+  hideLinkSuggestions();
+  brokenLinkResults = [];
+  renderBrokenLinkStatus();
   document.querySelectorAll('.tree-item-file.active').forEach(el => el.classList.remove('active'));
 }
 
 function renderPreview(source) {
   previewEl.innerHTML = markdownToHtml(source);
+  renderMermaidDiagrams();
+  runBrokenLinkCheck(false);
+}
+
+function collectWorkspaceEntries(entries, items = []) {
+  for (const entry of entries) {
+    items.push(entry);
+    if (entry.type === 'folder' && Array.isArray(entry.children)) {
+      collectWorkspaceEntries(entry.children, items);
+    }
+  }
+  return items;
+}
+
+function normalizeFsPath(input) {
+  return String(input || '').replace(/\\/g, '/').replace(/\/+/g, '/');
+}
+
+function dirnamePath(filePath) {
+  const normalized = normalizeFsPath(filePath);
+  const parts = normalized.split('/');
+  parts.pop();
+  return parts.join('/') || normalized;
+}
+
+function joinWorkspacePath(basePath, relativePath) {
+  const baseParts = normalizeFsPath(basePath).split('/');
+  const relativeParts = normalizeFsPath(relativePath).split('/');
+  const joined = [...baseParts];
+
+  for (const part of relativeParts) {
+    if (!part || part === '.') continue;
+    if (part === '..') joined.pop();
+    else joined.push(part);
+  }
+
+  return joined.join('/');
+}
+
+function relativePathBetween(fromFilePath, toPath) {
+  const root = normalizeFsPath(workspaceRoot || '');
+  const fromDir = normalizeFsPath(dirnamePath(fromFilePath)).replace(root, '').replace(/^\//, '');
+  const toRelative = normalizeFsPath(toPath).replace(root, '').replace(/^\//, '');
+  const fromSegments = fromDir ? fromDir.split('/') : [];
+  const toSegments = toRelative ? toRelative.split('/') : [];
+
+  while (fromSegments.length && toSegments.length && fromSegments[0] === toSegments[0]) {
+    fromSegments.shift();
+    toSegments.shift();
+  }
+
+  const prefix = fromSegments.map(() => '..');
+  return [...prefix, ...toSegments].join('/') || '.';
 }

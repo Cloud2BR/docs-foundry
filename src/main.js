@@ -1,6 +1,8 @@
 const { app, BrowserWindow, ipcMain, dialog, Menu } = require('electron');
 const path = require('path');
 const fs = require('fs');
+const os = require('os');
+const { execFileSync } = require('child_process');
 const { resolveWorkspacePath, validateFileName } = require('./lib/workspace-path');
 
 // Hot reload in development
@@ -21,6 +23,16 @@ let hasUnsavedChanges = false;
 let allowWindowClose = false;
 let fileWatcher = null;
 
+function hasControlCharacters(value) {
+  for (const character of value) {
+    const codePoint = character.codePointAt(0);
+    if (typeof codePoint === 'number' && codePoint <= 31) {
+      return true;
+    }
+  }
+  return false;
+}
+
 function createWindow() {
   allowWindowClose = false;
   hasUnsavedChanges = false;
@@ -36,7 +48,8 @@ function createWindow() {
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,
-      nodeIntegration: false
+      nodeIntegration: false,
+      spellcheck: true
     }
   });
 
@@ -70,6 +83,7 @@ function buildAppMenu() {
         { type: 'separator' },
         { label: 'Save', accelerator: 'CmdOrCtrl+S', click: () => mainWindow.webContents.send('menu-save') },
         { label: 'Export HTML…', accelerator: 'CmdOrCtrl+Shift+E', click: () => mainWindow.webContents.send('menu-export-html') },
+        { label: 'Export PDF…', accelerator: 'CmdOrCtrl+Shift+P', click: () => mainWindow.webContents.send('menu-export-pdf') },
         { type: 'separator' },
         isMac ? { role: 'close' } : { role: 'quit' }
       ]
@@ -93,6 +107,8 @@ function buildAppMenu() {
       submenu: [
         { label: 'Command Palette…', accelerator: 'CmdOrCtrl+P', click: () => mainWindow.webContents.send('menu-command-palette') },
         { label: 'Workspace Search…', accelerator: 'CmdOrCtrl+Shift+F', click: () => mainWindow.webContents.send('menu-workspace-search') },
+        { label: 'Git Diff…', accelerator: 'CmdOrCtrl+Shift+D', click: () => mainWindow.webContents.send('menu-git-diff') },
+        { label: 'Check Broken Links…', accelerator: 'CmdOrCtrl+Shift+L', click: () => mainWindow.webContents.send('menu-check-links') },
         { type: 'separator' },
         { label: 'Toggle Sidebar', accelerator: 'CmdOrCtrl+B', click: () => mainWindow.webContents.send('menu-toggle-sidebar') },
         { label: 'Toggle Outline', accelerator: 'CmdOrCtrl+Shift+O', click: () => mainWindow.webContents.send('menu-toggle-outline') },
@@ -366,6 +382,110 @@ ipcMain.handle('export-html', async (_event, htmlContent, suggestedName) => {
   return true;
 });
 
+ipcMain.handle('export-pdf', async (_event, htmlContent, suggestedName) => {
+  if (!mainWindow) return false;
+
+  const result = await dialog.showSaveDialog(mainWindow, {
+    title: 'Export PDF',
+    defaultPath: suggestedName || 'document.pdf',
+    filters: [{ name: 'PDF Files', extensions: ['pdf'] }]
+  });
+  if (result.canceled || !result.filePath) return false;
+
+  const pdfWindow = new BrowserWindow({
+    show: false,
+    webPreferences: {
+      sandbox: true,
+      contextIsolation: true,
+      nodeIntegration: false
+    }
+  });
+
+  const fullHtml = `<!doctype html><html><head><meta charset="utf-8"/><style>
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;padding:32px;line-height:1.6;color:#111;background:#fff;}
+    img{max-width:100%;} pre{background:#f6f8fa;padding:14px;border-radius:8px;overflow:auto;} code{font-family:'SFMono-Regular',Consolas,monospace;}
+    table{border-collapse:collapse;width:100%;} th,td{border:1px solid #d0d7de;padding:8px;text-align:left;} blockquote{border-left:4px solid #d0d7de;padding-left:12px;color:#57606a;}
+  </style></head><body>${htmlContent}</body></html>`;
+
+  try {
+    await pdfWindow.loadURL(`data:text/html;charset=utf-8,${encodeURIComponent(fullHtml)}`);
+    const pdf = await pdfWindow.webContents.printToPDF({ printBackground: true, preferCSSPageSize: true });
+    fs.writeFileSync(result.filePath, pdf);
+    return true;
+  } finally {
+    if (!pdfWindow.isDestroyed()) {
+      pdfWindow.destroy();
+    }
+  }
+});
+
+ipcMain.handle('get-git-status', async () => {
+  const repoRoot = findGitRoot(currentFolder);
+  if (!repoRoot) return { available: false, repoRoot: null, entries: [] };
+
+  try {
+    const output = execFileSync('git', ['-C', repoRoot, 'status', '--porcelain', '--untracked-files=all'], {
+      encoding: 'utf-8'
+    });
+    const entries = output
+      .split('\n')
+      .filter(Boolean)
+      .map(line => parseGitStatusLine(line, repoRoot));
+
+    return { available: true, repoRoot, entries };
+  } catch (_) {
+    return { available: false, repoRoot, entries: [] };
+  }
+});
+
+ipcMain.handle('get-git-diff', async (_event, filePath) => {
+  const repoRoot = findGitRoot(currentFolder);
+  if (!repoRoot || !filePath) return { available: false, diff: '', status: 'unavailable' };
+
+  const resolved = resolveWorkspacePath(currentFolder, filePath);
+  const relative = path.relative(repoRoot, resolved);
+
+  try {
+    const statusOutput = execFileSync('git', ['-C', repoRoot, 'status', '--porcelain', '--', relative], {
+      encoding: 'utf-8'
+    }).trim();
+    const status = statusOutput ? statusOutput.slice(0, 2).trim() || '?' : 'clean';
+
+    let diff = execFileSync('git', ['-C', repoRoot, 'diff', '--no-color', '--', relative], {
+      encoding: 'utf-8'
+    });
+
+    if (!diff.trim() && status === '??') {
+      const content = fs.readFileSync(resolved, 'utf-8');
+      diff = `Untracked file: ${relative}${os.EOL}${os.EOL}${content}`;
+    }
+
+    return { available: true, diff, status, repoRoot, relativePath: relative };
+  } catch (error) {
+    return { available: false, diff: '', status: 'error', message: error.message };
+  }
+});
+
+ipcMain.handle('import-files-into-workspace', async (_event, sources, targetDir) => {
+  if (!Array.isArray(sources) || sources.length === 0) return [];
+  const resolvedDir = resolveWorkspacePath(currentFolder, targetDir || currentFolder);
+  fs.mkdirSync(resolvedDir, { recursive: true });
+
+  return sources.map(sourcePath => {
+    const sourceName = path.basename(sourcePath);
+    const targetPath = createAvailablePath(resolvedDir, sourceName);
+    fs.copyFileSync(sourcePath, targetPath);
+
+    return {
+      sourcePath,
+      path: targetPath,
+      name: path.basename(targetPath),
+      relativePath: currentFolder ? path.relative(currentFolder, targetPath) : path.basename(targetPath),
+      isImage: /\.(png|jpe?g|gif|webp|svg)$/i.test(targetPath)
+    };
+  });
+});
+
 // ── IPC: prompt for new file/folder name ──────────────────────────────────────
 
 ipcMain.handle('prompt-new-file', async (_event, parentDir) => {
@@ -387,13 +507,13 @@ function startFileWatcher(folderPath) {
   try {
     fileWatcher = fs.watch(folderPath, { recursive: true }, (eventType, fileName) => {
       if (!fileName) return;
-      // Sanitize: reject null bytes and control characters
-      if (/[\x00-\x1f]/.test(fileName)) return;
+      const normalizedFileName = String(fileName);
+      if (hasControlCharacters(normalizedFileName)) return;
       const IGNORE_PATTERNS = ['.git', 'node_modules', '.DS_Store'];
-      if (IGNORE_PATTERNS.some(p => fileName.includes(p))) return;
+      if (IGNORE_PATTERNS.some(p => normalizedFileName.includes(p))) return;
 
       if (mainWindow && !mainWindow.isDestroyed()) {
-        mainWindow.webContents.send('workspace-changed', { eventType, fileName: String(fileName) });
+        mainWindow.webContents.send('workspace-changed', { eventType, fileName: normalizedFileName });
       }
     });
   } catch (_) {
@@ -439,6 +559,40 @@ function readFolderTree(rootPath) {
   }
 
   return { root: rootPath, name: path.basename(rootPath), children: walk(rootPath, 0) };
+}
+
+function findGitRoot(startPath) {
+  if (!startPath) return null;
+  try {
+    return execFileSync('git', ['-C', startPath, 'rev-parse', '--show-toplevel'], {
+      encoding: 'utf-8'
+    }).trim();
+  } catch (_) {
+    return null;
+  }
+}
+
+function parseGitStatusLine(line, repoRoot) {
+  const status = line.slice(0, 2);
+  const filePath = line.slice(3).trim();
+  return {
+    status,
+    path: path.join(repoRoot, filePath),
+    relativePath: filePath
+  };
+}
+
+function createAvailablePath(dirPath, fileName) {
+  const parsed = path.parse(fileName);
+  let candidate = path.join(dirPath, fileName);
+  let counter = 1;
+
+  while (fs.existsSync(candidate)) {
+    candidate = path.join(dirPath, `${parsed.name}-${counter}${parsed.ext}`);
+    counter += 1;
+  }
+
+  return candidate;
 }
 
 // ── App lifecycle ─────────────────────────────────────────────────────────────

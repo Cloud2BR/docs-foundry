@@ -129,6 +129,47 @@
         height: 18px;
         border-radius: 999px;
       }
+      .hero-control-panel {
+        margin-top: 18px;
+        padding: 14px 16px;
+        border: 1px solid color-mix(in oklab, var(--hero-fg) 14%, transparent);
+        border-radius: var(--radius-lg);
+        background: color-mix(in oklab, var(--hero-fg) 8%, transparent);
+      }
+      .hero-control-label {
+        margin: 0 0 10px;
+        font-size: 0.74rem;
+        text-transform: uppercase;
+        letter-spacing: 0.14em;
+        color: var(--hero-muted);
+      }
+      .hero-control-links {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+      .hero-control-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 8px 14px;
+        border: 1px solid color-mix(in oklab, var(--hero-fg) 16%, transparent);
+        border-radius: var(--radius);
+        background: color-mix(in oklab, var(--hero-fg) 10%, transparent);
+        color: var(--hero-fg);
+        text-decoration: none;
+        font-weight: 500;
+        font-size: 0.85rem;
+        transition: border-color 140ms ease, background 140ms ease;
+      }
+      .hero-control-link:hover {
+        border-color: color-mix(in oklab, var(--hero-fg) 32%, transparent);
+        background: color-mix(in oklab, var(--hero-fg) 16%, transparent);
+      }
+      .hero-control-link:focus-visible {
+        outline: 2px solid #ffffff;
+        outline-offset: 3px;
+      }
       .theme-toggle {
         padding: 8px 12px;
         border: 1px solid var(--hero-border);
@@ -172,42 +213,117 @@
       }
 
       /* ── Capability list ── */
-      .capability-list {
+      .story-shell {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-        gap: 0;
+        grid-template-columns: minmax(0, 1.15fr) minmax(300px, 0.85fr);
+        gap: 24px;
+        align-items: start;
+        margin-bottom: 24px;
       }
-      .capability-item {
-        display: flex;
+      .story-intro {
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        background: linear-gradient(180deg, var(--card), color-mix(in oklab, var(--surface) 38%, var(--card)));
+        padding: 22px 24px;
+      }
+      .story-copy {
+        margin: 0;
+        max-width: none;
+        font-size: 1rem;
+      }
+      .story-emphasis {
+        margin: 18px 0 0;
+        padding-top: 18px;
+        border-top: 1px solid var(--border);
+        color: var(--fg);
+        font-size: 0.98rem;
+        line-height: 1.7;
+      }
+      .story-rail {
+        position: relative;
+        display: grid;
+        gap: 18px;
+        padding-left: 18px;
+      }
+      .story-rail::before {
+        content: "";
+        position: absolute;
+        left: 4px;
+        top: 8px;
+        bottom: 8px;
+        width: 1px;
+        background: color-mix(in oklab, var(--link) 35%, var(--border));
+      }
+      .story-step {
+        display: grid;
+        grid-template-columns: 52px minmax(0, 1fr);
         gap: 14px;
-        align-items: flex-start;
-        padding: 16px 0;
-        border-bottom: 1px solid var(--border);
+        align-items: start;
       }
-      .capability-item:nth-last-child(-n+2) {
-        border-bottom: none;
+      .story-step-number {
+        position: relative;
+        z-index: 1;
+        width: 40px;
+        height: 40px;
+        border-radius: 999px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--card);
+        border: 1px solid color-mix(in oklab, var(--link) 18%, var(--border));
+        color: var(--link);
+        font-weight: 700;
+        font-size: 0.88rem;
+        box-shadow: 0 8px 18px color-mix(in oklab, var(--link) 10%, transparent);
       }
-      /* Remove bottom border on last item in each column for even grids */
-      @media (min-width: 640px) {
-        .capability-item:nth-last-child(-n+2) { border-bottom: none; }
+      .story-step h3 {
+        margin: 2px 0 6px;
+        font-family: "Space Grotesk", sans-serif;
+        font-size: 1.02rem;
       }
-      .capability-icon {
-        font-size: 1.4rem;
-        flex-shrink: 0;
-        width: 28px;
-        text-align: center;
-        margin-top: 2px;
-      }
-      .capability-text strong {
-        display: block;
-        font-size: 0.95rem;
-        margin-bottom: 3px;
-      }
-      .capability-text p {
+      .story-step p {
         margin: 0;
         color: var(--muted);
-        font-size: 0.88rem;
-        line-height: 1.5;
+        font-size: 0.92rem;
+        line-height: 1.58;
+      }
+      .capability-ledger {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        background: var(--card);
+        overflow: hidden;
+      }
+      .ledger-item {
+        padding: 20px 22px;
+        min-width: 0;
+        background: linear-gradient(180deg, color-mix(in oklab, var(--card) 96%, var(--surface)), var(--card));
+      }
+      .ledger-item:nth-child(odd) {
+        border-right: 1px solid var(--border);
+      }
+      .ledger-item:nth-child(n+3) {
+        border-top: 1px solid var(--border);
+      }
+      .ledger-kicker {
+        display: inline-block;
+        margin-bottom: 8px;
+        font-size: 0.72rem;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        color: var(--muted);
+      }
+      .ledger-item strong {
+        display: block;
+        font-size: 1rem;
+        margin-bottom: 6px;
+      }
+      .ledger-item p {
+        margin: 0;
+        color: var(--muted);
+        font-size: 0.92rem;
+        line-height: 1.58;
       }
 
       /* ── Getting started steps ── */
@@ -279,9 +395,27 @@
         outline-offset: 3px;
       }
       .platform-card .platform-icon {
-        font-size: 2.2rem;
-        margin-bottom: 10px;
+        width: 48px;
+        height: 48px;
+        margin: 0 auto 12px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--fg);
+      }
+      .platform-card .platform-icon svg {
+        width: 100%;
+        height: 100%;
         display: block;
+      }
+      .platform-icon--macos {
+        color: #111111;
+      }
+      .platform-icon--windows {
+        color: #0f6cbd;
+      }
+      .platform-icon--linux {
+        color: #111111;
       }
       .platform-card h3 {
         margin: 0 0 4px;
@@ -305,37 +439,25 @@
         font-size: 0.88rem;
         pointer-events: none; /* card itself is the link */
       }
-      .download-row {
-        margin-top: 16px;
-        display: flex;
-        gap: 10px;
-        justify-content: center;
-        flex-wrap: wrap;
+      .platform-note {
+        margin: 14px 0 0;
+        padding: 10px 12px;
+        border-radius: 12px;
+        background: color-mix(in oklab, var(--surface) 72%, var(--card));
+        color: var(--muted);
+        font-size: 0.8rem;
+        line-height: 1.5;
+        text-align: left;
       }
-      .download-link-secondary {
-        display: inline-flex;
-        align-items: center;
-        gap: 4px;
-        padding: 8px 14px;
-        border: 1px solid var(--border);
-        border-radius: var(--radius);
-        background: var(--surface2);
+      .platform-note strong {
         color: var(--fg);
-        text-decoration: none;
-        font-weight: 500;
-        font-size: 0.85rem;
-        cursor: pointer;
-        transition: border-color 140ms ease, background 140ms ease;
       }
-      .download-link-secondary:hover {
-        border-color: var(--link);
-        background: var(--surface);
+      .platform-note code {
+        background: color-mix(in oklab, var(--surface2) 80%, var(--card));
+        padding: 2px 6px;
+        border-radius: 6px;
+        font-size: 0.9em;
       }
-      .download-link-secondary:focus-visible {
-        outline: 2px solid var(--link);
-        outline-offset: 3px;
-      }
-
       /* ── Identity section (from Azure-Capacity-Overview) ── */
       .identity-section {
         padding: 36px 0 42px;
@@ -346,6 +468,20 @@
         color: var(--muted);
         max-width: 70ch;
         margin: 6px 0 0;
+      }
+      .identity-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 10px;
+        border-radius: 999px;
+        background: color-mix(in oklab, var(--link) 12%, var(--card));
+        color: var(--link);
+        font-size: 0.76rem;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        margin-bottom: 10px;
       }
       .identity-grid {
         display: grid;
@@ -434,14 +570,23 @@
 
       /* ── Responsive ── */
       @media (max-width: 768px) {
+        .story-shell { grid-template-columns: 1fr; }
+        .capability-ledger { grid-template-columns: 1fr; }
+        .ledger-item:nth-child(odd) { border-right: 0; }
+        .ledger-item:nth-child(n+3) { border-top: 0; }
+        .ledger-item + .ledger-item { border-top: 1px solid var(--border); }
         .platform-grid { grid-template-columns: 1fr; }
         .identity-grid { grid-template-columns: 1fr; }
         .hero h1 { font-size: 1.8rem; }
       }
 
+      @media (min-width: 769px) and (max-width: 1040px) {
+        .story-shell { grid-template-columns: 1fr; }
+      }
+
       @media (prefers-reduced-motion: reduce) {
         a.platform-card,
-        .download-link-secondary { transition: none; }
+        .hero-control-link { transition: none; }
         a.platform-card:hover { transform: none; }
       }
     </style>
@@ -469,9 +614,20 @@
             <img src="https://github.com/Cloud2BR/docs-foundry/actions/workflows/release-desktop.yml/badge.svg" alt="Build Desktop Artifacts status" loading="lazy" />
           </a>
           <!-- START BADGE -->
-          <span class="badge-link"><img src="https://img.shields.io/badge/Total%20views-3-limegreen" alt="Total views" loading="lazy" /></span>
+          <span class="badge-link"><img src="https://img.shields.io/badge/Total%20views-0-limegreen" alt="Total views" loading="lazy" /></span>
           <!-- END BADGE -->
           <button id="theme-toggle" class="theme-toggle" type="button" aria-label="Toggle dark mode" title="Toggle dark mode">🌙</button>
+        </div>
+        <div class="hero-control-panel" aria-label="Docs Foundry quick links">
+          <p class="hero-control-label">Quick links</p>
+          <div class="hero-control-links">
+            <a class="hero-control-link" href="./downloads.html">Download guide</a>
+            <a class="hero-control-link" href="./roadmap.html">Roadmap</a>
+            <a class="hero-control-link" href="./feedback.html">Feedback</a>
+            <a class="hero-control-link" href="https://github.com/Cloud2BR/docs-foundry/releases" target="_blank" rel="noopener noreferrer">All releases ↗</a>
+            <a class="hero-control-link" href="https://github.com/Cloud2BR/docs-foundry/actions/workflows/release-desktop.yml" target="_blank" rel="noopener noreferrer">Build pipeline ↗</a>
+            <a class="hero-control-link" href="https://github.com/Cloud2BR/docs-foundry" target="_blank" rel="noopener noreferrer">Source on GitHub ↗</a>
+          </div>
         </div>
       </div>
     </header>
@@ -482,37 +638,135 @@
         <div class="container">
           <p class="section-kicker">Getting started</p>
           <h2>What is Docs Foundry?</h2>
+          <div class="story-shell">
+            <div class="story-intro">
+              <p class="section-copy story-copy">
+                Docs Foundry is an open-source desktop application for writing, editing, and
+                previewing Markdown documentation. Think of it as a lightweight, local-first
+                docs workspace built specifically for documentation projects rather than a
+                general-purpose IDE.
+              </p>
+              <p class="story-emphasis">
+                Built for documentation rather than IDE sprawl: open a docs folder, write in
+                Markdown, review the rendered result beside the editor, and package the same
+                project for distribution without extra local setup.
+              </p>
+            </div>
+
+            <div class="story-rail" aria-label="Docs Foundry workflow">
+              <article class="story-step">
+                <span class="story-step-number">01</span>
+                <div>
+                  <h3>Bring your own docs</h3>
+                  <p>Work directly from your repository or documentation folder with a local-first workspace instead of a hosted editing surface.</p>
+                </div>
+              </article>
+              <article class="story-step">
+                <span class="story-step-number">02</span>
+                <div>
+                  <h3>Write with immediate feedback</h3>
+                  <p>Draft in Markdown while the rendered preview stays beside the editor so structure, formatting, and content stay aligned.</p>
+                </div>
+              </article>
+              <article class="story-step">
+                <span class="story-step-number">03</span>
+                <div>
+                  <h3>Distribute like a product</h3>
+                  <p>Package the same workspace into native installers for macOS, Windows, and Linux without reworking the project around a separate toolchain.</p>
+                </div>
+              </article>
+            </div>
+          </div>
+
+          <div class="capability-ledger" aria-label="Docs Foundry capabilities">
+            <article class="ledger-item">
+              <span class="ledger-kicker">Authoring</span>
+              <strong>Markdown editor</strong>
+              <p>Distraction-free monospace editing with fast save, unsaved-change tracking, and a workspace built around docs instead of code noise.</p>
+            </article>
+            <article class="ledger-item">
+              <span class="ledger-kicker">Preview</span>
+              <strong>Live preview</strong>
+              <p>See Markdown render in real time with headings, lists, code blocks, tables, and the formatting details that matter while writing.</p>
+            </article>
+            <article class="ledger-item">
+              <span class="ledger-kicker">Navigation</span>
+              <strong>Sidebar file tree</strong>
+              <p>Open a docs folder and move through its structure quickly, keeping related Markdown, assets, and project files in one place.</p>
+            </article>
+            <article class="ledger-item">
+              <span class="ledger-kicker">Contributing</span>
+              <strong>Container-first development</strong>
+              <p>No local Node.js required. Run <code>make setup</code> and contributors get the same Docker-based environment with project dependencies inside the container.</p>
+            </article>
+            <article class="ledger-item">
+              <span class="ledger-kicker">Distribution</span>
+              <strong>Cross-platform installers</strong>
+              <p>Ship native DMG, NSIS, AppImage, and DEB outputs so people can install the app without building from source.</p>
+            </article>
+            <article class="ledger-item">
+              <span class="ledger-kicker">Maintenance</span>
+              <strong>Auto-update path</strong>
+              <p>Packaged builds can check GitHub Releases for updates through <code>electron-updater</code>, which keeps distributed installs easier to maintain.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── Download installers ── -->
+      <section>
+        <div class="container">
+          <p class="section-kicker">For end users</p>
+          <h2>Download Docs Foundry</h2>
           <p class="section-copy">
-            Docs Foundry is an open-source desktop application for writing, editing, and
-            previewing Markdown documentation. Think of it as a lightweight, local-first
-            docs workspace, purpose-built for documentation projects.
+            Grab the latest installer for your operating system. Builds are published
+            automatically to GitHub Releases when a new version tag is pushed or when
+            the release workflow is run manually with a tag name.
           </p>
 
-          <div class="capability-list">
-            <div class="capability-item">
-              <span class="capability-icon">📝</span>
-              <div class="capability-text"><strong>Markdown editor</strong><p>Distraction-free monospace editor with Ctrl+S save and unsaved-change tracking.</p></div>
-            </div>
-            <div class="capability-item">
-              <span class="capability-icon">👁️</span>
-              <div class="capability-text"><strong>Live preview</strong><p>Split-pane Markdown rendering in real time — headings, bold, code blocks, lists, and more.</p></div>
-            </div>
-            <div class="capability-item">
-              <span class="capability-icon">📂</span>
-              <div class="capability-text"><strong>Sidebar file tree</strong><p>Open any folder and navigate its full directory structure up to 8 levels deep.</p></div>
-            </div>
-            <div class="capability-item">
-              <span class="capability-icon">🐳</span>
-              <div class="capability-text"><strong>Container-first dev</strong><p>No local Node.js needed. Run <code>make setup</code> to build a Docker container with all deps.</p></div>
-            </div>
-            <div class="capability-item">
-              <span class="capability-icon">📦</span>
-              <div class="capability-text"><strong>Cross-platform installers</strong><p>Native DMG, NSIS, AppImage, and DEB packages built automatically via GitHub Actions.</p></div>
-            </div>
-            <div class="capability-item">
-              <span class="capability-icon">🔄</span>
-              <div class="capability-text"><strong>Auto-update</strong><p>Packaged builds silently check GitHub Releases for updates via electron-updater.</p></div>
-            </div>
+          <div class="platform-grid">
+            <a class="platform-card" href="./downloads.html#macos" aria-label="Open Docs Foundry macOS downloads guide">
+              <span class="platform-icon platform-icon--macos" aria-hidden="true">
+                <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M30.085 10.5C28.96 11.875 27.12 12.942 25.28 12.792C25.042 10.993 25.955 9.128 27.019 7.86C28.195 6.46 30.215 5.479 31.84 5.4C31.982 7.291 31.298 9.08 30.085 10.5Z" fill="currentColor"/>
+                  <path d="M38.722 31.918C37.896 33.781 37.502 34.612 36.438 36.304C34.954 38.667 32.861 41.615 30.259 41.641C27.953 41.661 27.357 40.131 24.228 40.15C21.099 40.168 20.445 41.669 18.139 41.646C15.537 41.62 13.555 38.958 12.072 36.595C7.923 29.975 7.487 22.21 10.048 18.264C11.868 15.46 14.742 13.814 17.441 13.814C20.192 13.814 21.924 15.337 24.195 15.337C26.398 15.337 27.74 13.81 30.926 13.81C33.331 13.81 35.877 15.119 37.691 17.374C31.743 20.633 32.708 29.17 38.722 31.918Z" fill="currentColor"/>
+                </svg>
+              </span>
+              <h3>macOS</h3>
+              <p class="formats">.dmg recommended &nbsp;·&nbsp; .zip advanced</p>
+              <span class="download-label">↓ Download for macOS</span>
+              <p class="platform-note"><strong>Gatekeeper:</strong> prefer the <strong>.dmg</strong>. If the ZIP build is blocked, run <code>xattr -cr /path/to/DocFoundry.app</code> once, then reopen it.</p>
+            </a>
+            <a class="platform-card" href="./downloads.html#windows" aria-label="Open Docs Foundry Windows downloads guide">
+              <span class="platform-icon platform-icon--windows" aria-hidden="true">
+                <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M6 10L22 8V22H6V10Z" fill="currentColor"/>
+                  <path d="M26 7L42 5V22H26V7Z" fill="currentColor" opacity="0.88"/>
+                  <path d="M6 26H22V40L6 38V26Z" fill="currentColor" opacity="0.88"/>
+                  <path d="M26 26H42V43L26 41V26Z" fill="currentColor"/>
+                </svg>
+              </span>
+              <h3>Windows</h3>
+              <p class="formats">NSIS installer &nbsp;·&nbsp; .zip</p>
+              <span class="download-label">↓ Download for Windows</span>
+              <p class="platform-note"><strong>SmartScreen:</strong> if Windows warns, choose <strong>More info</strong> and then <strong>Run anyway</strong>.</p>
+            </a>
+            <a class="platform-card" href="./downloads.html#linux" aria-label="Open Docs Foundry Linux downloads guide">
+              <span class="platform-icon platform-icon--linux" aria-hidden="true">
+                <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M24.049 7C19.979 7 17.421 10.306 17.421 14.604C17.421 16.2 17.721 17.314 18.384 18.801C15.591 20.442 13.837 23.989 13.837 28.455C13.837 34.781 18.159 41 24.049 41C29.939 41 34.261 34.781 34.261 28.455C34.261 24.002 32.49 20.445 29.714 18.805C30.376 17.329 30.676 16.214 30.676 14.604C30.676 10.306 28.118 7 24.049 7Z" fill="currentColor"/>
+                  <ellipse cx="21.2" cy="14.8" rx="1.35" ry="1.75" fill="#ffffff"/>
+                  <ellipse cx="26.8" cy="14.8" rx="1.35" ry="1.75" fill="#ffffff"/>
+                  <ellipse cx="21.2" cy="15.15" rx="0.48" ry="0.62" fill="#111111"/>
+                  <ellipse cx="26.8" cy="15.15" rx="0.48" ry="0.62" fill="#111111"/>
+                  <path d="M22.5 18.55C23.157 18.879 24.856 18.879 25.512 18.55" stroke="#F59E0B" stroke-width="1.7" stroke-linecap="round"/>
+                  <path d="M16 35.2C18.014 34.099 19.155 33.804 21.075 33.804C22.41 33.804 23.179 34.285 24.032 34.285C24.885 34.285 25.652 33.804 26.988 33.804C28.907 33.804 30.047 34.099 32.061 35.2" stroke="#F59E0B" stroke-width="2.2" stroke-linecap="round"/>
+                </svg>
+              </span>
+              <h3>Linux</h3>
+              <p class="formats">AppImage &nbsp;·&nbsp; .deb &nbsp;·&nbsp; .tar.gz</p>
+              <span class="download-label">↓ Download for Linux</span>
+            </a>
           </div>
         </div>
       </section>
@@ -554,66 +808,21 @@
         </div>
       </section>
 
-      <!-- ── Download installers ── -->
-      <section>
-        <div class="container">
-          <p class="section-kicker">For end users</p>
-          <h2>Download Docs Foundry</h2>
-          <p class="section-copy">
-            Grab the latest installer for your operating system. Builds are published
-            automatically to GitHub Releases when a new version tag is pushed.
-          </p>
-
-          <div class="platform-grid">
-            <a class="platform-card" href="https://github.com/Cloud2BR/docs-foundry/releases/latest" target="_blank" rel="noopener noreferrer" aria-label="Download Docs Foundry for macOS">
-              <span class="platform-icon">🍎</span>
-              <h3>macOS</h3>
-              <p class="formats">.dmg recommended &nbsp;·&nbsp; .zip advanced</p>
-              <span class="download-label">↓ Download for macOS</span>
-            </a>
-            <a class="platform-card" href="https://github.com/Cloud2BR/docs-foundry/releases/latest" target="_blank" rel="noopener noreferrer" aria-label="Download Docs Foundry for Windows">
-              <span class="platform-icon">🪟</span>
-              <h3>Windows</h3>
-              <p class="formats">NSIS installer &nbsp;·&nbsp; .zip</p>
-              <span class="download-label">↓ Download for Windows</span>
-            </a>
-            <a class="platform-card" href="https://github.com/Cloud2BR/docs-foundry/releases/latest" target="_blank" rel="noopener noreferrer" aria-label="Download Docs Foundry for Linux">
-              <span class="platform-icon">🐧</span>
-              <h3>Linux</h3>
-              <p class="formats">AppImage &nbsp;·&nbsp; .deb &nbsp;·&nbsp; .tar.gz</p>
-              <span class="download-label">↓ Download for Linux</span>
-            </a>
-          </div>
-
-          <div class="download-row">
-            <a class="download-link-secondary" href="https://github.com/Cloud2BR/docs-foundry/releases" target="_blank" rel="noopener noreferrer">All releases ↗</a>
-            <a class="download-link-secondary" href="https://github.com/Cloud2BR/docs-foundry/actions/workflows/release-desktop.yml" target="_blank" rel="noopener noreferrer">Build pipeline ↗</a>
-            <a class="download-link-secondary" href="https://github.com/Cloud2BR/docs-foundry" target="_blank" rel="noopener noreferrer">Source on GitHub ↗</a>
-          </div>
-
-          <p class="section-copy" style="margin-top: 18px;">
-            On macOS, use the <strong>.dmg</strong> first. If you open the <strong>.zip</strong>
-            app bundle and macOS says the app is damaged, run
-            <code>xattr -cr /path/to/DocFoundry.app</code> once and reopen it.
-          </p>
-        </div>
-      </section>
-
       <!-- ── Identity (Azure-Capacity-Overview style) ── -->
       <section class="identity-section">
         <div class="container">
           <div class="identity-header">
             <p class="section-kicker">Project identity</p>
-            <h2>Owner and organization</h2>
+            <h2>Owner / Organization</h2>
             <p class="identity-copy">
-              Maintained by the founder and published under Cloud2BR as an open-source
-              GitHub Pages experience.
+              Docs Foundry v0.0.1 is presented as an open-source desktop release maintained
+              by the owner and published through the Cloud2BR organization.
             </p>
           </div>
 
           <div class="identity-grid">
             <article class="identity-card" aria-label="Owner and founder">
-              <p class="identity-label">Owner / Founder</p>
+              <p class="identity-label">Owner</p>
               <div class="identity-row">
                 <img
                   class="identity-avatar"
@@ -642,17 +851,19 @@
                 <a class="identity-org-link" href="https://github.com/Cloud2BR" target="_blank" rel="noopener noreferrer">Cloud2BR</a>
               </div>
               <p class="identity-note">
-                Open-source tools and community assets published under the Cloud2BR organization.
+                Cloud2BR is the publishing organization behind the site, release assets, and
+                open-source project distribution.
               </p>
             </article>
 
-            <article class="identity-card" aria-label="Project context">
-              <p class="identity-label">Project context</p>
+            <article class="identity-card" aria-label="Release context">
+              <span class="identity-chip">v0.0.1 release</span>
+              <p class="identity-label">Release context</p>
               <ul class="identity-list">
-                <li><strong>Format:</strong> Electron desktop app (HTML, CSS, JS)</li>
-                <li><strong>Hosting:</strong> GitHub Pages for this site, GitHub Releases for binaries</li>
-                <li><strong>Dev workflow:</strong> Container-only (Docker + Makefile)</li>
-                <li><strong>Purpose:</strong> Local-first Markdown documentation workspace</li>
+                <li><strong>Product:</strong> Electron desktop documentation workspace</li>
+                <li><strong>Release channel:</strong> GitHub Releases with tagged binaries and installers</li>
+                <li><strong>Presentation:</strong> GitHub Pages landing site for downloads and project overview</li>
+                <li><strong>Scope:</strong> Initial public release for macOS, Windows, and Linux</li>
               </ul>
             </article>
           </div>

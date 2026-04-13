@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; script-src 'self';" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; script-src 'self'; connect-src 'self';" />
     <title>DocFoundry</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -52,7 +52,7 @@
         </article>
         <article class="card">
           <h2>Export</h2>
-          <p>Export your rendered documents to standalone HTML files.</p>
+          <p>Export your rendered documents to standalone HTML or PDF files.</p>
         </article>
       </section>
 
@@ -126,7 +126,8 @@
         <!-- Split panes -->
         <div class="panes">
           <div class="pane pane-editor">
-            <textarea id="code-editor" class="code-editor" placeholder="Open a file from the sidebar to start editing…" spellcheck="false" aria-label="Markdown editor"></textarea>
+            <textarea id="code-editor" class="code-editor" placeholder="Open a file from the sidebar to start editing…" spellcheck="true" aria-label="Markdown editor"></textarea>
+            <div id="link-suggestions" class="link-suggestions" hidden aria-label="Link suggestions"></div>
           </div>
           <div id="pane-resize" class="resize-handle-h"></div>
           <div class="pane pane-preview">
@@ -168,6 +169,26 @@
       </div>
     </div>
 
+    <div id="diff-overlay" class="overlay-backdrop" hidden role="dialog" aria-label="Git diff view">
+      <div class="search-panel diff-panel">
+        <div class="search-panel-header">
+          <strong id="diff-title" class="panel-title">Git diff</strong>
+          <button type="button" class="find-btn" id="diff-close" aria-label="Close diff">×</button>
+        </div>
+        <pre id="diff-output" class="diff-output"></pre>
+      </div>
+    </div>
+
+    <div id="link-check-overlay" class="overlay-backdrop" hidden role="dialog" aria-label="Broken link results">
+      <div class="search-panel link-check-panel">
+        <div class="search-panel-header">
+          <strong class="panel-title">Broken link check</strong>
+          <button type="button" class="find-btn" id="link-check-close" aria-label="Close broken link results">×</button>
+        </div>
+        <div id="link-check-results" class="search-results"></div>
+      </div>
+    </div>
+
     <!-- Keyboard shortcuts overlay -->
     <div id="shortcuts-overlay" class="overlay-backdrop" hidden role="dialog" aria-label="Keyboard shortcuts">
       <div class="shortcuts-panel">
@@ -183,6 +204,7 @@
             <div class="shortcut-row"><kbd>Ctrl+S</kbd><span>Save</span></div>
             <div class="shortcut-row"><kbd>Ctrl+W</kbd><span>Close Tab</span></div>
             <div class="shortcut-row"><kbd>Ctrl+Shift+E</kbd><span>Export HTML</span></div>
+            <div class="shortcut-row"><kbd>Ctrl+Shift+P</kbd><span>Export PDF</span></div>
           </div>
           <div class="shortcut-group">
             <h3>Edit</h3>
@@ -195,6 +217,8 @@
             <h3>View</h3>
             <div class="shortcut-row"><kbd>Ctrl+P</kbd><span>Command Palette</span></div>
             <div class="shortcut-row"><kbd>Ctrl+Shift+F</kbd><span>Workspace Search</span></div>
+            <div class="shortcut-row"><kbd>Ctrl+Shift+D</kbd><span>Git Diff</span></div>
+            <div class="shortcut-row"><kbd>Ctrl+Shift+L</kbd><span>Broken Link Check</span></div>
             <div class="shortcut-row"><kbd>Ctrl+B</kbd><span>Toggle Sidebar</span></div>
             <div class="shortcut-row"><kbd>Ctrl+Shift+O</kbd><span>Toggle Outline</span></div>
             <div class="shortcut-row"><kbd>Ctrl+Shift+Z</kbd><span>Zen Mode</span></div>

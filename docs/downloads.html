@@ -1,0 +1,729 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="referrer" content="no-referrer" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; base-uri 'none'; object-src 'none';
+               img-src 'self' https: data:; style-src 'self' 'unsafe-inline';
+               script-src 'self' 'unsafe-inline'; connect-src 'self' https:;
+               font-src 'self' https://fonts.gstatic.com; frame-ancestors 'none';
+               upgrade-insecure-requests"
+    />
+    <title>Docs Foundry Downloads</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <script>
+      (function () {
+        try {
+          if (localStorage.getItem('docfoundryTheme') === 'dark') {
+            document.documentElement.setAttribute('data-theme', 'dark');
+          }
+        } catch (e) {}
+      })();
+    </script>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #f0f2f6;
+        --fg: #1a1a1a;
+        --link: #0078d4;
+        --muted: color-mix(in oklab, var(--fg) 62%, var(--bg));
+        --border: color-mix(in oklab, var(--fg) 14%, var(--bg));
+        --surface: #e6e9ef;
+        --surface2: #dde1e9;
+        --card: #ffffff;
+        --radius: 12px;
+        --radius-lg: 16px;
+        --hero-bg: #002050;
+        --hero-fg: #ffffff;
+        --hero-muted: #99b8d9;
+        --hero-border: #001538;
+      }
+
+      html[data-theme="dark"] {
+        color-scheme: dark;
+        --bg: #0d1117;
+        --fg: #e6edf3;
+        --link: #58a6ff;
+        --border: #30363d;
+        --surface: #161b22;
+        --surface2: #21262d;
+        --card: #161b22;
+        --hero-bg: #161b22;
+        --hero-fg: #e6edf3;
+        --hero-muted: #8b949e;
+        --hero-border: #30363d;
+      }
+
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        font-family: "IBM Plex Sans", system-ui, -apple-system, sans-serif;
+        background: radial-gradient(circle at top, color-mix(in oklab, var(--surface) 35%, var(--bg)), var(--bg) 58%);
+        color: var(--fg);
+        line-height: 1.6;
+      }
+      a { color: inherit; }
+      .container {
+        max-width: 1180px;
+        margin: 0 auto;
+        padding: 0 20px;
+      }
+      .hero {
+        padding: 42px 0 34px;
+        background: linear-gradient(180deg, var(--hero-bg), color-mix(in oklab, var(--hero-bg) 82%, black));
+        color: var(--hero-fg);
+        border-bottom: 1px solid var(--hero-border);
+      }
+      .hero-top {
+        display: flex;
+        justify-content: space-between;
+        gap: 16px;
+        align-items: flex-start;
+        flex-wrap: wrap;
+      }
+      .eyebrow {
+        margin: 0;
+        text-transform: uppercase;
+        letter-spacing: 0.16em;
+        font-size: 0.72rem;
+        color: var(--hero-muted);
+      }
+      h1 {
+        margin: 8px 0 10px;
+        font-family: "Space Grotesk", sans-serif;
+        font-size: clamp(2.2rem, 5vw, 3.4rem);
+        letter-spacing: -0.03em;
+      }
+      .hero-copy {
+        margin: 0;
+        max-width: 66ch;
+        color: var(--hero-muted);
+        font-size: 1rem;
+      }
+      .hero-actions {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-top: 18px;
+      }
+      .hero-link,
+      .theme-toggle,
+      .asset-link,
+      .ghost-link {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        text-decoration: none;
+        border-radius: 12px;
+        font-weight: 600;
+      }
+      .hero-link,
+      .asset-link {
+        padding: 11px 16px;
+        background: var(--link);
+        color: #fff;
+      }
+      .ghost-link,
+      .theme-toggle {
+        padding: 10px 14px;
+        border: 1px solid color-mix(in oklab, var(--hero-fg) 15%, transparent);
+        background: color-mix(in oklab, var(--hero-fg) 10%, transparent);
+        color: var(--hero-fg);
+      }
+      .theme-toggle {
+        cursor: pointer;
+      }
+      main {
+        padding: 34px 0 54px;
+      }
+      section + section {
+        margin-top: 24px;
+      }
+      .section-head {
+        margin-bottom: 18px;
+      }
+      .section-kicker {
+        margin: 0 0 6px;
+        text-transform: uppercase;
+        letter-spacing: 0.14em;
+        font-size: 0.72rem;
+        color: var(--muted);
+      }
+      h2 {
+        margin: 0;
+        font-family: "Space Grotesk", sans-serif;
+        font-size: 1.65rem;
+        letter-spacing: -0.02em;
+      }
+      .section-copy {
+        max-width: 74ch;
+        margin: 8px 0 0;
+        color: var(--muted);
+      }
+      .release-banner {
+        display: grid;
+        grid-template-columns: minmax(0, 1.2fr) minmax(260px, 0.8fr);
+        gap: 16px;
+        margin-bottom: 26px;
+      }
+      .banner-card,
+      .platform-panel,
+      .howto-card {
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        background: var(--card);
+      }
+      .banner-card {
+        padding: 18px;
+      }
+      .banner-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 10px;
+        margin-top: 14px;
+      }
+      .meta-box {
+        padding: 12px;
+        border-radius: 12px;
+        background: color-mix(in oklab, var(--surface) 58%, var(--card));
+      }
+      .meta-box span {
+        display: block;
+        font-size: 0.74rem;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        color: var(--muted);
+      }
+      .meta-box strong {
+        display: block;
+        margin-top: 6px;
+        font-size: 0.98rem;
+      }
+      .status-card {
+        padding: 18px;
+      }
+      .status-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 6px 10px;
+        border-radius: 999px;
+        background: color-mix(in oklab, var(--link) 12%, var(--card));
+        color: var(--link);
+        font-size: 0.76rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+      }
+      .status-copy {
+        margin: 10px 0 0;
+        color: var(--muted);
+      }
+      .platform-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 16px;
+      }
+      .platform-panel {
+        padding: 18px;
+      }
+      .platform-header {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 10px;
+      }
+      .platform-icon {
+        width: 46px;
+        height: 46px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+      }
+      .platform-icon svg {
+        width: 100%;
+        height: 100%;
+        display: block;
+      }
+      .platform-icon--macos { color: #111111; }
+      .platform-icon--windows { color: #0f6cbd; }
+      .platform-icon--linux { color: #111111; }
+      .platform-panel h3 {
+        margin: 0;
+        font-size: 1.35rem;
+        font-family: "Space Grotesk", sans-serif;
+      }
+      .platform-subtitle {
+        margin: 2px 0 0;
+        color: var(--muted);
+        font-size: 0.88rem;
+      }
+      .platform-summary {
+        margin: 10px 0 14px;
+        color: var(--muted);
+        font-size: 0.92rem;
+      }
+      .asset-stack {
+        display: grid;
+        gap: 10px;
+      }
+      .asset-link {
+        width: 100%;
+      }
+      .asset-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: grid;
+        gap: 8px;
+      }
+      .asset-list li {
+        display: flex;
+        justify-content: space-between;
+        gap: 10px;
+        align-items: center;
+        padding: 10px 12px;
+        border-radius: 12px;
+        background: color-mix(in oklab, var(--surface) 62%, var(--card));
+      }
+      .asset-list a {
+        color: var(--link);
+        text-decoration: none;
+        font-weight: 600;
+        min-width: 0;
+      }
+      .asset-list span {
+        color: var(--muted);
+        font-size: 0.84rem;
+        flex-shrink: 0;
+      }
+      .platform-note {
+        margin-top: 12px;
+        padding: 11px 12px;
+        border-radius: 12px;
+        background: color-mix(in oklab, var(--surface) 72%, var(--card));
+        color: var(--muted);
+        font-size: 0.82rem;
+      }
+      .platform-note strong {
+        color: var(--fg);
+      }
+      .platform-note code {
+        background: color-mix(in oklab, var(--surface2) 84%, var(--card));
+        padding: 2px 6px;
+        border-radius: 6px;
+        font-size: 0.92em;
+      }
+      .howto-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 16px;
+      }
+      .howto-card {
+        padding: 18px;
+      }
+      .howto-card h3 {
+        margin: 0 0 10px;
+        font-size: 1.05rem;
+      }
+      .howto-card ol {
+        margin: 0;
+        padding-left: 18px;
+        color: var(--muted);
+      }
+      .howto-card li + li {
+        margin-top: 8px;
+      }
+      .howto-card code {
+        background: color-mix(in oklab, var(--surface) 75%, var(--card));
+        padding: 2px 6px;
+        border-radius: 6px;
+      }
+      .hub-links {
+        margin-top: 18px;
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+      .hub-links .ghost-link {
+        color: var(--fg);
+        border-color: var(--border);
+        background: var(--card);
+      }
+      .empty-state {
+        color: var(--muted);
+        font-size: 0.92rem;
+      }
+      @media (max-width: 980px) {
+        .release-banner,
+        .platform-grid,
+        .howto-grid,
+        .banner-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        * { scroll-behavior: auto; }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="hero">
+      <div class="container">
+        <div class="hero-top">
+          <div>
+            <p class="eyebrow">Docs Foundry downloads</p>
+            <h1>Install and Use Docs Foundry</h1>
+            <p class="hero-copy">
+              This page keeps the download flow inside GitHub Pages. It shows the latest
+              published release artifacts, explains how to install them, and gives the
+              first-run steps for macOS, Windows, and Linux.
+            </p>
+            <div class="hero-actions">
+              <a class="hero-link" href="./index.html">Back to overview</a>
+              <a class="ghost-link" href="https://github.com/Cloud2BR/docs-foundry/releases" target="_blank" rel="noopener noreferrer">All releases ↗</a>
+            </div>
+          </div>
+          <button id="theme-toggle" class="theme-toggle" type="button" aria-label="Toggle dark mode" title="Toggle dark mode">🌙</button>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <div class="container">
+        <section class="release-banner">
+          <div class="banner-card">
+            <div class="section-head">
+              <p class="section-kicker">Latest release</p>
+              <h2>Release artifact hub</h2>
+              <p class="section-copy">
+                The cards below are populated from the latest GitHub Release. If no release
+                is published yet, this page will show the fallback status and link to the
+                build pipeline instead.
+              </p>
+            </div>
+            <div class="banner-grid">
+              <div class="meta-box">
+                <span>Version</span>
+                <strong id="release-version">Checking…</strong>
+              </div>
+              <div class="meta-box">
+                <span>Published</span>
+                <strong id="release-date">Waiting for release data</strong>
+              </div>
+              <div class="meta-box">
+                <span>Assets</span>
+                <strong id="release-assets">Scanning artifacts…</strong>
+              </div>
+            </div>
+          </div>
+          <aside class="status-card banner-card">
+            <span class="status-pill">Status</span>
+            <p class="status-copy" id="release-status">
+              Looking up the latest published release and its downloadable assets.
+            </p>
+            <div class="hub-links">
+              <a class="ghost-link" href="https://github.com/Cloud2BR/docs-foundry/actions/workflows/release-desktop.yml" target="_blank" rel="noopener noreferrer">Build pipeline ↗</a>
+              <a class="ghost-link" href="https://github.com/Cloud2BR/docs-foundry" target="_blank" rel="noopener noreferrer">Source on GitHub ↗</a>
+            </div>
+          </aside>
+        </section>
+
+        <section>
+          <div class="section-head">
+            <p class="section-kicker">Artifacts</p>
+            <h2>Choose your platform</h2>
+            <p class="section-copy">
+              Each card shows the preferred download first, then the remaining release files
+              for that platform. Installation notes stay with the relevant operating system.
+            </p>
+          </div>
+          <div class="platform-grid">
+            <article class="platform-panel" id="macos">
+              <div class="platform-header">
+                <span class="platform-icon platform-icon--macos" aria-hidden="true">
+                  <svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M30.085 10.5C28.96 11.875 27.12 12.942 25.28 12.792C25.042 10.993 25.955 9.128 27.019 7.86C28.195 6.46 30.215 5.479 31.84 5.4C31.982 7.291 31.298 9.08 30.085 10.5Z" fill="currentColor"/>
+                    <path d="M38.722 31.918C37.896 33.781 37.502 34.612 36.438 36.304C34.954 38.667 32.861 41.615 30.259 41.641C27.953 41.661 27.357 40.131 24.228 40.15C21.099 40.168 20.445 41.669 18.139 41.646C15.537 41.62 13.555 38.958 12.072 36.595C7.923 29.975 7.487 22.21 10.048 18.264C11.868 15.46 14.742 13.814 17.441 13.814C20.192 13.814 21.924 15.337 24.195 15.337C26.398 15.337 27.74 13.81 30.926 13.81C33.331 13.81 35.877 15.119 37.691 17.374C31.743 20.633 32.708 29.17 38.722 31.918Z" fill="currentColor"/>
+                  </svg>
+                </span>
+                <div>
+                  <h3>macOS</h3>
+                  <p class="platform-subtitle">DMG first, ZIP fallback</p>
+                </div>
+              </div>
+              <p class="platform-summary">
+                Best for end users who want the normal drag-to-Applications install flow.
+              </p>
+              <div class="asset-stack" id="assets-macos">
+                <p class="empty-state">Waiting for release assets…</p>
+              </div>
+              <p class="platform-note">
+                <strong>Gatekeeper:</strong> install from the <strong>.dmg</strong> when possible.
+                If the ZIP build is blocked, run <code>xattr -cr /path/to/DocFoundry.app</code>
+                once, then reopen it.
+              </p>
+            </article>
+
+            <article class="platform-panel" id="windows">
+              <div class="platform-header">
+                <span class="platform-icon platform-icon--windows" aria-hidden="true">
+                  <svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M6 10L22 8V22H6V10Z" fill="currentColor"/>
+                    <path d="M26 7L42 5V22H26V7Z" fill="currentColor" opacity="0.88"/>
+                    <path d="M6 26H22V40L6 38V26Z" fill="currentColor" opacity="0.88"/>
+                    <path d="M26 26H42V43L26 41V26Z" fill="currentColor"/>
+                  </svg>
+                </span>
+                <div>
+                  <h3>Windows</h3>
+                  <p class="platform-subtitle">NSIS installer first, ZIP fallback</p>
+                </div>
+              </div>
+              <p class="platform-summary">
+                Best for Windows users who want a standard installer or a portable ZIP option.
+              </p>
+              <div class="asset-stack" id="assets-windows">
+                <p class="empty-state">Waiting for release assets…</p>
+              </div>
+              <p class="platform-note">
+                <strong>SmartScreen:</strong> if Windows shows a warning, click
+                <strong>More info</strong> and then <strong>Run anyway</strong> because the
+                installer is not code-signed yet.
+              </p>
+            </article>
+
+            <article class="platform-panel" id="linux">
+              <div class="platform-header">
+                <span class="platform-icon platform-icon--linux" aria-hidden="true">
+                  <svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M24.049 7C19.979 7 17.421 10.306 17.421 14.604C17.421 16.2 17.721 17.314 18.384 18.801C15.591 20.442 13.837 23.989 13.837 28.455C13.837 34.781 18.159 41 24.049 41C29.939 41 34.261 34.781 34.261 28.455C34.261 24.002 32.49 20.445 29.714 18.805C30.376 17.329 30.676 16.214 30.676 14.604C30.676 10.306 28.118 7 24.049 7Z" fill="currentColor"/>
+                    <ellipse cx="21.2" cy="14.8" rx="1.35" ry="1.75" fill="#ffffff"/>
+                    <ellipse cx="26.8" cy="14.8" rx="1.35" ry="1.75" fill="#ffffff"/>
+                    <ellipse cx="21.2" cy="15.15" rx="0.48" ry="0.62" fill="#111111"/>
+                    <ellipse cx="26.8" cy="15.15" rx="0.48" ry="0.62" fill="#111111"/>
+                    <path d="M22.5 18.55C23.157 18.879 24.856 18.879 25.512 18.55" stroke="#F59E0B" stroke-width="1.7" stroke-linecap="round"/>
+                    <path d="M16 35.2C18.014 34.099 19.155 33.804 21.075 33.804C22.41 33.804 23.179 34.285 24.032 34.285C24.885 34.285 25.652 33.804 26.988 33.804C28.907 33.804 30.047 34.099 32.061 35.2" stroke="#F59E0B" stroke-width="2.2" stroke-linecap="round"/>
+                  </svg>
+                </span>
+                <div>
+                  <h3>Linux</h3>
+                  <p class="platform-subtitle">AppImage, DEB, or TAR.GZ</p>
+                </div>
+              </div>
+              <p class="platform-summary">
+                Choose the package style that matches your distro and whether you want a portable build.
+              </p>
+              <div class="asset-stack" id="assets-linux">
+                <p class="empty-state">Waiting for release assets…</p>
+              </div>
+              <p class="platform-note">
+                <strong>Linux tip:</strong> AppImage builds usually need <code>chmod +x</code>
+                before running. DEB builds install cleanly with <code>sudo apt install ./file.deb</code>.
+              </p>
+            </article>
+          </div>
+        </section>
+
+        <section>
+          <div class="section-head">
+            <p class="section-kicker">Install guide</p>
+            <h2>How to download, install, and use it</h2>
+          </div>
+          <div class="howto-grid">
+            <article class="howto-card">
+              <h3>macOS</h3>
+              <ol>
+                <li>Download the latest <strong>DMG</strong> from the macOS card.</li>
+                <li>Open the disk image and drag <strong>DocFoundry.app</strong> into Applications.</li>
+                <li>If you used the ZIP build and macOS blocks it, run <code>xattr -cr /path/to/DocFoundry.app</code>.</li>
+                <li>Launch the app and open a local documentation folder to start writing.</li>
+              </ol>
+            </article>
+            <article class="howto-card">
+              <h3>Windows</h3>
+              <ol>
+                <li>Download the <strong>Setup EXE</strong> from the Windows card.</li>
+                <li>Run the installer and continue through the normal install wizard.</li>
+                <li>If SmartScreen appears, choose <strong>More info</strong> and then <strong>Run anyway</strong>.</li>
+                <li>Start Docs Foundry and open your docs workspace from the sidebar.</li>
+              </ol>
+            </article>
+            <article class="howto-card">
+              <h3>Linux</h3>
+              <ol>
+                <li>Choose the artifact that fits your system: <strong>AppImage</strong>, <strong>DEB</strong>, or <strong>TAR.GZ</strong>.</li>
+                <li>For AppImage, run <code>chmod +x DocFoundry.AppImage</code> and open it.</li>
+                <li>For DEB, install with <code>sudo apt install ./file.deb</code>.</li>
+                <li>Launch the app and select a local docs folder to begin editing.</li>
+              </ol>
+            </article>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <script>
+      (function () {
+        var btn = document.getElementById('theme-toggle');
+        if (btn) {
+          function apply(theme) {
+            document.documentElement.setAttribute('data-theme', theme);
+            btn.textContent = theme === 'dark' ? '☀️' : '🌙';
+            btn.setAttribute('aria-label', theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode');
+            try { localStorage.setItem('docfoundryTheme', theme); } catch (e) {}
+          }
+          var stored = null;
+          try { stored = localStorage.getItem('docfoundryTheme'); } catch (e) {}
+          apply(stored || 'light');
+          btn.addEventListener('click', function () {
+            var current = document.documentElement.getAttribute('data-theme') || 'light';
+            apply(current === 'dark' ? 'light' : 'dark');
+          });
+        }
+
+        var repo = 'Cloud2BR/docs-foundry';
+        var fallbackReleaseUrl = 'https://github.com/' + repo + '/releases';
+
+        function formatDate(value) {
+          if (!value) return 'Not published yet';
+          var date = new Date(value);
+          if (isNaN(date.getTime())) return value;
+          return date.toLocaleDateString(undefined, {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric'
+          });
+        }
+
+        function formatSize(bytes) {
+          if (!Number.isFinite(bytes)) return '';
+          var units = ['B', 'KB', 'MB', 'GB'];
+          var size = bytes;
+          var unitIndex = 0;
+          while (size >= 1024 && unitIndex < units.length - 1) {
+            size /= 1024;
+            unitIndex += 1;
+          }
+          return (unitIndex === 0 ? size : size.toFixed(1)) + ' ' + units[unitIndex];
+        }
+
+        function isInstallable(assetName) {
+          return !/(\.blockmap|latest.*\.yml|\.yml)$/i.test(assetName);
+        }
+
+        function groupAssets(assets) {
+          var result = { macos: [], windows: [], linux: [] };
+          assets.forEach(function (asset) {
+            var name = asset.name;
+            if (!isInstallable(name)) return;
+            if (/\.dmg$/i.test(name) || /mac\.zip$/i.test(name) || /darwin/i.test(name)) {
+              result.macos.push(asset);
+              return;
+            }
+            if (/setup.*\.exe$/i.test(name) || /\.exe$/i.test(name) || /win.*\.zip$/i.test(name)) {
+              result.windows.push(asset);
+              return;
+            }
+            if (/\.appimage$/i.test(name) || /\.deb$/i.test(name) || /\.tar\.gz$/i.test(name)) {
+              result.linux.push(asset);
+            }
+          });
+          return result;
+        }
+
+        function sortAssets(assets, platform) {
+          var weights = {
+            macos: { '.dmg': 1, '.zip': 2 },
+            windows: { '.exe': 1, '.zip': 2 },
+            linux: { '.AppImage': 1, '.deb': 2, '.tar.gz': 3 }
+          };
+          return assets.slice().sort(function (left, right) {
+            function weight(name) {
+              var lower = name.toLowerCase();
+              if (platform === 'linux' && /\.appimage$/.test(lower)) return 1;
+              if (platform === 'linux' && /\.deb$/.test(lower)) return 2;
+              if (platform === 'linux' && /\.tar\.gz$/.test(lower)) return 3;
+              if (/\.dmg$/.test(lower) || /\.exe$/.test(lower)) return 1;
+              if (/\.zip$/.test(lower)) return 2;
+              return 9;
+            }
+            return weight(left.name) - weight(right.name) || left.name.localeCompare(right.name);
+          });
+        }
+
+        function renderPlatform(platform, assets) {
+          var target = document.getElementById('assets-' + platform);
+          if (!target) return;
+          if (!assets.length) {
+            target.innerHTML = '<p class="empty-state">No published ' + platform + ' artifact is available yet. Check the release page or the build pipeline.</p>';
+            return;
+          }
+
+          var sorted = sortAssets(assets, platform);
+          var primary = sorted[0];
+          var listItems = sorted.map(function (asset) {
+            return '<li><a href="' + asset.browser_download_url + '" target="_blank" rel="noopener noreferrer">' +
+              asset.name + '</a><span>' + formatSize(asset.size) + '</span></li>';
+          }).join('');
+
+          target.innerHTML = [
+            '<a class="asset-link" href="' + primary.browser_download_url + '" target="_blank" rel="noopener noreferrer">Download ' + primary.name + '</a>',
+            '<ul class="asset-list">' + listItems + '</ul>'
+          ].join('');
+        }
+
+        function setReleaseState(release) {
+          document.getElementById('release-version').textContent = release.tag_name || 'Latest release';
+          document.getElementById('release-date').textContent = formatDate(release.published_at);
+          document.getElementById('release-assets').textContent = String((release.assets || []).filter(function (asset) {
+            return isInstallable(asset.name);
+          }).length) + ' downloadable files';
+          document.getElementById('release-status').textContent =
+            'Latest published release: ' + (release.name || release.tag_name || 'Docs Foundry release') + '. Use the platform cards below for direct artifact downloads and install steps.';
+        }
+
+        function setFallbackState(message) {
+          document.getElementById('release-version').textContent = 'No published release';
+          document.getElementById('release-date').textContent = 'Not available';
+          document.getElementById('release-assets').textContent = '0 downloadable files';
+          document.getElementById('release-status').textContent = message;
+          ['macos', 'windows', 'linux'].forEach(function (platform) {
+            var target = document.getElementById('assets-' + platform);
+            if (!target) return;
+            target.innerHTML = '<a class="ghost-link" href="' + fallbackReleaseUrl + '" target="_blank" rel="noopener noreferrer">Open releases ↗</a>';
+          });
+        }
+
+        fetch('https://api.github.com/repos/' + repo + '/releases/latest')
+          .then(function (response) {
+            if (!response.ok) throw new Error('Unable to load latest release');
+            return response.json();
+          })
+          .then(function (release) {
+            if (!release || !release.assets) {
+              throw new Error('Latest release is missing asset data');
+            }
+            setReleaseState(release);
+            var grouped = groupAssets(release.assets);
+            renderPlatform('macos', grouped.macos);
+            renderPlatform('windows', grouped.windows);
+            renderPlatform('linux', grouped.linux);
+          })
+          .catch(function () {
+            setFallbackState('No GitHub Release is published yet. The v0.0.1 download hub is ready, but the artifacts will appear here after the release workflow publishes them.');
+          });
+      })();
+    </script>
+  </body>
+</html>

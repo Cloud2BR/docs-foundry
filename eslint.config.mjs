@@ -14,6 +14,10 @@ export default [
         localStorage: 'readonly',
         CSS: 'readonly',
         console: 'readonly',
+        setTimeout: 'readonly',
+        clearTimeout: 'readonly',
+        queueMicrotask: 'readonly',
+        URL: 'readonly',
         // node
         require: 'readonly',
         module: 'readonly',

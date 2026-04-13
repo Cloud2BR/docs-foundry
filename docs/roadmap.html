@@ -1,0 +1,401 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="referrer" content="no-referrer" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; base-uri 'none'; object-src 'none';
+               img-src 'self' https: data:; style-src 'self' 'unsafe-inline';
+               script-src 'self' 'unsafe-inline'; connect-src 'self' https:;
+               font-src 'self' https://fonts.gstatic.com; frame-ancestors 'none';
+               upgrade-insecure-requests"
+    />
+    <title>Docs Foundry Roadmap</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <script>
+      (function () {
+        try {
+          if (localStorage.getItem('docfoundryTheme') === 'dark') {
+            document.documentElement.setAttribute('data-theme', 'dark');
+          }
+        } catch (e) {}
+      })();
+    </script>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #f0f2f6;
+        --fg: #1a1a1a;
+        --link: #0078d4;
+        --muted: color-mix(in oklab, var(--fg) 62%, var(--bg));
+        --border: color-mix(in oklab, var(--fg) 14%, var(--bg));
+        --surface: #e6e9ef;
+        --card: #ffffff;
+        --radius: 12px;
+        --radius-lg: 16px;
+        --hero-bg: #002050;
+        --hero-fg: #ffffff;
+        --hero-muted: #99b8d9;
+        --hero-border: #001538;
+        --planned: #0f6cbd;
+        --next: #b45309;
+      }
+
+      html[data-theme="dark"] {
+        color-scheme: dark;
+        --bg: #0d1117;
+        --fg: #e6edf3;
+        --link: #58a6ff;
+        --border: #30363d;
+        --surface: #161b22;
+        --card: #161b22;
+        --hero-bg: #161b22;
+        --hero-fg: #e6edf3;
+        --hero-muted: #8b949e;
+        --hero-border: #30363d;
+        --planned: #58a6ff;
+        --next: #f59e0b;
+      }
+
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        font-family: "IBM Plex Sans", system-ui, -apple-system, sans-serif;
+        background: radial-gradient(circle at top, color-mix(in oklab, var(--surface) 36%, var(--bg)), var(--bg) 58%);
+        color: var(--fg);
+        line-height: 1.6;
+      }
+      .container {
+        max-width: 1160px;
+        margin: 0 auto;
+        padding: 0 20px;
+      }
+      .hero {
+        padding: 42px 0 34px;
+        background: linear-gradient(180deg, var(--hero-bg), color-mix(in oklab, var(--hero-bg) 82%, black));
+        color: var(--hero-fg);
+        border-bottom: 1px solid var(--hero-border);
+      }
+      .hero-top {
+        display: flex;
+        justify-content: space-between;
+        gap: 16px;
+        align-items: flex-start;
+        flex-wrap: wrap;
+      }
+      .eyebrow {
+        margin: 0;
+        text-transform: uppercase;
+        letter-spacing: 0.16em;
+        font-size: 0.72rem;
+        color: var(--hero-muted);
+      }
+      h1 {
+        margin: 8px 0 10px;
+        font-family: "Space Grotesk", sans-serif;
+        font-size: clamp(2.2rem, 5vw, 3.3rem);
+        letter-spacing: -0.03em;
+      }
+      .hero-copy {
+        margin: 0;
+        max-width: 68ch;
+        color: var(--hero-muted);
+      }
+      .hero-actions {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-top: 18px;
+      }
+      .hero-link,
+      .ghost-link,
+      .theme-toggle {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 10px 14px;
+        border-radius: 12px;
+        text-decoration: none;
+        font-weight: 600;
+      }
+      .hero-link {
+        background: var(--link);
+        color: #fff;
+      }
+      .ghost-link,
+      .theme-toggle {
+        border: 1px solid color-mix(in oklab, var(--hero-fg) 15%, transparent);
+        background: color-mix(in oklab, var(--hero-fg) 10%, transparent);
+        color: var(--hero-fg);
+      }
+      .theme-toggle { cursor: pointer; }
+      main { padding: 34px 0 54px; }
+      .section-head { margin-bottom: 18px; }
+      .section-kicker {
+        margin: 0 0 6px;
+        text-transform: uppercase;
+        letter-spacing: 0.14em;
+        font-size: 0.72rem;
+        color: var(--muted);
+      }
+      h2 {
+        margin: 0;
+        font-family: "Space Grotesk", sans-serif;
+        font-size: 1.6rem;
+      }
+      .section-copy {
+        margin: 8px 0 0;
+        max-width: 72ch;
+        color: var(--muted);
+      }
+      .overview-grid,
+      .roadmap-grid {
+        display: grid;
+        gap: 16px;
+      }
+      .overview-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        margin-bottom: 28px;
+      }
+      .roadmap-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+      .info-card,
+      .roadmap-card {
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        background: var(--card);
+        padding: 18px;
+      }
+      .info-card span,
+      .status-chip {
+        display: inline-flex;
+        align-items: center;
+        padding: 6px 10px;
+        border-radius: 999px;
+        font-size: 0.76rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+      }
+      .info-card span {
+        background: color-mix(in oklab, var(--link) 12%, var(--card));
+        color: var(--link);
+      }
+      .info-card strong {
+        display: block;
+        margin-top: 12px;
+        font-size: 1rem;
+      }
+      .info-card p,
+      .roadmap-card p,
+      .roadmap-card li {
+        color: var(--muted);
+      }
+      .status-chip.status-planned {
+        background: color-mix(in oklab, var(--planned) 14%, var(--card));
+        color: var(--planned);
+      }
+      .status-chip.status-next {
+        background: color-mix(in oklab, var(--next) 16%, var(--card));
+        color: var(--next);
+      }
+      .roadmap-card h3 {
+        margin: 12px 0 8px;
+        font-size: 1.2rem;
+      }
+      .roadmap-card ul {
+        margin: 12px 0 0;
+        padding-left: 18px;
+      }
+      .roadmap-card li + li {
+        margin-top: 8px;
+      }
+      .footer-links {
+        margin-top: 22px;
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+      @media (max-width: 900px) {
+        .overview-grid,
+        .roadmap-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="hero">
+      <div class="container">
+        <div class="hero-top">
+          <div>
+            <p class="eyebrow">Docs Foundry roadmap</p>
+            <h1>v0.0.1 Roadmap and Release Progress</h1>
+            <p class="hero-copy">
+              This GitHub Pages view keeps shipped work separate from upcoming work and presents
+              the forward plan with ETA-style product signals, similar to how many ISVs present a
+              public roadmap.
+            </p>
+            <div class="hero-actions">
+              <a class="hero-link" href="./index.html">Back to overview</a>
+              <a class="ghost-link" href="./downloads.html">Download guide</a>
+              <a class="ghost-link" href="./feedback.html">Feedback</a>
+            </div>
+          </div>
+          <button id="theme-toggle" class="theme-toggle" type="button" aria-label="Toggle dark mode" title="Toggle dark mode">🌙</button>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <div class="container">
+        <section>
+          <div class="section-head">
+            <p class="section-kicker">Already in v0.0.1</p>
+            <h2>Shipped and validated</h2>
+            <p class="section-copy">
+              These capabilities are now part of the current DocFoundry desktop experience and should
+              no longer be treated as roadmap-only items.
+            </p>
+          </div>
+          <div class="overview-grid">
+            <article class="info-card">
+              <span>Editor workflow</span>
+              <strong>Git-aware writing flow</strong>
+              <p>Git change indicators, per-file diff view, synchronized preview scrolling, and drag-and-drop asset insertion now support the core editing workflow.</p>
+            </article>
+            <article class="info-card">
+              <span>Docs intelligence</span>
+              <strong>Safer link and content handling</strong>
+              <p>Broken-link checks, link autocomplete, and native spell check now help catch documentation issues earlier during authoring.</p>
+            </article>
+            <article class="info-card">
+              <span>Output formats</span>
+              <strong>Richer preview and export</strong>
+              <p>PDF export and locally bundled Mermaid rendering extend the app beyond plain Markdown preview into shareable and diagram-aware documentation workflows.</p>
+            </article>
+          </div>
+        </section>
+
+        <section>
+          <div class="section-head">
+            <p class="section-kicker">Product roadmap</p>
+            <h2>ETA for upcoming features</h2>
+            <p class="section-copy">
+              This forward-looking roadmap keeps the shipped work above and uses ETA-style windows
+              for the next feature areas people can expect to see evolve.
+            </p>
+          </div>
+          <div class="roadmap-grid">
+            <article class="roadmap-card">
+              <span class="status-chip status-next">ETA: Apr-May 2026</span>
+              <h3>Publishing workflow</h3>
+              <p>These items extend DocFoundry beyond editing into fuller documentation publishing and release packaging flows.</p>
+              <ul>
+                <li>Export profiles for HTML, PDF, and release bundles</li>
+                <li>Customizable document templates</li>
+                <li>Release-ready packaging notes per output format</li>
+              </ul>
+            </article>
+            <article class="roadmap-card">
+              <span class="status-chip status-planned">ETA: May 2026</span>
+              <h3>Workspace intelligence</h3>
+              <p>These features deepen the current authoring flow by helping users reason about structure, references, and document quality at scale.</p>
+              <ul>
+                <li>Document diagnostics panel with grouped issues</li>
+                <li>Reference explorer for links, images, and footnotes</li>
+                <li>Workspace-level content quality reports</li>
+              </ul>
+            </article>
+            <article class="roadmap-card">
+              <span class="status-chip status-planned">ETA: Jun 2026</span>
+              <h3>Team collaboration</h3>
+              <p>These items move the product closer to shared documentation workflows without turning it into a full IDE.</p>
+              <ul>
+                <li>Shared review annotations</li>
+                <li>Comment-ready export output</li>
+                <li>Improved Git workflow summaries across a workspace</li>
+              </ul>
+            </article>
+            <article class="roadmap-card">
+              <span class="status-chip status-planned">ETA: Ongoing</span>
+              <h3>Public roadmap maintenance</h3>
+              <p>The roadmap should stay current, release-aware, and transparent as new features ship and priorities shift.</p>
+              <ul>
+                <li>Link roadmap items to future releases</li>
+                <li>Highlight recently shipped features</li>
+                <li>Group work by release milestone</li>
+              </ul>
+            </article>
+          </div>
+          <div class="footer-links">
+            <a class="ghost-link" href="./feedback.html">Send feedback</a>
+            <a class="ghost-link" href="https://github.com/Cloud2BR/docs-foundry" target="_blank" rel="noopener noreferrer">Source on GitHub ↗</a>
+            <a class="ghost-link" href="https://github.com/Cloud2BR/docs-foundry/releases" target="_blank" rel="noopener noreferrer">Releases ↗</a>
+          </div>
+        </section>
+
+        <section>
+          <div class="section-head">
+            <p class="section-kicker">Feedback channel</p>
+            <h2>Tell us what to add or improve</h2>
+            <p class="section-copy">
+              The feedback flow is designed so requests can be saved as GitHub issues in a separate
+              feedback repo instead of landing in the main source repository. That keeps product
+              requests visible without blocking release work or protected branches.
+            </p>
+          </div>
+          <div class="overview-grid">
+            <article class="info-card">
+              <span>Features</span>
+              <strong>Request something new</strong>
+              <p>Send a feature request for a capability, workflow, integration, or platform improvement.</p>
+            </article>
+            <article class="info-card">
+              <span>Improvements</span>
+              <strong>Refine what exists</strong>
+              <p>Submit improvements for current workflows such as exports, navigation, preview quality, or packaging.</p>
+            </article>
+            <article class="info-card">
+              <span>Docs & roadmap</span>
+              <strong>Improve communication</strong>
+              <p>Share onboarding gaps, documentation fixes, roadmap feedback, and prioritization suggestions.</p>
+            </article>
+          </div>
+          <div class="footer-links">
+            <a class="hero-link" href="./feedback.html">Open feedback options</a>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <script>
+      (function () {
+        var btn = document.getElementById('theme-toggle');
+        if (!btn) return;
+        function apply(theme) {
+          document.documentElement.setAttribute('data-theme', theme);
+          btn.textContent = theme === 'dark' ? '☀️' : '🌙';
+          btn.setAttribute('aria-label', theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode');
+          try { localStorage.setItem('docfoundryTheme', theme); } catch (e) {}
+        }
+        var stored = null;
+        try { stored = localStorage.getItem('docfoundryTheme'); } catch (e) {}
+        apply(stored || 'light');
+        btn.addEventListener('click', function () {
+          var current = document.documentElement.getAttribute('data-theme') || 'light';
+          apply(current === 'dark' ? 'light' : 'dark');
+        });
+      })();
+    </script>
+  </body>
+</html>

@@ -62,6 +62,13 @@ describe('markdownToHtml', () => {
     expect(html).toContain('console.log');
   });
 
+  it('renders Mermaid code fences as diagram placeholders', () => {
+    const md = '```mermaid\ngraph TD\nA-->B\n```';
+    const html = markdownToHtml(md);
+    expect(html).toContain('class="mermaid-block"');
+    expect(html).toContain('data-mermaid=');
+  });
+
   it('renders inline code', () => {
     const html = markdownToHtml('Use `npm install`');
     expect(html).toContain('<code>npm install</code>');
@@ -136,9 +143,12 @@ describe('markdownToHtml', () => {
   it('does not render footnote definitions as paragraphs', () => {
     const md = 'Text[^1]\n\n[^1]: Definition here';
     const html = markdownToHtml(md);
-    const paragraphs = html.match(/<p>/g) || [];
-    // Should have 1 paragraph for "Text[^1]", not 2
-    expect(paragraphs.length).toBe(1);
+    const [body] = html.split('<section class="footnotes">');
+    const bodyParagraphs = body.match(/<p>/g) || [];
+    expect(bodyParagraphs.length).toBe(1);
+    expect(body).toContain('Text');
+    expect(body).not.toContain('Definition here');
+    expect(html).toContain('<section class="footnotes">');
   });
 });
 

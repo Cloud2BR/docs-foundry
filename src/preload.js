@@ -26,6 +26,14 @@ contextBridge.exposeInMainWorld('docfoundry', {
 
   // Export
   exportHtml: (htmlContent, suggestedName) => ipcRenderer.invoke('export-html', htmlContent, suggestedName),
+  exportPdf: (htmlContent, suggestedName) => ipcRenderer.invoke('export-pdf', htmlContent, suggestedName),
+
+  // Git
+  getGitStatus: () => ipcRenderer.invoke('get-git-status'),
+  getGitDiff: (filePath) => ipcRenderer.invoke('get-git-diff', filePath),
+
+  // File import
+  importFilesIntoWorkspace: (sources, targetDir) => ipcRenderer.invoke('import-files-into-workspace', sources, targetDir),
 
   // Dirty state
   setDirtyState: (isDirty) => ipcRenderer.send('set-dirty-state', isDirty),
@@ -38,6 +46,7 @@ contextBridge.exposeInMainWorld('docfoundry', {
   onMenuEvent: (channel, callback) => {
     const validChannels = [
       'menu-open-folder', 'menu-new-file', 'menu-save', 'menu-export-html',
+      'menu-export-pdf', 'menu-git-diff', 'menu-check-links',
       'menu-find', 'menu-replace', 'menu-command-palette', 'menu-workspace-search',
       'menu-toggle-sidebar', 'menu-toggle-outline', 'menu-zen-mode', 'menu-shortcuts'
     ];

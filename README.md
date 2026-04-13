@@ -29,6 +29,8 @@ Last updated: 2026-02-25
 
 > DocFoundry ships multi-tab editing, split-pane live preview, a command palette, workspace-wide search, in-file find and replace, a document outline, file operations (create, rename, delete), auto-save, HTML export, zen mode, resizable panes, a keyboard shortcuts overlay, a status bar (word count, reading time, cursor position), breadcrumbs, and full Markdown rendering (headings, bold/italic, lists, task lists, tables, code blocks, blockquotes, images, links, horizontal rules, strikethrough, highlight, footnotes). The app includes unsaved-change protection on close, a file watcher for external changes, native menus with keyboard accelerators, and a secure architecture (contextIsolation, no nodeIntegration, validated file paths).
 
+> v0.0.1 also includes Git change indicators with per-file diff view, broken-link checks, link autocomplete, PDF export, editor/preview scroll sync, drag-and-drop file and image support, Mermaid diagram rendering from a bundled local asset, and native spell check.
+
 For the full changelog and per-version details, see [Releases](https://github.com/Cloud2BR/docs-foundry/releases).
 
 > [!NOTE]
@@ -122,7 +124,7 @@ Live roadmap page: [Docs Foundry Roadmap](https://cloud2br.github.io/docs-foundr
 - Windows outputs: `NSIS installer`, `.zip`
 - Linux outputs: `AppImage`, `.deb`, `.tar.gz`
 
-Build artifacts go to `release/`.
+Build artifacts go to [`release/`](https://github.com/Cloud2BR/docs-foundry/releases)
 
 | Platform | Release files | Recommended install path | First-run notes | Build command |
 |---|---|---|---|---|

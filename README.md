@@ -16,13 +16,14 @@ Last updated: 2026-02-25
 
 For the full changelog and per-version details, see [Releases](https://github.com/Cloud2BR/docs-foundry/releases).
 
+> [!NOTE]
+> Desktop releases are published when you push a `v*` tag or when you manually run `.github/workflows/release-desktop.yml` with a `tag_name` input.
+
 ## Roadmap
 
 > Git change indicators and diff view, broken-link checks and link autocomplete, PDF export, scroll sync between editor and preview, drag-and-drop file and image support, Mermaid diagram rendering, spell check.
 
-## Two operating modes
-
-### Mode 1: Container-only development
+## Mode 1: Container-only development
 
 > This mode is for maintainers and contributors who do not want local Node.js or npm installation.
 
@@ -42,7 +43,7 @@ For the full changelog and per-version details, see [Releases](https://github.co
 - Builds the dev image.
 - Installs project dependencies only inside the container.
 
-### Mode 2: End-user desktop app install
+## Mode 2: End-user desktop app install
 
 > This mode is for users who just want to install and run DocFoundry.
 
@@ -52,37 +53,13 @@ For the full changelog and per-version details, see [Releases](https://github.co
 
 Build artifacts go to `release/`.
 
-#### macOS — "damaged and can't be opened" (Gatekeeper)
+| Platform | Release files | Recommended install path | First-run notes | Build command |
+|---|---|---|---|---|
+| macOS | `.dmg`, `.zip` | Download the `.dmg` from GitHub Releases and drag `DocFoundry.app` into `Applications`. Use the `.zip` only as a fallback. | The app is unsigned, so Gatekeeper may block the ZIP build. If macOS says the app is damaged, run `xattr -cr /Applications/DocFoundry.app` after moving it to `Applications`, or run `xattr -cr /path/to/DocFoundry.app` on the extracted app bundle before opening it. | `make package-mac` |
+| Windows | `NSIS installer`, `.zip` | Use the NSIS installer for the normal install flow. Use the ZIP when you want a manual or portable-style extraction. | Windows SmartScreen may show a warning because the installer is not code-signed. Click **More info → Run anyway** to continue. | `make package-win` |
+| Linux | `AppImage`, `.deb`, `.tar.gz` | Use the package format that matches your environment: `AppImage` for portable use, `.deb` for Debian/Ubuntu installs, or `.tar.gz` for manual extraction. | `AppImage` usually needs `chmod +x` before running. For `.deb`, install with `sudo apt install ./DocFoundry.deb` or the generated filename in `release/`. Linux packaging is intended to run from the container workflow. | `make package-linux` |
 
-DocFoundry is unsigned (no Apple Developer certificate). Use the `.dmg` first when downloading from GitHub Releases. macOS quarantines apps downloaded from the internet. If you open the `.zip` build and macOS blocks it, run this once after downloading:
-
-```bash
-xattr -cr /Applications/DocFoundry.app
-```
-
-Or if you extracted from the ZIP before moving to Applications:
-
-```bash
-xattr -cr /path/to/DocFoundry.app
-```
-
-Then double-click the app normally.
-
-#### Windows — SmartScreen warning
-
-Click **More info → Run anyway** on the SmartScreen prompt. This appears because the installer is not signed with a code-signing certificate.
-
-## Build binaries
-
-### From host machine
-
-- make package
-- make package-mac
-- make package-win
-
-### Linux package build from container
-
-- make package-linux
+For a local multi-platform packaging pass from a compatible host environment, use `make package`.
 
 ## GitHub Pages
 
@@ -97,7 +74,7 @@ This repo includes a Pages workflow in `.github/workflows/deploy-pages.yml` and 
 ## Pipelines included
 
 - `.github/workflows/deploy-pages.yml`: deploys GitHub Pages.
-- `.github/workflows/release-desktop.yml`: builds desktop binaries on macOS, Windows, Linux and publishes on tags.
+- `.github/workflows/release-desktop.yml`: builds desktop binaries on macOS, Windows, Linux and publishes a tagged GitHub Release on `v*` tags or manual dispatch with `tag_name`.
 - `.github/workflows/update-md-date.yml`: updates README date automatically.
 - `.github/workflows/use-visitor-counter.yml`: updates README visitor badge.
 - `.github/workflows/cleanup-pages-history.yml`: cleans old Pages workflow runs.
@@ -154,7 +131,7 @@ DocFoundry/
 
 ## Quality & Testing
 
-Run code quality checks and tests inside the container:
+> Run code quality checks and tests inside the container:
 
 ```
 make lint       # ESLint

@@ -447,9 +447,11 @@ function renderTabs() {
     label.addEventListener('click', () => activateTab(tab.id));
     el.appendChild(label);
 
-    const closeBtn = document.createElement('span');
+    const closeBtn = document.createElement('button');
+    closeBtn.type = 'button';
     closeBtn.className = 'tab-close';
     closeBtn.textContent = '×';
+    closeBtn.setAttribute('aria-label', `Close ${tab.name}`);
     closeBtn.addEventListener('click', (e) => {
       e.stopPropagation();
       closeTab(tab.id);
@@ -821,8 +823,9 @@ function scrollEditorToLine(lineIndex) {
   codeEditor.selectionStart = codeEditor.selectionEnd = charPos;
   codeEditor.focus();
 
-  // Approximate scroll
-  const lineHeight = 24; // rough estimate
+  // Compute actual line height from the editor element
+  const style = window.getComputedStyle(codeEditor);
+  const lineHeight = parseFloat(style.lineHeight) || parseFloat(style.fontSize) * 1.65;
   codeEditor.scrollTop = Math.max(0, lineIndex * lineHeight - codeEditor.clientHeight / 3);
 }
 
@@ -960,6 +963,13 @@ function renderSearchResults(results, query) {
       fileEl.appendChild(line);
     }
 
+    if (group.matches.length > 10) {
+      const more = document.createElement('div');
+      more.className = 'search-more';
+      more.textContent = `… ${group.matches.length - 10} more match${group.matches.length - 10 > 1 ? 'es' : ''} in this file`;
+      fileEl.appendChild(more);
+    }
+
     searchResults.appendChild(fileEl);
   }
 }
@@ -1028,7 +1038,8 @@ function navigateFind(direction) {
 
   // Scroll to match
   const lines = codeEditor.value.substring(0, pos).split('\n');
-  const lineHeight = 24;
+  const style = window.getComputedStyle(codeEditor);
+  const lineHeight = parseFloat(style.lineHeight) || parseFloat(style.fontSize) * 1.65;
   codeEditor.scrollTop = Math.max(0, (lines.length - 1) * lineHeight - codeEditor.clientHeight / 3);
 
   findCount.textContent = `${findMatchIndex + 1}/${findMatches.length}`;

@@ -64,30 +64,30 @@
     <!-- Editor workspace -->
     <div id="editor-workspace" class="workspace" hidden>
       <!-- Sidebar -->
-      <aside id="sidebar" class="sidebar">
+      <aside id="sidebar" class="sidebar" aria-label="File explorer">
         <div class="sidebar-header">
           <strong id="workspace-name">Workspace</strong>
-          <div class="sidebar-actions">
-            <button type="button" class="sidebar-action" id="btn-new-file" title="New File (Ctrl+N)">+</button>
-            <button type="button" class="sidebar-action" id="btn-new-folder" title="New Folder">&#x1F4C1;</button>
-            <button type="button" class="sidebar-action" id="btn-open-sidebar" title="Open Folder (Ctrl+O)">&#x1F4C2;</button>
+          <div class="sidebar-actions" role="toolbar" aria-label="Sidebar actions">
+            <button type="button" class="sidebar-action" id="btn-new-file" title="New File (Ctrl+N)" aria-label="New file">+</button>
+            <button type="button" class="sidebar-action" id="btn-new-folder" title="New Folder" aria-label="New folder">&#x1F4C1;</button>
+            <button type="button" class="sidebar-action" id="btn-open-sidebar" title="Open Folder (Ctrl+O)" aria-label="Open folder">&#x1F4C2;</button>
           </div>
         </div>
 
         <!-- Sidebar search filter -->
         <div class="sidebar-filter">
-          <input type="text" id="sidebar-filter-input" placeholder="Filter files…" autocomplete="off" spellcheck="false" />
+          <input type="text" id="sidebar-filter-input" placeholder="Filter files…" autocomplete="off" spellcheck="false" aria-label="Filter files in sidebar" />
         </div>
 
-        <div id="file-tree" class="file-tree"></div>
+        <div id="file-tree" class="file-tree" role="tree" aria-label="Workspace files"></div>
 
         <!-- Document outline -->
         <div id="outline-panel" class="outline-panel" hidden>
           <div class="outline-header">
             <strong>Outline</strong>
-            <button type="button" class="sidebar-action" id="btn-close-outline" title="Close outline">×</button>
+            <button type="button" class="sidebar-action" id="btn-close-outline" title="Close outline" aria-label="Close outline">×</button>
           </div>
-          <div id="outline-tree" class="outline-tree"></div>
+          <div id="outline-tree" class="outline-tree" role="tree" aria-label="Document outline"></div>
         </div>
       </aside>
 
@@ -97,7 +97,7 @@
       <!-- Main editor area -->
       <div class="editor-area">
         <!-- Tab bar -->
-        <div class="editor-tabs" id="tab-bar">
+        <div class="editor-tabs" id="tab-bar" role="tablist" aria-label="Open files">
           <div class="tabs-scroll" id="tabs-scroll"></div>
           <div class="tab-bar-actions">
             <button type="button" class="tab-action" id="btn-save" title="Save (Ctrl+S)">Save</button>
@@ -108,13 +108,13 @@
         <div id="breadcrumbs" class="breadcrumbs" hidden></div>
 
         <!-- Find/Replace bar -->
-        <div id="find-bar" class="find-bar" hidden>
+        <div id="find-bar" class="find-bar" hidden role="search" aria-label="Find in file">
           <div class="find-bar-row">
-            <input type="text" id="find-input" placeholder="Find…" autocomplete="off" spellcheck="false" />
-            <span id="find-count" class="find-count"></span>
-            <button type="button" class="find-btn" id="find-prev" title="Previous (Shift+Enter)">&#x25B2;</button>
-            <button type="button" class="find-btn" id="find-next" title="Next (Enter)">&#x25BC;</button>
-            <button type="button" class="find-btn" id="find-close" title="Close (Esc)">×</button>
+            <input type="text" id="find-input" placeholder="Find…" autocomplete="off" spellcheck="false" aria-label="Search term" />
+            <span id="find-count" class="find-count" aria-live="polite"></span>
+            <button type="button" class="find-btn" id="find-prev" title="Previous (Shift+Enter)" aria-label="Previous match">&#x25B2;</button>
+            <button type="button" class="find-btn" id="find-next" title="Next (Enter)" aria-label="Next match">&#x25BC;</button>
+            <button type="button" class="find-btn" id="find-close" title="Close (Esc)" aria-label="Close find">×</button>
           </div>
           <div class="find-bar-row" id="replace-row" hidden>
             <input type="text" id="replace-input" placeholder="Replace…" autocomplete="off" spellcheck="false" />
@@ -126,16 +126,16 @@
         <!-- Split panes -->
         <div class="panes">
           <div class="pane pane-editor">
-            <textarea id="code-editor" class="code-editor" placeholder="Open a file from the sidebar to start editing…" spellcheck="false"></textarea>
+            <textarea id="code-editor" class="code-editor" placeholder="Open a file from the sidebar to start editing…" spellcheck="false" aria-label="Markdown editor"></textarea>
           </div>
           <div id="pane-resize" class="resize-handle-h"></div>
           <div class="pane pane-preview">
-            <div id="preview" class="preview-content"></div>
+            <div id="preview" class="preview-content" role="region" aria-label="Markdown preview" aria-live="polite"></div>
           </div>
         </div>
 
         <!-- Status bar -->
-        <div id="status-bar" class="status-bar">
+        <div id="status-bar" class="status-bar" role="status" aria-label="Editor status">
           <span id="status-file" class="status-item"></span>
           <span id="status-cursor" class="status-item">Ln 1, Col 1</span>
           <span id="status-words" class="status-item">0 words</span>
@@ -150,26 +150,26 @@
     <!-- Overlays -->
 
     <!-- Command palette -->
-    <div id="command-palette" class="overlay-backdrop" hidden>
+    <div id="command-palette" class="overlay-backdrop" hidden role="dialog" aria-label="Command palette">
       <div class="command-palette">
-        <input type="text" id="palette-input" placeholder="Type a file name to open…" autocomplete="off" spellcheck="false" />
+        <input type="text" id="palette-input" placeholder="Type a file name to open…" autocomplete="off" spellcheck="false" aria-label="Quick open file" />
         <div id="palette-results" class="palette-results"></div>
       </div>
     </div>
 
     <!-- Workspace search -->
-    <div id="search-panel" class="overlay-backdrop" hidden>
+    <div id="search-panel" class="overlay-backdrop" hidden role="dialog" aria-label="Workspace search">
       <div class="search-panel">
         <div class="search-panel-header">
-          <input type="text" id="search-input" placeholder="Search across workspace…" autocomplete="off" spellcheck="false" />
-          <button type="button" class="find-btn" id="search-close">×</button>
+          <input type="text" id="search-input" placeholder="Search across workspace…" autocomplete="off" spellcheck="false" aria-label="Workspace search query" />
+          <button type="button" class="find-btn" id="search-close" aria-label="Close search">×</button>
         </div>
         <div id="search-results" class="search-results"></div>
       </div>
     </div>
 
     <!-- Keyboard shortcuts overlay -->
-    <div id="shortcuts-overlay" class="overlay-backdrop" hidden>
+    <div id="shortcuts-overlay" class="overlay-backdrop" hidden role="dialog" aria-label="Keyboard shortcuts">
       <div class="shortcuts-panel">
         <div class="shortcuts-header">
           <h2>Keyboard Shortcuts</h2>
@@ -211,7 +211,7 @@
     </div>
 
     <!-- New file/folder input dialog -->
-    <div id="input-dialog" class="overlay-backdrop" hidden>
+    <div id="input-dialog" class="overlay-backdrop" hidden role="dialog" aria-label="Input dialog">
       <div class="input-dialog">
         <label id="input-dialog-label"></label>
         <input type="text" id="input-dialog-input" autocomplete="off" spellcheck="false" />

@@ -48,7 +48,8 @@
       if (/^#{1,6}\s+/.test(trimmed)) {
         flushParagraph();
         const [, hashes, text] = trimmed.match(/^(#{1,6})\s+(.+)$/);
-        html.push(`<h${hashes.length}>${renderInline(text)}</h${hashes.length}>`);
+        const id = slugify(text);
+        html.push(`<h${hashes.length} id="${escapeAttribute(id)}">${renderInline(text)}</h${hashes.length}>`);
         continue;
       }
 
@@ -96,11 +97,47 @@
         continue;
       }
 
+      // Skip footnote definitions (rendered separately at the end)
+      if (/^\[\^\d+\]:\s+/.test(trimmed)) {
+        flushParagraph();
+        continue;
+      }
+
       paragraph.push(trimmed);
     }
 
     flushParagraph();
+
+    // Collect footnote definitions and append as a footer section
+    const footnoteBlock = collectFootnotes(source);
+    if (footnoteBlock) html.push(footnoteBlock);
+
     return html.join('');
+  }
+
+  function collectFootnotes(source) {
+    const defs = [];
+    const lines = source.replace(/\r\n?/g, '\n').split('\n');
+    for (const line of lines) {
+      const match = line.match(/^\[\^(\d+)\]:\s+(.+)$/);
+      if (match) {
+        defs.push({ id: match[1], text: match[2] });
+      }
+    }
+    if (defs.length === 0) return '';
+    const items = defs.map(d =>
+      `<li id="fn-${escapeAttribute(d.id)}"><p>${renderInline(d.text)} <a href="#fnref-${escapeAttribute(d.id)}" class="footnote-back">&crarr;</a></p></li>`
+    ).join('');
+    return `<section class="footnotes"><hr/><ol>${items}</ol></section>`;
+  }
+
+  function slugify(text) {
+    return text
+      .toLowerCase()
+      .replace(/<[^>]*>/g, '')
+      .replace(/[^\w\s-]/g, '')
+      .replace(/\s+/g, '-')
+      .replace(/^-+|-+$/g, '');
   }
 
   function renderCodeBlock(code, lang) {
@@ -238,7 +275,11 @@
     if (
       normalized.startsWith('javascript:') ||
       normalized.startsWith('vbscript:') ||
-      normalized.startsWith('data:text/html')
+      normalized.startsWith('data:text/html') ||
+      normalized.startsWith('data:image/svg+xml') ||
+      normalized.startsWith('blob:') ||
+      normalized.startsWith('file:') ||
+      normalized.startsWith('mhtml:')
     ) {
       return '#';
     }
@@ -265,6 +306,7 @@
   return {
     markdownToHtml,
     escapeHtml,
-    sanitizeUrl
+    sanitizeUrl,
+    slugify
   };
 });

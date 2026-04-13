@@ -1,7 +1,7 @@
 const { app, BrowserWindow, ipcMain, dialog, Menu } = require('electron');
 const path = require('path');
 const fs = require('fs');
-const { resolveWorkspacePath } = require('./lib/workspace-path');
+const { resolveWorkspacePath, validateFileName } = require('./lib/workspace-path');
 
 // Hot reload in development
 if (!app.isPackaged) {
@@ -207,6 +207,7 @@ ipcMain.handle('create-workspace', async () => {
 // ── IPC: file operations ──────────────────────────────────────────────────────
 
 ipcMain.handle('create-new-file', async (_event, parentDir, fileName) => {
+  validateFileName(fileName);
   const resolvedDir = resolveWorkspacePath(currentFolder, parentDir);
   const filePath = path.join(resolvedDir, fileName);
   if (fs.existsSync(filePath)) {
@@ -217,6 +218,7 @@ ipcMain.handle('create-new-file', async (_event, parentDir, fileName) => {
 });
 
 ipcMain.handle('create-new-folder', async (_event, parentDir, folderName) => {
+  validateFileName(folderName);
   const resolvedDir = resolveWorkspacePath(currentFolder, parentDir);
   const folderPath = path.join(resolvedDir, folderName);
   if (fs.existsSync(folderPath)) {
@@ -250,6 +252,7 @@ ipcMain.handle('delete-file', async (_event, filePath) => {
 });
 
 ipcMain.handle('rename-file', async (_event, oldPath, newName) => {
+  validateFileName(newName);
   const resolvedOld = resolveWorkspacePath(currentFolder, oldPath);
   const newPath = path.join(path.dirname(resolvedOld), newName);
   if (fs.existsSync(newPath)) {
@@ -384,11 +387,13 @@ function startFileWatcher(folderPath) {
   try {
     fileWatcher = fs.watch(folderPath, { recursive: true }, (eventType, fileName) => {
       if (!fileName) return;
+      // Sanitize: reject null bytes and control characters
+      if (/[\x00-\x1f]/.test(fileName)) return;
       const IGNORE_PATTERNS = ['.git', 'node_modules', '.DS_Store'];
       if (IGNORE_PATTERNS.some(p => fileName.includes(p))) return;
 
       if (mainWindow && !mainWindow.isDestroyed()) {
-        mainWindow.webContents.send('workspace-changed', { eventType, fileName });
+        mainWindow.webContents.send('workspace-changed', { eventType, fileName: String(fileName) });
       }
     });
   } catch (_) {

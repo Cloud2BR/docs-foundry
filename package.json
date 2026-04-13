@@ -19,6 +19,7 @@
     "format": "prettier --write .",
     "test": "vitest run",
     "test:watch": "vitest",
+    "prepack": "bash build/generate-icons.sh",
     "pack": "electron-builder --dir",
     "dist": "electron-builder --publish never",
     "dist:mac": "electron-builder --mac --publish never",

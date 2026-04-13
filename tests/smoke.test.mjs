@@ -59,6 +59,23 @@ describe('Security', () => {
     expect(main).toContain('Access denied: file is outside workspace');
   });
 
+  it('workspace-path resolves symlinks for traversal protection', () => {
+    const wp = fs.readFileSync(path.resolve('src/lib/workspace-path.js'), 'utf-8');
+    expect(wp).toContain('realpathSync');
+  });
+
+  it('main process validates file names on create and rename', () => {
+    const main = fs.readFileSync(path.resolve('src/main.js'), 'utf-8');
+    expect(main).toContain('validateFileName(fileName)');
+    expect(main).toContain('validateFileName(folderName)');
+    expect(main).toContain('validateFileName(newName)');
+  });
+
+  it('file watcher sanitizes file names', () => {
+    const main = fs.readFileSync(path.resolve('src/main.js'), 'utf-8');
+    expect(main).toContain('[\\x00-\\x1f]');
+  });
+
   it('main process tracks dirty editor state', () => {
     const main = fs.readFileSync(path.resolve('src/main.js'), 'utf-8');
     expect(main).toContain("ipcMain.on('set-dirty-state'");
@@ -147,5 +164,39 @@ describe('Feature surface', () => {
   it('HTML includes keyboard shortcuts overlay', () => {
     const html = fs.readFileSync(path.resolve('src/renderer/index.html'), 'utf-8');
     expect(html).toContain('shortcuts-overlay');
+  });
+
+  it('HTML has ARIA labels on interactive regions', () => {
+    const html = fs.readFileSync(path.resolve('src/renderer/index.html'), 'utf-8');
+    expect(html).toContain('aria-label="File explorer"');
+    expect(html).toContain('aria-label="Markdown editor"');
+    expect(html).toContain('aria-label="Markdown preview"');
+    expect(html).toContain('role="tablist"');
+    expect(html).toContain('role="tree"');
+    expect(html).toContain('role="search"');
+  });
+
+  it('markdown module exports slugify for heading IDs', () => {
+    const md = fs.readFileSync(path.resolve('src/renderer/markdown.js'), 'utf-8');
+    expect(md).toContain('slugify');
+    expect(md).toContain('id=');
+  });
+
+  it('markdown module blocks dangerous URL protocols', () => {
+    const md = fs.readFileSync(path.resolve('src/renderer/markdown.js'), 'utf-8');
+    expect(md).toContain("blob:");
+    expect(md).toContain("file:");
+    expect(md).toContain("data:image/svg+xml");
+  });
+
+  it('markdown module renders footnote definitions', () => {
+    const md = fs.readFileSync(path.resolve('src/renderer/markdown.js'), 'utf-8');
+    expect(md).toContain('collectFootnotes');
+    expect(md).toContain('section class="footnotes"');
+  });
+
+  it('package.json has prepack script for icon generation', () => {
+    const pkg = JSON.parse(fs.readFileSync(path.resolve('package.json'), 'utf-8'));
+    expect(pkg.scripts.prepack).toContain('generate-icons');
   });
 });

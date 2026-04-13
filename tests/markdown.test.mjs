@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { createRequire } from 'module';
 
 const require = createRequire(import.meta.url);
-const { markdownToHtml } = require('../src/renderer/markdown');
+const { markdownToHtml, sanitizeUrl, slugify } = require('../src/renderer/markdown');
 
 describe('markdownToHtml', () => {
   it('renders grouped lists instead of loose list items', () => {
@@ -111,5 +111,79 @@ describe('markdownToHtml', () => {
     expect(html).toContain('<strong>bold</strong>');
     expect(html).toContain('<del>struck</del>');
     expect(html).toContain('<mark>lit</mark>');
+  });
+
+  it('adds id attributes to headings', () => {
+    const html = markdownToHtml('## My Heading');
+    expect(html).toContain('id="my-heading"');
+  });
+
+  it('renders footnote definitions as a footer section', () => {
+    const md = 'See this[^1] note.\n\n[^1]: This is the footnote content.';
+    const html = markdownToHtml(md);
+    expect(html).toContain('<section class="footnotes">');
+    expect(html).toContain('id="fn-1"');
+    expect(html).toContain('This is the footnote content.');
+    expect(html).toContain('↵');
+  });
+
+  it('does not render footnote definitions as paragraphs', () => {
+    const md = 'Text[^1]\n\n[^1]: Definition here';
+    const html = markdownToHtml(md);
+    const paragraphs = html.match(/<p>/g) || [];
+    // Should have 1 paragraph for "Text[^1]", not 2
+    expect(paragraphs.length).toBe(1);
+  });
+});
+
+describe('sanitizeUrl', () => {
+  it('blocks javascript: protocol', () => {
+    expect(sanitizeUrl('javascript:alert(1)')).toBe('#');
+  });
+
+  it('blocks vbscript: protocol', () => {
+    expect(sanitizeUrl('vbscript:msgbox')).toBe('#');
+  });
+
+  it('blocks data:text/html', () => {
+    expect(sanitizeUrl('data:text/html,<script>alert(1)</script>')).toBe('#');
+  });
+
+  it('blocks data:image/svg+xml', () => {
+    expect(sanitizeUrl('data:image/svg+xml,<svg onload=alert(1)>')).toBe('#');
+  });
+
+  it('blocks blob: protocol', () => {
+    expect(sanitizeUrl('blob:http://evil.com/abc')).toBe('#');
+  });
+
+  it('blocks file: protocol', () => {
+    expect(sanitizeUrl('file:///etc/passwd')).toBe('#');
+  });
+
+  it('blocks mhtml: protocol', () => {
+    expect(sanitizeUrl('mhtml:http://evil.com')).toBe('#');
+  });
+
+  it('allows https URLs', () => {
+    expect(sanitizeUrl('https://example.com')).toBe('https://example.com');
+  });
+
+  it('allows relative URLs', () => {
+    expect(sanitizeUrl('./image.png')).toBe('./image.png');
+  });
+});
+
+describe('slugify', () => {
+  it('converts text to lowercase kebab-case', () => {
+    expect(slugify('My Heading')).toBe('my-heading');
+  });
+
+  it('strips special characters', () => {
+    expect(slugify('Hello! World?')).toBe('hello-world');
+  });
+
+  it('trims leading and trailing dashes', () => {
+    expect(slugify('  spaced  ')).toBe('spaced');
   });
 });

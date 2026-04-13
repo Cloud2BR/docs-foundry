@@ -1,0 +1,18 @@
+# Node and Electron artifacts
+node_modules/
+dist/
+release/
+out/
+*.log
+
+# Generated icon files (keep icon.svg and icon.png, ignore others)
+build/*.ico
+build/*.icns
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/

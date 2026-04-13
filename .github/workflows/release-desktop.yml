@@ -1,0 +1,147 @@
+name: Build Desktop Artifacts
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - 'v*'
+  release:
+    types: [published]
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            dist_script: dist:linux
+            artifact_name: linux
+          - os: macos-latest
+            dist_script: dist:mac
+            artifact_name: mac
+          - os: windows-latest
+            dist_script: dist:win
+            artifact_name: win
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build installers
+        run: npm run ${{ matrix.dist_script }}
+
+      - name: Collect installable assets (Linux)
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          mkdir -p dist-out
+          find release -maxdepth 1 \( -name "*.AppImage" -o -name "*.deb" -o -name "*.tar.gz" \) \
+            -exec cp {} dist-out/ \;
+
+      - name: Collect installable assets (macOS)
+        if: matrix.os == 'macos-latest'
+        run: |
+          mkdir -p dist-out
+          find release -maxdepth 1 \( -name "*.dmg" -o -name "*.zip" \) \
+            -exec cp {} dist-out/ \;
+
+      - name: Collect installable assets (Windows)
+        if: matrix.os == 'windows-latest'
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path dist-out | Out-Null
+          Get-ChildItem release -Depth 0 | Where-Object {
+            $_.Extension -in '.exe', '.zip'
+          } | Copy-Item -Destination dist-out
+
+      - name: Upload installable assets
+        uses: actions/upload-artifact@v4
+        with:
+          name: docfoundry-${{ matrix.artifact_name }}
+          path: dist-out/
+          if-no-files-found: error
+
+  publish:
+    if: startsWith(github.ref, 'refs/tags/v') || github.event_name == 'workflow_dispatch' || github.event_name == 'release'
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: release-artifacts
+          merge-multiple: true
+
+      - name: List release assets
+        run: ls -lh release-artifacts/
+
+      - name: Compute release tag
+        id: release_meta
+        run: |
+          if [[ "${GITHUB_EVENT_NAME}" == "release" ]]; then
+            TAG_NAME="${{ github.event.release.tag_name }}"
+            echo "tag_name=${TAG_NAME}" >> "$GITHUB_OUTPUT"
+            echo "release_name=Docs Foundry ${TAG_NAME}" >> "$GITHUB_OUTPUT"
+          elif [[ "${GITHUB_REF}" == refs/tags/* ]]; then
+            echo "tag_name=${GITHUB_REF#refs/tags/}" >> "$GITHUB_OUTPUT"
+            echo "release_name=Docs Foundry ${GITHUB_REF#refs/tags/}" >> "$GITHUB_OUTPUT"
+          else
+            TAG_NAME="manual-${GITHUB_RUN_NUMBER}"
+            echo "tag_name=${TAG_NAME}" >> "$GITHUB_OUTPUT"
+            echo "release_name=Docs Foundry ${TAG_NAME}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Delete existing release if present
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TAG="${{ steps.release_meta.outputs.tag_name }}"
+          gh release delete "${TAG}" --repo ${{ github.repository }} --yes 2>/dev/null \
+            && echo "Deleted existing release for ${TAG}." \
+            || echo "No existing release for ${TAG}, creating fresh."
+
+      - name: Create GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.release_meta.outputs.tag_name }}
+          name: ${{ steps.release_meta.outputs.release_name }}
+          body: |
+            ## Install Docs Foundry ${{ steps.release_meta.outputs.tag_name }}
+
+            Download the installer for your operating system below.
+
+            | Platform | File | Notes |
+            |---|---|---|
+            | **macOS** | `*.dmg` | Recommended. Drag to Applications |
+            | **macOS** | `*-mac.zip` | Advanced/manual fallback. May require `xattr` after download |
+            | **Windows** | `*Setup*.exe` | One-click NSIS installer |
+            | **Windows** | `*-win.zip` | Portable, unzip and run |
+            | **Linux** | `*.AppImage` | `chmod +x` then run directly |
+            | **Linux** | `*.deb` | `sudo apt install ./file.deb` |
+            | **Linux** | `*.tar.gz` | Portable archive |
+
+            > **macOS:** Use the `.dmg` first.
+            >
+            > **macOS — "damaged and can't be opened":** If you use the `.zip` build, the app is unsigned and may need the quarantine flag removed once after download:
+            > ```
+            > xattr -cr /path/to/DocFoundry.app
+            > ```
+            > Then open normally.
+            >
+            > **Windows — SmartScreen warning:** Click **More info → Run anyway**. The installer is not code-signed.
+          files: release-artifacts/*
+          fail_on_unmatched_files: true

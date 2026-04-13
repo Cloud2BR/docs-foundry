@@ -104,7 +104,7 @@
   }
 
   function renderCodeBlock(code, lang) {
-    const languageClass = lang ? ` class="lang-${escapeAttribute(lang)}"` : '';
+    const languageClass = lang ? ` class="language-${escapeAttribute(lang)}"` : '';
     return `<pre><code${languageClass}>${escapeHtml(code)}</code></pre>`;
   }
 

@@ -44,7 +44,7 @@ function createWindow() {
     minHeight: 640,
     title: 'DocFoundry',
     backgroundColor: '#1a1d23',
-    icon: path.join(__dirname, '..', 'build', 'icon.svg'),
+    icon: path.join(__dirname, '..', 'build', 'icon.png'),
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,

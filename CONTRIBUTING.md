@@ -82,7 +82,7 @@ Open an issue on GitHub with reproduction steps. Include OS, app version, and an
 
 <!-- START BADGE -->
 <div align="center">
-  <img src="https://img.shields.io/badge/Total%20views-0-limegreen" alt="Total views">
-  <p>Refresh Date: 2026-04-13</p>
+  <img src="https://img.shields.io/badge/Total%20views-168-limegreen" alt="Total views">
+  <p>Refresh Date: 2026-04-21</p>
 </div>
 <!-- END BADGE -->

@@ -10,7 +10,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/Cloud2BR/docs-foundry.git"
+    "url": "https://github.com/Cloud2BR/docs-foundry"
   },
   "scripts": {
     "start": "electron .",

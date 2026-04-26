@@ -33,7 +33,7 @@ What actually happened.
 ## Environment
 
 - **OS:** (e.g. macOS 15, Windows 11, Ubuntu 24.04)
-- **Docs Foundry version:** (e.g. v0.0.1 — check title bar or About)
+- **DocsFoundry version:** (e.g. v0.0.1 — check title bar or About)
 - **Install method:** (DMG / NSIS installer / AppImage / DEB / dev container)
 - **Node version (if dev):** (run `node -v` inside container)
 

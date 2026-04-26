@@ -109,11 +109,11 @@ jobs:
             if [[ -n "${RELEASE_NAME}" ]]; then
               echo "release_name=${RELEASE_NAME}" >> "$GITHUB_OUTPUT"
             else
-              echo "release_name=Docs Foundry ${TAG_NAME}" >> "$GITHUB_OUTPUT"
+              echo "release_name=DocsFoundry ${TAG_NAME}" >> "$GITHUB_OUTPUT"
             fi
           elif [[ "${GITHUB_REF}" == refs/tags/* ]]; then
             echo "tag_name=${GITHUB_REF#refs/tags/}" >> "$GITHUB_OUTPUT"
-            echo "release_name=Docs Foundry ${GITHUB_REF#refs/tags/}" >> "$GITHUB_OUTPUT"
+            echo "release_name=DocsFoundry ${GITHUB_REF#refs/tags/}" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Delete existing release if present
@@ -131,7 +131,7 @@ jobs:
           tag_name: ${{ steps.release_meta.outputs.tag_name }}
           name: ${{ steps.release_meta.outputs.release_name }}
           body: |
-            ## Install Docs Foundry ${{ steps.release_meta.outputs.tag_name }}
+            ## Install DocsFoundry ${{ steps.release_meta.outputs.tag_name }}
 
             Download the installer for your operating system below.
 
@@ -149,7 +149,7 @@ jobs:
             >
             > **macOS — "damaged and can't be opened":** If you use the `.zip` build, the app is unsigned and may need the quarantine flag removed once after download:
             > ```
-            > xattr -cr "/path/to/Docs Foundry.app"
+            > xattr -cr "/path/to/DocsFoundry.app"
             > ```
             > Then open normally.
             >

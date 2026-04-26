@@ -12,7 +12,7 @@
                font-src 'self' https://fonts.gstatic.com; frame-ancestors 'none';
                upgrade-insecure-requests"
     />
-    <title>Docs Foundry Downloads</title>
+    <title>DocsFoundry Downloads</title>
     <link rel="icon" type="image/png" href="assets/icons/icon-docsfoundry.png" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -384,10 +384,10 @@
         <div class="hero-top">
           <div>
             <div style="display:flex;align-items:center;gap:14px;margin-bottom:10px;">
-              <img src="assets/icons/icon-docsfoundry.png" alt="Docs Foundry logo" width="56" height="56" style="border-radius:14px;flex-shrink:0;" />
-              <p class="eyebrow" style="margin:0;">Docs Foundry downloads</p>
+              <img src="assets/icons/icon-docsfoundry.png" alt="DocsFoundry logo" width="56" height="56" style="border-radius:14px;flex-shrink:0;" />
+              <p class="eyebrow" style="margin:0;">DocsFoundry downloads</p>
             </div>
-            <h1>Install and Use Docs Foundry</h1>
+            <h1>Install and Use DocsFoundry</h1>
             <p class="hero-copy">
               This page keeps the download flow inside GitHub Pages. It shows the latest
               published release artifacts, explains how to install them, and gives the
@@ -474,7 +474,7 @@
               </div>
               <p class="platform-note">
                 <strong>Gatekeeper:</strong> install from the <strong>.dmg</strong> when possible.
-                If the ZIP build is blocked, run <code>xattr -cr "/path/to/Docs Foundry.app"</code>
+                If the ZIP build is blocked, run <code>xattr -cr "/path/to/DocsFoundry.app"</code>
                 once, then reopen it.
               </p>
             </article>
@@ -549,8 +549,8 @@
               <h3>macOS</h3>
               <ol>
                 <li>Download the latest <strong>DMG</strong> from the macOS card.</li>
-                <li>Open the disk image and drag <strong>Docs Foundry.app</strong> into Applications.</li>
-                <li>If you used the ZIP build and macOS blocks it, run <code>xattr -cr "/path/to/Docs Foundry.app"</code>.</li>
+                <li>Open the disk image and drag <strong>DocsFoundry.app</strong> into Applications.</li>
+                <li>If you used the ZIP build and macOS blocks it, run <code>xattr -cr "/path/to/DocsFoundry.app"</code>.</li>
                 <li>Launch the app and open a local documentation folder to start writing.</li>
               </ol>
             </article>
@@ -560,14 +560,14 @@
                 <li>Download the <strong>Setup EXE</strong> from the Windows card.</li>
                 <li>Run the installer and continue through the normal install wizard.</li>
                 <li>If SmartScreen appears, choose <strong>More info</strong> and then <strong>Run anyway</strong>.</li>
-                <li>Start Docs Foundry and open your docs workspace from the sidebar.</li>
+                <li>Start DocsFoundry and open your docs workspace from the sidebar.</li>
               </ol>
             </article>
             <article class="howto-card">
               <h3>Linux</h3>
               <ol>
                 <li>Choose the artifact that fits your system: <strong>AppImage</strong>, <strong>DEB</strong>, or <strong>TAR.GZ</strong>.</li>
-                <li>For AppImage, run <code>chmod +x "Docs Foundry.AppImage"</code> and open it.</li>
+                <li>For AppImage, run <code>chmod +x "DocsFoundry.AppImage"</code> and open it.</li>
                 <li>For DEB, install with <code>sudo apt install ./file.deb</code>.</li>
                 <li>Launch the app and select a local docs folder to begin editing.</li>
               </ol>
@@ -694,7 +694,7 @@
             return isInstallable(asset.name);
           }).length) + ' downloadable files';
           document.getElementById('release-status').textContent =
-            'Latest published release: ' + (release.name || release.tag_name || 'Docs Foundry release') + '. Use the platform cards below for direct artifact downloads and install steps.';
+            'Latest published release: ' + (release.name || release.tag_name || 'DocsFoundry release') + '. Use the platform cards below for direct artifact downloads and install steps.';
         }
 
         function setFallbackState(message) {

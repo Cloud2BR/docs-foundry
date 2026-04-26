@@ -113,5 +113,25 @@
     "date": "2026-04-20",
     "count": 1,
     "uniques": 1
+  },
+  {
+    "date": "2026-04-21",
+    "count": 21,
+    "uniques": 3
+  },
+  {
+    "date": "2026-04-22",
+    "count": 0,
+    "uniques": 0
+  },
+  {
+    "date": "2026-04-23",
+    "count": 36,
+    "uniques": 2
+  },
+  {
+    "date": "2026-04-24",
+    "count": 15,
+    "uniques": 1
   }
 ]

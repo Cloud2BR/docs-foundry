@@ -325,6 +325,37 @@
         border-radius: 6px;
         font-size: 0.92em;
       }
+      .copy-command-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin: 6px 0;
+      }
+      .copy-command {
+        display: block;
+        flex: 1;
+        min-width: 0;
+        white-space: nowrap;
+        overflow-x: auto;
+        background: color-mix(in oklab, var(--surface2) 84%, var(--card));
+        padding: 4px 8px;
+        border-radius: 8px;
+        font-size: 0.92em;
+      }
+      .copy-command-btn {
+        border: 1px solid var(--border);
+        background: var(--card);
+        color: var(--fg);
+        border-radius: 8px;
+        padding: 5px 10px;
+        font-size: 0.76rem;
+        font-weight: 700;
+        cursor: pointer;
+        flex-shrink: 0;
+      }
+      .copy-command-btn:hover {
+        border-color: var(--link);
+      }
       .howto-grid {
         display: grid;
         grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -475,7 +506,15 @@
               <p class="platform-note">
                 <strong>Gatekeeper:</strong> install from the <strong>.dmg</strong> when possible.
                 If the ZIP build is blocked, copy and paste this command:
-                <code>xattr -cr /Applications/DocsFoundry.app</code>
+                <span class="copy-command-row">
+                  <code class="copy-command">xattr -cr /Applications/DocsFoundry.app</code>
+                  <button
+                    type="button"
+                    class="copy-command-btn"
+                    data-copy-text="xattr -cr /Applications/DocsFoundry.app"
+                    aria-label="Copy macOS Gatekeeper command"
+                  >Copy</button>
+                </span>
                 once, then reopen it.
               </p>
             </article>
@@ -545,7 +584,18 @@
               <ol>
                 <li>Download the latest <strong>DMG</strong> from the macOS card.</li>
                 <li>Open the disk image and drag <strong>DocsFoundry.app</strong> into Applications.</li>
-                <li>If you used the ZIP build and macOS blocks it, copy and paste: <code>xattr -cr /Applications/DocsFoundry.app</code>.</li>
+                <li>
+                  If you used the ZIP build and macOS blocks it, copy and paste:
+                  <span class="copy-command-row">
+                    <code class="copy-command">xattr -cr /Applications/DocsFoundry.app</code>
+                    <button
+                      type="button"
+                      class="copy-command-btn"
+                      data-copy-text="xattr -cr /Applications/DocsFoundry.app"
+                      aria-label="Copy install guide macOS command"
+                    >Copy</button>
+                  </span>
+                </li>
                 <li>Launch the app and open a local documentation folder to start writing.</li>
               </ol>
             </article>
@@ -590,6 +640,50 @@
             apply(current === 'dark' ? 'light' : 'dark');
           });
         }
+
+        function fallbackCopy(text) {
+          var textarea = document.createElement('textarea');
+          textarea.value = text;
+          textarea.setAttribute('readonly', 'readonly');
+          textarea.style.position = 'absolute';
+          textarea.style.left = '-9999px';
+          document.body.appendChild(textarea);
+          textarea.select();
+          try {
+            document.execCommand('copy');
+          } finally {
+            document.body.removeChild(textarea);
+          }
+        }
+
+        function wireCopyButtons() {
+          var buttons = document.querySelectorAll('[data-copy-text]');
+          buttons.forEach(function (copyBtn) {
+            copyBtn.addEventListener('click', function () {
+              var text = copyBtn.getAttribute('data-copy-text') || '';
+              var done = function () {
+                var previous = copyBtn.textContent;
+                copyBtn.textContent = 'Copied';
+                setTimeout(function () {
+                  copyBtn.textContent = previous;
+                }, 1200);
+              };
+
+              if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(text).then(done).catch(function () {
+                  fallbackCopy(text);
+                  done();
+                });
+                return;
+              }
+
+              fallbackCopy(text);
+              done();
+            });
+          });
+        }
+
+        wireCopyButtons();
 
         var repo = 'Cloud2BR/docs-foundry';
         var fallbackReleaseUrl = 'https://github.com/' + repo + '/releases';

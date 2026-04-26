@@ -42,7 +42,7 @@ function createWindow() {
     height: 900,
     minWidth: 980,
     minHeight: 640,
-    title: 'DocFoundry',
+    title: 'Docs Foundry',
     backgroundColor: '#1a1d23',
     icon: path.join(__dirname, '..', 'build', 'icon.png'),
     webPreferences: {
@@ -146,7 +146,7 @@ function handleWindowClose(event) {
     noLink: true,
     title: 'Unsaved changes',
     message: 'You have unsaved changes.',
-    detail: 'Save the current file before closing DocFoundry?'
+    detail: 'Save the current file before closing Docs Foundry?'
   });
 
   if (choice === 0) {
@@ -163,7 +163,7 @@ function handleWindowClose(event) {
 // ── IPC: app info (safe for sandboxed preloads) ──────────────────────────────
 
 ipcMain.handle('get-app-info', () => ({
-  name: app.name || 'DocFoundry',
+  name: app.name || 'Docs Foundry',
   version: app.getVersion()
 }));
 
@@ -171,7 +171,7 @@ ipcMain.handle('get-app-info', () => ({
 
 ipcMain.handle('open-folder', async () => {
   if (!mainWindow || mainWindow.isDestroyed()) {
-    throw new Error('Application window is not ready. Please restart DocFoundry.');
+    throw new Error('Application window is not ready. Please restart Docs Foundry.');
   }
   const result = await dialog.showOpenDialog(mainWindow, {
     properties: ['openDirectory']
@@ -215,7 +215,7 @@ ipcMain.handle('confirm-save-and-close', async (_event, didSave) => {
 
 ipcMain.handle('create-workspace', async () => {
   if (!mainWindow || mainWindow.isDestroyed()) {
-    throw new Error('Application window is not ready. Please restart DocFoundry.');
+    throw new Error('Application window is not ready. Please restart Docs Foundry.');
   }
   const result = await dialog.showOpenDialog(mainWindow, {
     properties: ['openDirectory', 'createDirectory']

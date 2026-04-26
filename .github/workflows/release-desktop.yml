@@ -81,7 +81,7 @@ jobs:
       - name: Upload installable assets
         uses: actions/upload-artifact@v4
         with:
-          name: docfoundry-${{ matrix.artifact_name }}
+          name: docs-foundry-${{ matrix.artifact_name }}
           path: dist-out/
           if-no-files-found: error
 
@@ -149,7 +149,7 @@ jobs:
             >
             > **macOS — "damaged and can't be opened":** If you use the `.zip` build, the app is unsigned and may need the quarantine flag removed once after download:
             > ```
-            > xattr -cr /path/to/DocFoundry.app
+            > xattr -cr "/path/to/Docs Foundry.app"
             > ```
             > Then open normally.
             >

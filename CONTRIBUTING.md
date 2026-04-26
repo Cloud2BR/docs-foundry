@@ -1,4 +1,4 @@
-# Contributing to DocFoundry
+# Contributing to Docs Foundry
 
 USA / Costa Rica
 
@@ -10,7 +10,7 @@ Last updated: 2026-04-10
 
 ## Container-only development
 
-DocFoundry uses a container-first model. Do not install Node.js, npm, or project dependencies on your local machine.
+Docs Foundry uses a container-first model. Do not install Node.js, npm, or project dependencies on your local machine.
 
 ### Prerequisites
 

@@ -1,7 +1,7 @@
 {
   "name": "docfoundry",
   "version": "0.0.1",
-  "description": "DocFoundry – open-source documentation workspace desktop app",
+  "description": "Docs Foundry - open-source documentation workspace desktop app",
   "main": "src/main.js",
   "license": "MIT",
   "author": {
@@ -28,7 +28,7 @@
   },
   "build": {
     "appId": "com.docfoundry.app",
-    "productName": "DocFoundry",
+    "productName": "Docs Foundry",
     "directories": {
       "output": "release"
     },

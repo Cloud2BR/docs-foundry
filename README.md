@@ -8,7 +8,7 @@ Last updated: 2026-02-25
 
 ----------
 
-> DocFoundry is an open-source **Electron** desktop app for writing and previewing Markdown documentation with a live split-pane editor, local folder tree, safe local saves, container-only development for contributors, and installable binaries for macOS, Windows, and Linux.
+> Docs Foundry is an open-source **Electron** desktop app for writing and previewing Markdown documentation with a live split-pane editor, local folder tree, safe local saves, container-only development for contributors, and installable binaries for macOS, Windows, and Linux.
 
 E.g
 
@@ -30,7 +30,7 @@ E.g
 
 ## What's included
 
-> DocFoundry ships multi-tab editing, split-pane live preview, a command palette, workspace-wide search, in-file find and replace, a document outline, file operations (create, rename, delete), auto-save, HTML export, zen mode, resizable panes, a keyboard shortcuts overlay, a status bar (word count, reading time, cursor position), breadcrumbs, and full Markdown rendering (headings, bold/italic, lists, task lists, tables, code blocks, blockquotes, images, links, horizontal rules, strikethrough, highlight, footnotes). The app includes unsaved-change protection on close, a file watcher for external changes, native menus with keyboard accelerators, and a secure architecture (contextIsolation, no nodeIntegration, validated file paths).
+> Docs Foundry ships multi-tab editing, split-pane live preview, a command palette, workspace-wide search, in-file find and replace, a document outline, file operations (create, rename, delete), auto-save, HTML export, zen mode, resizable panes, a keyboard shortcuts overlay, a status bar (word count, reading time, cursor position), breadcrumbs, and full Markdown rendering (headings, bold/italic, lists, task lists, tables, code blocks, blockquotes, images, links, horizontal rules, strikethrough, highlight, footnotes). The app includes unsaved-change protection on close, a file watcher for external changes, native menus with keyboard accelerators, and a secure architecture (contextIsolation, no nodeIntegration, validated file paths).
 
 For the full changelog and per-version details, see [Releases](https://github.com/Cloud2BR/docs-foundry/releases).
 
@@ -41,7 +41,7 @@ For the full changelog and per-version details, see [Releases](https://github.co
 <summary>Expand repository tree</summary>
 
 ```text
-DocFoundry/
+docs-foundry/
 ├── src/
 │   ├── main.js               # Electron main process (IPC, menu, file watcher)
 │   ├── preload.js            # Secure IPC bridge (contextBridge)
@@ -124,7 +124,7 @@ Product feedback page: [Docs Foundry Feedback](https://cloud2br.github.io/docs-f
 
 ## Mode 2: End-user desktop app install
 
-> This mode is for users who just want to install and run DocFoundry.
+> This mode is for users who just want to install and run Docs Foundry.
 
 - macOS outputs: `.dmg` (recommended), `.zip` (advanced/manual fallback)
 - Windows outputs: `NSIS installer`, `.zip`
@@ -134,9 +134,9 @@ Build artifacts go to [`release/`](https://github.com/Cloud2BR/docs-foundry/rele
 
 | Platform | Release files | Recommended install path | First-run notes | Build command |
 |---|---|---|---|---|
-| macOS | `.dmg`, `.zip` | Download the `.dmg` from GitHub Releases and drag `DocFoundry.app` into `Applications`. Use the `.zip` only as a fallback. | The app is unsigned, so Gatekeeper may block the ZIP build. If macOS says the app is damaged, run `xattr -cr /Applications/DocFoundry.app` after moving it to `Applications`, or run `xattr -cr /path/to/DocFoundry.app` on the extracted app bundle before opening it. | `make package-mac` |
+| macOS | `.dmg`, `.zip` | Download the `.dmg` from GitHub Releases and drag `Docs Foundry.app` into `Applications`. Use the `.zip` only as a fallback. | The app is unsigned, so Gatekeeper may block the ZIP build. If macOS says the app is damaged, run `xattr -cr "/Applications/Docs Foundry.app"` after moving it to `Applications`, or run `xattr -cr "/path/to/Docs Foundry.app"` on the extracted app bundle before opening it. | `make package-mac` |
 | Windows | `NSIS installer`, `.zip` | Use the NSIS installer for the normal install flow. Use the ZIP when you want a manual or portable-style extraction. | Windows SmartScreen may show a warning because the installer is not code-signed. Click **More info → Run anyway** to continue. | `make package-win` |
-| Linux | `AppImage`, `.deb`, `.tar.gz` | Use the package format that matches your environment: `AppImage` for portable use, `.deb` for Debian/Ubuntu installs, or `.tar.gz` for manual extraction. | `AppImage` usually needs `chmod +x` before running. For `.deb`, install with `sudo apt install ./DocFoundry.deb` or the generated filename in `release/`. Linux packaging is intended to run from the container workflow. | `make package-linux` |
+| Linux | `AppImage`, `.deb`, `.tar.gz` | Use the package format that matches your environment: `AppImage` for portable use, `.deb` for Debian/Ubuntu installs, or `.tar.gz` for manual extraction. | `AppImage` usually needs `chmod +x` before running. For `.deb`, install with `sudo apt install ./Docs-Foundry.deb` (or the generated filename in `release/`). Linux packaging is intended to run from the container workflow. | `make package-linux` |
 
 For a local multi-platform packaging pass from a compatible host environment, use `make package`.
 

@@ -326,21 +326,23 @@
         font-size: 0.92em;
       }
       .copy-command-row {
-        display: flex;
-        align-items: center;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        align-items: start;
         gap: 8px;
         margin: 6px 0;
       }
       .copy-command {
         display: block;
-        flex: 1;
         min-width: 0;
-        white-space: nowrap;
-        overflow-x: auto;
+        white-space: normal;
+        overflow-wrap: anywhere;
+        word-break: break-word;
         background: color-mix(in oklab, var(--surface2) 84%, var(--card));
         padding: 4px 8px;
         border-radius: 8px;
         font-size: 0.92em;
+        line-height: 1.35;
       }
       .copy-command-btn {
         border: 1px solid var(--border);
@@ -355,6 +357,14 @@
       }
       .copy-command-btn:hover {
         border-color: var(--link);
+      }
+      @media (max-width: 640px) {
+        .copy-command-row {
+          grid-template-columns: 1fr;
+        }
+        .copy-command-btn {
+          justify-self: start;
+        }
       }
       .howto-grid {
         display: grid;

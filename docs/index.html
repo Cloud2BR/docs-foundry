@@ -459,6 +459,47 @@
         border-radius: 6px;
         font-size: 0.9em;
       }
+      .copy-command-row {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        align-items: start;
+        gap: 8px;
+        margin-top: 6px;
+      }
+      .copy-command {
+        display: block;
+        min-width: 0;
+        white-space: normal;
+        overflow-wrap: anywhere;
+        word-break: break-word;
+        background: color-mix(in oklab, var(--surface2) 80%, var(--card));
+        padding: 4px 8px;
+        border-radius: 8px;
+        font-size: 0.9em;
+        line-height: 1.35;
+      }
+      .copy-command-btn {
+        border: 1px solid var(--border);
+        background: var(--card);
+        color: var(--fg);
+        border-radius: 8px;
+        padding: 5px 10px;
+        font-size: 0.76rem;
+        font-weight: 700;
+        cursor: pointer;
+        flex-shrink: 0;
+      }
+      .copy-command-btn:hover {
+        border-color: var(--link);
+      }
+      @media (max-width: 640px) {
+        .copy-command-row {
+          grid-template-columns: 1fr;
+        }
+        .copy-command-btn {
+          justify-self: start;
+        }
+      }
       /* ── Identity section (from Azure-Capacity-Overview) ── */
       .identity-section {
         padding: 36px 0 42px;
@@ -739,7 +780,19 @@
               <h3>macOS</h3>
               <p class="formats">.dmg recommended &nbsp;·&nbsp; .zip advanced</p>
               <span class="download-label">↓ Download for macOS</span>
-              <p class="platform-note"><strong>Gatekeeper:</strong> prefer the <strong>.dmg</strong>. If the ZIP build is blocked, copy and paste: <code>xattr -cr /Applications/DocsFoundry.app</code> once, then reopen it.</p>
+              <p class="platform-note">
+                <strong>Gatekeeper:</strong> prefer the <strong>.dmg</strong>. If the ZIP build is blocked, copy and paste:
+                <span class="copy-command-row">
+                  <code class="copy-command">xattr -cr /Applications/DocsFoundry.app</code>
+                  <button
+                    type="button"
+                    class="copy-command-btn"
+                    data-copy-text="xattr -cr /Applications/DocsFoundry.app"
+                    aria-label="Copy macOS Gatekeeper command"
+                  >Copy</button>
+                </span>
+                once, then reopen it.
+              </p>
             </a>
             <a class="platform-card" href="./downloads.html#windows" aria-label="Open DocsFoundry Windows downloads guide">
               <span class="platform-icon platform-icon--windows" aria-hidden="true">
@@ -894,6 +947,53 @@
           var current = document.documentElement.getAttribute('data-theme') || 'light';
           apply(current === 'dark' ? 'light' : 'dark');
         });
+
+        function fallbackCopy(text) {
+          var textarea = document.createElement('textarea');
+          textarea.value = text;
+          textarea.setAttribute('readonly', 'readonly');
+          textarea.style.position = 'absolute';
+          textarea.style.left = '-9999px';
+          document.body.appendChild(textarea);
+          textarea.select();
+          try {
+            document.execCommand('copy');
+          } finally {
+            document.body.removeChild(textarea);
+          }
+        }
+
+        function wireCopyButtons() {
+          var buttons = document.querySelectorAll('[data-copy-text]');
+          buttons.forEach(function (copyBtn) {
+            copyBtn.addEventListener('click', function (event) {
+              event.preventDefault();
+              event.stopPropagation();
+
+              var text = copyBtn.getAttribute('data-copy-text') || '';
+              var done = function () {
+                var previous = copyBtn.textContent;
+                copyBtn.textContent = 'Copied';
+                setTimeout(function () {
+                  copyBtn.textContent = previous;
+                }, 1200);
+              };
+
+              if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(text).then(done).catch(function () {
+                  fallbackCopy(text);
+                  done();
+                });
+                return;
+              }
+
+              fallbackCopy(text);
+              done();
+            });
+          });
+        }
+
+        wireCopyButtons();
       })();
     </script>
   </body>

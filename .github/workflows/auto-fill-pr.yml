@@ -95,7 +95,7 @@ jobs:
           COMMIT_COUNT: ${{ github.event.pull_request.commits }}
         with:
           script: |
-            const prompt = `You are a PR description agent for the DocFoundry project (an Electron desktop documentation editor).
+            const prompt = `You are a PR description agent for the Docs Foundry project (an Electron desktop documentation editor).
             Analyze the git diff and commit messages below. Produce a COMPLETE PR description filling EVERY section of the template.
             Be specific, detailed, and professional. Infer the type of change and testing steps from the diff.
 

@@ -3,7 +3,7 @@ const { contextBridge, ipcRenderer } = require('electron');
 // Sandboxed preloads (Electron 20+) can only require('electron').
 // App metadata is fetched from the main process via IPC instead.
 contextBridge.exposeInMainWorld('docfoundry', {
-  appName: 'DocFoundry',
+  appName: 'Docs Foundry',
   getAppInfo: () => ipcRenderer.invoke('get-app-info'),
 
   // Workspace

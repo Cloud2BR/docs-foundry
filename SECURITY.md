@@ -10,7 +10,7 @@ Last updated: 2026-04-10
 
 ## Reporting a vulnerability
 
-If you discover a security vulnerability in DocFoundry, please report it responsibly:
+If you discover a security vulnerability in Docs Foundry, please report it responsibly:
 
 1. **Do not** open a public issue.
 2. Email the owner or use the GitHub Security Advisories feature on this repository.
@@ -37,7 +37,7 @@ If you discover a security vulnerability in DocFoundry, please report it respons
 
 <!-- START BADGE -->
 <div align="center">
-  <img src="https://img.shields.io/badge/Total%20views-168-limegreen" alt="Total views">
-  <p>Refresh Date: 2026-04-21</p>
+  <img src="https://img.shields.io/badge/Total%20views-240-limegreen" alt="Total views">
+  <p>Refresh Date: 2026-04-26</p>
 </div>
 <!-- END BADGE -->

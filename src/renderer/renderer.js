@@ -98,7 +98,7 @@ if (versionEl && api?.getAppInfo) {
 
 // ── API guard ─────────────────────────────────────────────────────────────────
 if (!api) {
-  window.alert('DocFoundry failed to initialise. Please reinstall the application.');
+  window.alert('Docs Foundry failed to initialise. Please reinstall the application.');
 }
 
 // ── Button wiring ─────────────────────────────────────────────────────────────
